@@ -8,7 +8,9 @@
 import React from 'react';
 
 // Performance monitoring utilities
-export const performance = {
+const perf = typeof window !== 'undefined' ? window.performance : { now: () => Date.now() };
+
+const performanceUtilsImpl = {
   // Performance observer for tracking metrics
   observer: null as PerformanceObserver | null,
 
@@ -70,9 +72,9 @@ export const performance = {
     renderFn: T
   ): T => {
     return ((...args: any[]) => {
-      const startTime = performance.now();
+      const startTime = perf.now();
       const result = renderFn(...args);
-      const endTime = performance.now();
+      const endTime = perf.now();
 
       performance.trackMetric('component_render_time', endTime - startTime, {
         component: componentName
@@ -85,12 +87,12 @@ export const performance = {
   // Track animation frame rate
   trackAnimationPerformance: (animationName: string) => {
     let frameCount = 0;
-    let startTime = performance.now();
+    let startTime = perf.now();
     let animationId: number;
 
     const trackFrame = () => {
       frameCount++;
-      const currentTime = performance.now();
+      const currentTime = perf.now();
 
       if (currentTime - startTime >= 1000) {
         const fps = Math.round((frameCount * 1000) / (currentTime - startTime));
@@ -294,9 +296,9 @@ export const optimize = {
     fallback?: React.ComponentType
   ) => {
     return React.lazy(() => {
-      const startTime = performance.now();
+      const startTime = perf.now();
       return importFn().then(module => {
-        const loadTime = performance.now() - startTime;
+        const loadTime = perf.now() - startTime;
         performance.trackMetric('component_load_time', loadTime, {
           component: module.default.name || 'Unknown'
         });
@@ -317,11 +319,11 @@ export const optimize = {
       const startTime = React.useRef(0);
 
       React.useLayoutEffect(() => {
-        startTime.current = performance.now();
+        startTime.current = perf.now();
       });
 
       React.useEffect(() => {
-        const renderTime = performance.now() - startTime.current;
+        const renderTime = perf.now() - startTime.current;
         performance.trackMetric('memoized_render_time', renderTime, {
           component: Component.name || 'Unknown'
         });
@@ -486,8 +488,10 @@ if (typeof window !== 'undefined') {
   }
 }
 
+export const performanceUtils = performanceUtilsImpl;
+
 export default {
-  performance,
+  performance: performanceUtilsImpl,
   browser,
   optimize,
   budget

@@ -12,7 +12,9 @@ export const TIMING = {
   fade: 250,
   scale: 200,
   bounce: 600,
-  elastic: 800
+  elastic: 800,
+  lightning: 100,
+  instant: 50
 } as const;
 
 // Easing functions for natural motion
@@ -24,7 +26,9 @@ export const EASING = {
   bounce: [0.68, -0.55, 0.265, 1.55],
   elastic: [0.25, 0.46, 0.45, 0.94],
   snappy: [0.25, 0.1, 0.25, 1],
-  smooth: [0.25, 0.46, 0.45, 0.94]
+  smooth: [0.25, 0.46, 0.45, 0.94],
+  apple: [0.4, 0, 0.2, 1],
+  glass: [0.25, 0.46, 0.45, 0.94]
 } as const;
 
 // Spring presets for framer-motion
@@ -52,6 +56,12 @@ export const SPRINGS = {
     stiffness: 200,
     damping: 25,
     mass: 1
+  },
+  lightning: {
+    type: "spring",
+    stiffness: 500,
+    damping: 30,
+    mass: 0.5
   }
 } as const;
 
