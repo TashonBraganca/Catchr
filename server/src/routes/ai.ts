@@ -1,6 +1,6 @@
 import express from 'express';
 import { UltrathinkAI } from '../services/ultrathinkAI.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { rateLimit } from 'express-rate-limit';
 
 const router = express.Router();
@@ -25,7 +25,7 @@ router.use(aiRateLimit);
  * POST /api/ai/categorize
  * Categorize a thought using GPT-5 Mini
  */
-router.post('/categorize', authenticateUser, async (req, res) => {
+router.post('/categorize', authenticateToken, async (req, res) => {
   try {
     const { content, context } = req.body;
     const userId = req.user?.id;
@@ -98,7 +98,7 @@ router.post('/categorize', authenticateUser, async (req, res) => {
  * POST /api/ai/enhance
  * Enhance a thought with additional AI insights
  */
-router.post('/enhance', authenticateUser, async (req, res) => {
+router.post('/enhance', authenticateToken, async (req, res) => {
   try {
     const { content, currentCategory, userFeedback } = req.body;
     const userId = req.user?.id;
@@ -153,7 +153,7 @@ router.post('/enhance', authenticateUser, async (req, res) => {
  * POST /api/ai/batch-categorize
  * Categorize multiple thoughts in batch for efficiency
  */
-router.post('/batch-categorize', authenticateUser, async (req, res) => {
+router.post('/batch-categorize', authenticateToken, async (req, res) => {
   try {
     const { thoughts } = req.body;
     const userId = req.user?.id;
@@ -219,7 +219,7 @@ router.post('/batch-categorize', authenticateUser, async (req, res) => {
  * GET /api/ai/user-patterns
  * Get user's learned thinking patterns
  */
-router.get('/user-patterns', authenticateUser, async (req, res) => {
+router.get('/user-patterns', authenticateToken, async (req, res) => {
   try {
     const userId = req.user?.id;
 
@@ -256,7 +256,7 @@ router.get('/user-patterns', authenticateUser, async (req, res) => {
  * POST /api/ai/feedback
  * Submit user feedback to improve AI accuracy
  */
-router.post('/feedback', authenticateUser, async (req, res) => {
+router.post('/feedback', authenticateToken, async (req, res) => {
   try {
     const { thoughtId, originalCategorization, userCorrection, rating } = req.body;
     const userId = req.user?.id;
