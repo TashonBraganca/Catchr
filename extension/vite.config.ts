@@ -8,8 +8,24 @@ export default defineConfig({
   // Node.js compatibility for CI
   define: {
     global: 'globalThis',
+    File: 'class File {}', // Polyfill for Node.js environment
     __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
     __VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+  },
+
+  // Node.js polyfills for browser environment
+  resolve: {
+    alias: {
+      '@': '/src',
+      '@shared': '../shared/src',
+    },
+  },
+
+  // Browser environment for Node.js APIs
+  server: {
+    fs: {
+      allow: ['..']
+    }
   },
 
   // Build configuration
@@ -33,13 +49,6 @@ export default defineConfig({
     },
   },
 
-  // TypeScript path resolution
-  resolve: {
-    alias: {
-      '@': '/src',
-      '@shared': '../shared/src',
-    },
-  },
 
 
   // Optimize dependencies
