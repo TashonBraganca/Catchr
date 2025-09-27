@@ -1,0 +1,80 @@
+name: Chrome Extension Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: |
+          cd extension
+          npm run build
+
+      - name: Create extension package
+        run: |
+          cd extension/dist
+          zip -r cathcr-extension.zip .
+          mv cathcr-extension.zip ../cathcr-extension-${{ github.event.inputs.version || github.ref_name }}.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
+          name: CATHCR Extension ${{ github.event.inputs.version || github.ref_name }}
+          body: |
+            ## Chrome Extension Release
+
+            ### Installation
+            1. Download the extension zip file
+            2. Extract to a local folder
+            3. Open Chrome Extensions (chrome://extensions/)
+            4. Enable Developer mode
+            5. Click "Load unpacked" and select the extracted folder
+
+            ### Features
+            - Global keyboard shortcuts for thought capture
+            - Voice transcription with AI processing
+            - Real-time sync with CATHCR platform
+            - Offline-first architecture
+
+            ### Technical Details
+            - Manifest V3 compatible
+            - TypeScript build with zero errors
+            - Production optimized bundle
+
+          files: |
+            extension/cathcr-extension-*.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-build
+          path: extension/dist/
+          retention-days: 30
