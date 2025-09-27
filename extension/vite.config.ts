@@ -5,6 +5,13 @@ import manifest from './src/manifest';
 export default defineConfig({
   plugins: [crx({ manifest })],
 
+  // Node.js compatibility for CI
+  define: {
+    global: 'globalThis',
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+    __VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+  },
+
   // Build configuration
   build: {
     outDir: 'dist',
@@ -34,11 +41,6 @@ export default defineConfig({
     },
   },
 
-  // Define global constants for the extension
-  define: {
-    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
-    __VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
-  },
 
   // Optimize dependencies
   optimizeDeps: {

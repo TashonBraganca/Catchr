@@ -489,6 +489,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const performanceUtils = performanceUtilsImpl;
+export const performance = performanceUtilsImpl; // For backward compatibility
 
 export default {
   performance: performanceUtilsImpl,

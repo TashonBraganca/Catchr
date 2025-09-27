@@ -14,7 +14,8 @@ export const TIMING = {
   bounce: 600,
   elastic: 800,
   lightning: 100,
-  instant: 50
+  instant: 50,
+  quick: 120
 } as const;
 
 // Easing functions for natural motion
@@ -94,6 +95,17 @@ export const modalAnimations = {
         type: "spring",
         stiffness: 300,
         damping: 25
+      }
+    }
+  },
+  instantFeedback: {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: TIMING.instant / 1000,
+        ease: EASING.easeOut
       }
     }
   }

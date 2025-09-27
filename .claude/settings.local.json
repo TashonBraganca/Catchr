@@ -38,7 +38,9 @@
       "Bash(npx vercel:*)",
       "Bash(npx tsc:*)",
       "WebFetch(domain:github.com)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": [],
     "ask": []
