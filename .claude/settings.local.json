@@ -29,7 +29,10 @@
       "Bash(npm ls:*)",
       "Bash(npm run dev:extension:*)",
       "Bash(npm run build:extension:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:catchr.vercel.app)",
+      "Bash(npm run build:vercel:*)"
     ],
     "deny": [],
     "ask": []
