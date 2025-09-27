@@ -5,16 +5,45 @@ import { AI_CONFIG, DEFAULT_CATEGORIES, ERROR_CODES } from '@cathcr/shared';
 export class AIService {
     openai;
     supabase;
+    isConfigured;
     constructor() {
-        this.openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-            organization: process.env.OPENAI_ORGANIZATION,
-        });
-        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+        this.isConfigured = false;
+        this.openai = null;
+        this.supabase = null;
+        try {
+            // Initialize services with environment variables
+            // Only initialize if API keys are provided
+            if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-development-placeholder') {
+                this.openai = new OpenAI({
+                    apiKey: process.env.OPENAI_API_KEY,
+                    organization: process.env.OPENAI_ORGANIZATION,
+                });
+                this.isConfigured = true;
+                console.log('✅ OpenAI service initialized');
+            }
+            else {
+                console.warn('⚠️ OpenAI API key not configured, using fallback methods only');
+            }
+            if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+                this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+            }
+            else {
+                console.warn('⚠️ Supabase not configured, database features disabled');
+            }
+        }
+        catch (error) {
+            console.error('❌ AI Service initialization failed:', error);
+            this.isConfigured = false;
+        }
     }
     async categorizeThought(request) {
         try {
             const { thought, userPreferences, previousThoughts } = request;
+            // If OpenAI is not configured, use fallback immediately
+            if (!this.isConfigured || !this.openai) {
+                console.log('Using fallback categorization (OpenAI not configured)');
+                return this.fallbackCategorization(thought);
+            }
             // Build context from user preferences and previous thoughts
             const context = this.buildCategorizationContext(userPreferences, previousThoughts);
             // Create the prompt for OpenAI
@@ -59,6 +88,14 @@ export class AIService {
             }
             const firstDate = parsedDates[0];
             const reminderDate = firstDate.start.date();
+            // If OpenAI is not configured, return basic reminder info
+            if (!this.isConfigured || !this.openai) {
+                return {
+                    date: reminderDate,
+                    type: 'once',
+                    context: thought,
+                };
+            }
             // Use OpenAI to extract additional context
             const prompt = `
         Analyze this text for reminder information: "${thought}"
@@ -104,6 +141,11 @@ export class AIService {
     }
     async transcribeAudio(audioBuffer, filename = 'audio.webm') {
         try {
+            // If OpenAI is not configured, return empty transcription
+            if (!this.isConfigured || !this.openai) {
+                console.log('Audio transcription not available (OpenAI not configured)');
+                return { text: '', confidence: 0 };
+            }
             // Import toFile for Node.js compatibility
             const { toFile } = await import('openai/uploads');
             // Create file from buffer for OpenAI

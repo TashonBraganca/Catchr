@@ -3,8 +3,33 @@ import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
 import { transcriptionService } from '../services/transcriptionService.js';
 const router = express.Router();
-// Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Lazy-loading Supabase client to avoid initialization during import
+let supabase = null;
+let supabaseInitialized = false;
+function getSupabaseClient() {
+    if (supabaseInitialized) {
+        return supabase;
+    }
+    try {
+        if (process.env.SUPABASE_URL &&
+            process.env.SUPABASE_SERVICE_ROLE_KEY &&
+            process.env.SUPABASE_URL !== 'https://development-placeholder.supabase.co' &&
+            process.env.SUPABASE_SERVICE_ROLE_KEY !== 'development-placeholder') {
+            supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+            console.log('✅ Supabase client initialized for transcription routes');
+        }
+        else {
+            console.warn('⚠️ Supabase not configured, transcription routes will return development placeholders');
+            supabase = null;
+        }
+    }
+    catch (error) {
+        console.error('❌ Failed to initialize Supabase client for transcription:', error);
+        supabase = null;
+    }
+    supabaseInitialized = true;
+    return supabase;
+}
 // Configure multer for audio file uploads
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -24,12 +49,26 @@ const upload = multer({
 // Middleware to verify authentication
 const authenticateUser = async (req, res, next) => {
     try {
+        const supabaseClient = getSupabaseClient();
+        // If Supabase is not configured, use development mode authentication
+        if (!supabaseClient) {
+            console.warn('🔧 Development mode: Using mock authentication for transcription');
+            req.user = {
+                id: 'dev-user-123',
+                email: 'dev@example.com',
+                app_metadata: {},
+                user_metadata: {},
+                aud: 'authenticated',
+                created_at: new Date().toISOString(),
+            };
+            return next();
+        }
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ error: 'Authorization header required' });
         }
         const token = authHeader.substring(7);
-        const { data: { user }, error } = await supabase.auth.getUser(token);
+        const { data: { user }, error } = await supabaseClient.auth.getUser(token);
         if (error || !user) {
             return res.status(401).json({ error: 'Invalid or expired token' });
         }

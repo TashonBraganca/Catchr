@@ -2,6 +2,7 @@ import { AICategorizationRequest, AICategorizationResponse, ReminderInfo, Though
 export declare class AIService {
     private openai;
     private supabase;
+    private isConfigured;
     constructor();
     categorizeThought(request: AICategorizationRequest): Promise<AICategorizationResponse>;
     extractReminders(thought: string): Promise<ReminderInfo | null>;

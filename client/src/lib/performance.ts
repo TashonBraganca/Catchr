@@ -5,6 +5,8 @@
  * Includes cross-browser compatibility, performance budgets, and optimization utilities.
  */
 
+import React from 'react';
+
 // Performance monitoring utilities
 export const performance = {
   // Performance observer for tracking metrics

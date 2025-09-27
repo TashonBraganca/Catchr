@@ -1,12 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Vite Dev Mode</title>
-    <script src="/assets/loading-page-1924caaa.js" type="module"></script>
-  </head>
-  <body
-    style="font-family: Arial, sans-serif; padding: 20px; text-align: center"
-  >
-    <h1>Vite Dev Mode</h1>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CATHCR - Capture Thought</title>
+  <script type="module" crossorigin src="/assets/chunk-BA4u7_Mo.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/chunk-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/chunk-DX5UB71L.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-DxGcGyfZ.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="popup-logo">
+        <h1>💭 CATHCR</h1>
+        <span class="popup-tagline">Instant Thought Capture</span>
+      </div>
+      <div class="popup-status" id="syncStatus">
+        <span class="status-indicator offline" id="statusIndicator"></span>
+        <span class="status-text" id="statusText">Checking...</span>
+      </div>
+    </header>
+
+    <!-- Quick Capture Form -->
+    <main class="popup-main">
+      <form class="capture-form" id="captureForm">
+        <textarea
+          id="thoughtInput"
+          placeholder="What's on your mind?"
+          rows="4"
+          autofocus
+        ></textarea>
+
+        <div class="capture-actions">
+          <button type="submit" class="btn btn-primary" id="captureBtn">
+            <span class="btn-icon">💾</span>
+            <span class="btn-text">Capture</span>
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="voiceBtn">
+            <span class="btn-icon">🎤</span>
+            <span class="btn-text">Voice</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Recent Captures -->
+      <section class="recent-captures">
+        <h3>Recent Captures</h3>
+        <div class="captures-list" id="capturesList">
+          <!-- Populated by JavaScript -->
+        </div>
+        <div class="captures-empty" id="capturesEmpty" style="display: none;">
+          <p>No captures yet. Start by writing your first thought!</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Actions -->
+    <footer class="popup-footer">
+      <div class="footer-stats" id="footerStats">
+        <span id="captureCount">0 captures</span>
+        <span id="syncCount">0 synced</span>
+      </div>
+
+      <div class="footer-actions">
+        <button class="footer-btn" id="syncBtn" title="Sync Now">
+          <span class="footer-icon">🔄</span>
+        </button>
+
+        <button class="footer-btn" id="optionsBtn" title="Settings">
+          <span class="footer-icon">⚙️</span>
+        </button>
+
+        <button class="footer-btn" id="dashboardBtn" title="Open Dashboard">
+          <span class="footer-icon">🚀</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Voice Recording Indicator -->
+  <div class="voice-indicator" id="voiceIndicator" style="display: none;">
+    <div class="voice-animation">
+      <div class="voice-circle"></div>
+      <div class="voice-circle"></div>
+      <div class="voice-circle"></div>
+    </div>
+    <p>Listening... Click to stop</p>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+</body>
 </html>

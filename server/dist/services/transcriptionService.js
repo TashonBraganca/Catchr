@@ -1,17 +1,42 @@
 import { AIService } from './aiService.js';
+import { HuggingFaceService } from './huggingfaceService.js';
+import { AI_CONFIG } from '@cathcr/shared';
 // Transcription backends enum
 export var TranscriptionBackend;
 (function (TranscriptionBackend) {
     TranscriptionBackend["WEB_SPEECH"] = "web_speech";
+    TranscriptionBackend["HUGGINGFACE_WHISPER"] = "huggingface_whisper";
+    TranscriptionBackend["OPENAI_WHISPER"] = "openai_whisper";
     TranscriptionBackend["FASTER_WHISPER"] = "faster_whisper";
-    TranscriptionBackend["OPENAI_API"] = "openai_api";
 })(TranscriptionBackend || (TranscriptionBackend = {}));
 export class TranscriptionService {
-    aiService;
+    aiService = null;
+    huggingFaceService = null;
     fasterWhisperEnabled = false;
     constructor() {
-        this.aiService = new AIService();
         this.checkFasterWhisperAvailability();
+        this.initializeServices();
+    }
+    // Initialize all services
+    initializeServices() {
+        try {
+            this.huggingFaceService = new HuggingFaceService();
+        }
+        catch (error) {
+            console.warn('HuggingFace service initialization failed:', error);
+            this.huggingFaceService = null;
+        }
+    }
+    // Lazy initialize AIService when needed
+    getAIService() {
+        if (!this.aiService) {
+            this.aiService = new AIService();
+        }
+        return this.aiService;
+    }
+    // Get HuggingFace service
+    getHuggingFaceService() {
+        return this.huggingFaceService;
     }
     async checkFasterWhisperAvailability() {
         try {
@@ -63,48 +88,78 @@ export class TranscriptionService {
      */
     async transcribeServerSide(request) {
         const startTime = Date.now();
-        try {
-            // Try Faster-Whisper first if available
-            if (this.fasterWhisperEnabled && request.audioBuffer) {
-                try {
-                    const result = await this.transcribeWithFasterWhisper(request.audioBuffer, request.language);
-                    return {
-                        ...result,
-                        backend: TranscriptionBackend.FASTER_WHISPER,
-                        processing_time: Date.now() - startTime,
-                    };
-                }
-                catch (error) {
-                    console.warn('Faster-Whisper failed, falling back to OpenAI:', error);
-                }
+        const fallbackChain = AI_CONFIG.TRANSCRIPTION.FALLBACK_CHAIN;
+        // Ensure we have audio data to work with
+        let audioBuffer = request.audioBuffer;
+        if (!audioBuffer && request.audioUrl) {
+            try {
+                audioBuffer = await this.downloadAudio(request.audioUrl);
             }
-            // Fallback to OpenAI API
-            if (request.audioBuffer) {
-                const result = await this.aiService.transcribeAudio(request.audioBuffer);
-                return {
-                    text: result.text,
-                    confidence: result.confidence,
-                    backend: TranscriptionBackend.OPENAI_API,
-                    processing_time: Date.now() - startTime,
-                };
+            catch (error) {
+                console.error('Failed to download audio from URL:', error);
+                throw new Error('Failed to download audio from URL');
             }
-            // Handle audio URL
-            if (request.audioUrl) {
-                const audioBuffer = await this.downloadAudio(request.audioUrl);
-                const result = await this.aiService.transcribeAudio(audioBuffer);
-                return {
-                    text: result.text,
-                    confidence: result.confidence,
-                    backend: TranscriptionBackend.OPENAI_API,
-                    processing_time: Date.now() - startTime,
-                };
-            }
+        }
+        if (!audioBuffer) {
             throw new Error('No valid audio input provided');
         }
-        catch (error) {
-            console.error('Server-side transcription failed:', error);
-            throw error;
+        // Try each backend in the fallback chain
+        for (const backend of fallbackChain) {
+            try {
+                let result = null;
+                switch (backend) {
+                    case 'huggingface':
+                        if (this.huggingFaceService?.isAvailable()) {
+                            console.log('🤗 Attempting HuggingFace Whisper transcription...');
+                            result = await this.huggingFaceService.transcribeAudio(audioBuffer, {
+                                language: request.language
+                            });
+                            if (result) {
+                                return {
+                                    text: result.text,
+                                    confidence: result.confidence,
+                                    backend: TranscriptionBackend.HUGGINGFACE_WHISPER,
+                                    processing_time: Date.now() - startTime,
+                                };
+                            }
+                        }
+                        break;
+                    case 'openai':
+                        console.log('🔄 Trying OpenAI Whisper...');
+                        const aiResult = await this.getAIService().transcribeAudio(audioBuffer);
+                        return {
+                            text: aiResult.text,
+                            confidence: aiResult.confidence,
+                            backend: TranscriptionBackend.OPENAI_WHISPER,
+                            processing_time: Date.now() - startTime,
+                        };
+                    case 'webspeech':
+                        // WebSpeech would already have been handled at the client level
+                        console.log('⚠️ WebSpeech fallback should be handled client-side');
+                        break;
+                }
+            }
+            catch (error) {
+                console.warn(`❌ ${backend} transcription failed, trying next backend:`, error);
+                // Continue to next backend in fallback chain
+            }
         }
+        // If all configured backends fail, try Faster-Whisper as a last resort
+        if (this.fasterWhisperEnabled) {
+            try {
+                console.log('🚀 Final fallback to Faster-Whisper...');
+                const result = await this.transcribeWithFasterWhisper(audioBuffer, request.language);
+                return {
+                    ...result,
+                    backend: TranscriptionBackend.FASTER_WHISPER,
+                    processing_time: Date.now() - startTime,
+                };
+            }
+            catch (error) {
+                console.error('Faster-Whisper failed as final fallback:', error);
+            }
+        }
+        throw new Error('All transcription backends failed');
     }
     /**
      * Enhance Web Speech transcription with server-side processing

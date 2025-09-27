@@ -1,3 +1,10 @@
+// Load environment variables first
+import dotenv from 'dotenv';
+import path from 'path';
+// Load environment variables from server/.env first
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+// Then load from root .env as fallback
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 import { createClient } from '@supabase/supabase-js';
 // Server-side Supabase client with service role key for admin operations
 export const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {

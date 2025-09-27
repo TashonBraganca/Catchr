@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "[DEV] CATHCR",
+  "name": "CATHCR - Instant Thought Capture",
   "description": "CATHCR Chrome Extension - Instant thought capture with modern development workflow",
   "version": "1.0.0",
   "version_name": "1.0.0",
@@ -17,8 +17,7 @@
     "http://localhost:3001/*",
     "http://localhost:5003/*",
     "http://localhost:5004/*",
-    "https://api.cathcr.com/*",
-    "http://localhost:*/*"
+    "https://api.cathcr.com/*"
   ],
   "background": {
     "service_worker": "service-worker-loader.js",
@@ -26,11 +25,11 @@
   },
   "content_scripts": [
     {
+      "js": [
+        "assets/index.ts-loader-B77w1-XE.js"
+      ],
       "matches": [
         "<all_urls>"
-      ],
-      "js": [
-        "src/content/index.ts-loader.js"
       ],
       "css": [
         "src/content/styles.css"
@@ -63,21 +62,14 @@
   },
   "web_accessible_resources": [
     {
+      "matches": [
+        "<all_urls>"
+      ],
       "resources": [
         "icons/*.png",
-        "src/content/styles.css"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    },
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "resources": [
-        "**/*",
-        "*"
+        "src/content/styles.css",
+        "assets/chunk-DX5UB71L.js",
+        "assets/chunk-B1k59mVR.js"
       ],
       "use_dynamic_url": false
     }

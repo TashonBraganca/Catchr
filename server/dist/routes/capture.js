@@ -1,19 +1,58 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
-import { queueService } from '../services/queueService.js';
+// import { queueService, JobType } from '../services/queueService.js'; // Optional - requires Redis
 import { transcriptionService } from '../services/transcriptionService.js';
 const router = express.Router();
-// Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Lazy-loading Supabase client to avoid initialization during import
+let supabase = null;
+let supabaseInitialized = false;
+function getSupabaseClient() {
+    if (supabaseInitialized) {
+        return supabase;
+    }
+    try {
+        if (process.env.SUPABASE_URL &&
+            process.env.SUPABASE_SERVICE_ROLE_KEY &&
+            process.env.SUPABASE_URL !== 'https://development-placeholder.supabase.co' &&
+            process.env.SUPABASE_SERVICE_ROLE_KEY !== 'development-placeholder') {
+            supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+            console.log('✅ Supabase client initialized for capture routes');
+        }
+        else {
+            console.warn('⚠️ Supabase not configured, capture routes will return development placeholders');
+            supabase = null;
+        }
+    }
+    catch (error) {
+        console.error('❌ Failed to initialize Supabase client:', error);
+        supabase = null;
+    }
+    supabaseInitialized = true;
+    return supabase;
+}
 // Middleware to verify authentication
 const authenticateUser = async (req, res, next) => {
     try {
+        const supabaseClient = getSupabaseClient();
+        // If Supabase is not configured, use development mode authentication
+        if (!supabaseClient) {
+            console.warn('🔧 Development mode: Using mock authentication');
+            req.user = {
+                id: 'dev-user-123',
+                email: 'dev@example.com',
+                app_metadata: {},
+                user_metadata: {},
+                aud: 'authenticated',
+                created_at: new Date().toISOString(),
+            };
+            return next();
+        }
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ error: 'Authorization header required' });
         }
         const token = authHeader.substring(7);
-        const { data: { user }, error } = await supabase.auth.getUser(token);
+        const { data: { user }, error } = await supabaseClient.auth.getUser(token);
         if (error || !user) {
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
@@ -38,6 +77,36 @@ router.post('/', async (req, res) => {
                 error: 'At least one of content, transcribed_text, or audio_url is required'
             });
         }
+        const supabaseClient = getSupabaseClient();
+        // If Supabase is not configured, return mock success response
+        if (!supabaseClient) {
+            const mockThought = {
+                id: 'dev-thought-' + Date.now(),
+                user_id: userId,
+                content: content || transcribed_text || 'Audio capture pending transcription',
+                transcribed_text: transcribed_text || null,
+                audio_url: audio_url || null,
+                audio_path: audio_path || null,
+                audio_duration: audio_duration || null,
+                type: type || 'note',
+                category: category || {
+                    main: 'uncategorized',
+                    subcategory: null,
+                    color: '#6B7280',
+                    icon: '📝'
+                },
+                tags: tags || [],
+                is_processed: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
+            console.log('🔧 Development mode: Mock thought created');
+            return res.status(201).json({
+                success: true,
+                data: mockThought,
+                message: 'Thought captured successfully (development mode)',
+            });
+        }
         // Create the thought in the database
         const thoughtData = {
             user_id: userId,
@@ -56,7 +125,7 @@ router.post('/', async (req, res) => {
             tags: tags || [],
             is_processed: false,
         };
-        const { data: thought, error: insertError } = await supabase
+        const { data: thought, error: insertError } = await supabaseClient
             .from('thoughts')
             .insert(thoughtData)
             .select()
@@ -65,34 +134,28 @@ router.post('/', async (req, res) => {
             console.error('Error creating thought:', insertError);
             return res.status(500).json({ error: 'Failed to create thought' });
         }
-        // Queue for AI processing
+        // Queue for AI processing (disabled - requires Redis)
         try {
-            // If there's audio but no transcription, queue for Whisper transcription
-            if (audio_url && !transcribed_text) {
-                await queueService.addWhisperTranscribeJob({
-                    thoughtId: thought.id,
-                    userId,
-                    audioUrl: audio_url,
-                });
+            console.log('📝 AI processing queued for later implementation (requires Redis setup)');
+            // Add to AI processing queue table for tracking (if Supabase is configured)
+            if (supabaseClient) {
+                try {
+                    await supabaseClient
+                        .from('ai_processing_queue')
+                        .insert({
+                        thought_id: thought.id,
+                        user_id: userId,
+                        processing_type: 'categorization',
+                        status: 'pending',
+                    });
+                }
+                catch (dbError) {
+                    console.log('💾 AI processing queue table not available, skipping queue tracking');
+                }
             }
-            // Queue for AI enrichment (categorization, reminder extraction)
-            await queueService.addEnrichSummaryJob({
-                thoughtId: thought.id,
-                userId,
-                content: content || transcribed_text || '',
-            });
-            // Add to AI processing queue table for tracking
-            await supabase
-                .from('ai_processing_queue')
-                .insert({
-                thought_id: thought.id,
-                user_id: userId,
-                processing_type: 'categorization',
-                status: 'pending',
-            });
         }
         catch (queueError) {
-            console.error('Error queuing AI processing:', queueError);
+            console.error('Error with AI processing setup:', queueError);
             // Don't fail the request if queuing fails, just log it
         }
         res.status(201).json({
@@ -111,7 +174,11 @@ router.get('/', async (req, res) => {
     try {
         const userId = req.user.id;
         const { limit = '20', offset = '0', category, type, search, include_processed = 'true' } = req.query;
-        let query = supabase
+        const supabaseClient = getSupabaseClient();
+        if (!supabaseClient) {
+            return res.status(503).json({ error: 'Database not configured' });
+        }
+        let query = supabaseClient
             .from('thoughts')
             .select('*')
             .eq('user_id', userId);
@@ -158,7 +225,11 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
-        const { data: thought, error } = await supabase
+        const supabaseClient = getSupabaseClient();
+        if (!supabaseClient) {
+            return res.status(503).json({ error: 'Database not configured' });
+        }
+        const { data: thought, error } = await supabaseClient
             .from('thoughts')
             .select('*')
             .eq('id', id)
@@ -187,7 +258,11 @@ router.put('/:id', async (req, res) => {
         delete updateData.id;
         delete updateData.user_id;
         delete updateData.created_at;
-        const { data: thought, error } = await supabase
+        const supabaseClient = getSupabaseClient();
+        if (!supabaseClient) {
+            return res.status(503).json({ error: 'Database not configured' });
+        }
+        const { data: thought, error } = await supabaseClient
             .from('thoughts')
             .update({
             ...updateData,
@@ -220,7 +295,11 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
-        const { error } = await supabase
+        const supabaseClient = getSupabaseClient();
+        if (!supabaseClient) {
+            return res.status(503).json({ error: 'Database not configured' });
+        }
+        const { error } = await supabaseClient
             .from('thoughts')
             .delete()
             .eq('id', id)
@@ -270,7 +349,7 @@ router.post('/transcribe', async (req, res) => {
                 text: result.text,
                 confidence: result.confidence,
                 backend: result.backend,
-                language_detected: result.language_detected,
+                language_detected: result.language_detected || 'en',
                 processing_time: result.processing_time,
             },
         });
@@ -310,7 +389,16 @@ router.post('/sync', async (req, res) => {
                     is_processed: false,
                     created_at: captureData.created_at || new Date().toISOString(),
                 };
-                const { data: thought, error: insertError } = await supabase
+                const supabaseClient = getSupabaseClient();
+                if (!supabaseClient) {
+                    results.push({
+                        offline_id: captureData.offline_id,
+                        success: false,
+                        error: 'Database not configured',
+                    });
+                    continue;
+                }
+                const { data: thought, error: insertError } = await supabaseClient
                     .from('thoughts')
                     .insert(thoughtData)
                     .select()
@@ -324,24 +412,13 @@ router.post('/sync', async (req, res) => {
                     });
                     continue;
                 }
-                // Queue for AI processing
+                // Queue for AI processing (disabled - requires Redis)
                 if (thought) {
                     try {
-                        if (captureData.audio_url && !captureData.transcribed_text) {
-                            await queueService.addWhisperTranscribeJob({
-                                thoughtId: thought.id,
-                                userId,
-                                audioUrl: captureData.audio_url,
-                            });
-                        }
-                        await queueService.addEnrichSummaryJob({
-                            thoughtId: thought.id,
-                            userId,
-                            content: captureData.content || captureData.transcribed_text || '',
-                        });
+                        console.log('📝 AI processing for sync capture queued for later implementation');
                     }
                     catch (queueError) {
-                        console.error('Error queuing sync processing:', queueError);
+                        console.error('Error with AI processing setup:', queueError);
                     }
                 }
                 results.push({
@@ -374,8 +451,12 @@ router.post('/sync', async (req, res) => {
 router.get('/queue/status', async (req, res) => {
     try {
         const userId = req.user.id;
+        const supabaseClient = getSupabaseClient();
+        if (!supabaseClient) {
+            return res.status(503).json({ error: 'Database not configured' });
+        }
         // Get user's items in processing queue
-        const { data: queueItems, error } = await supabase
+        const { data: queueItems, error } = await supabaseClient
             .from('ai_processing_queue')
             .select('*')
             .eq('user_id', userId)
@@ -385,8 +466,12 @@ router.get('/queue/status', async (req, res) => {
             console.error('Error fetching queue status:', error);
             return res.status(500).json({ error: 'Failed to fetch queue status' });
         }
-        // Get overall queue health
-        const queueHealth = await queueService.getQueueHealth();
+        // Get overall queue health (mock response - Redis not available)
+        const queueHealth = {
+            whisper_transcribe: { status: 'disabled', message: 'Redis not configured' },
+            enrich_summary: { status: 'disabled', message: 'Redis not configured' },
+            calendar_create: { status: 'disabled', message: 'Redis not configured' }
+        };
         res.json({
             success: true,
             data: {

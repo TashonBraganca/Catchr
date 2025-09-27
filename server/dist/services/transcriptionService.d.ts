@@ -1,7 +1,8 @@
 export declare enum TranscriptionBackend {
     WEB_SPEECH = "web_speech",
-    FASTER_WHISPER = "faster_whisper",
-    OPENAI_API = "openai_api"
+    HUGGINGFACE_WHISPER = "huggingface_whisper",
+    OPENAI_WHISPER = "openai_whisper",
+    FASTER_WHISPER = "faster_whisper"
 }
 export interface TranscriptionResult {
     text: string;
@@ -24,8 +25,12 @@ export interface TranscriptionRequest {
 }
 export declare class TranscriptionService {
     private aiService;
+    private huggingFaceService;
     private fasterWhisperEnabled;
     constructor();
+    private initializeServices;
+    private getAIService;
+    private getHuggingFaceService;
     private checkFasterWhisperAvailability;
     /**
      * Main transcription method that uses hybrid approach

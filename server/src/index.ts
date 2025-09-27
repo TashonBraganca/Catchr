@@ -25,6 +25,8 @@ import transcriptionRoutes from './routes/transcription.js';
 import authRoutes from './routes/auth.js';
 import roomRoutes from './routes/rooms.js';
 import extensionRoutes from './routes/extension.js';
+import aiRoutes from './routes/ai.js';
+import distributionRoutes from './routes/distribution.js';
 // import { aiWorker } from './workers/aiWorker.js'; // Optional - requires Redis
 
 const app = express();
@@ -60,6 +62,8 @@ app.use('/api/capture', captureRoutes);
 app.use('/api/transcription', transcriptionRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/extension', extensionRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/distribution', distributionRoutes);
 
 // API Testing Routes
 app.get('/api/test', (req, res) => {
@@ -101,6 +105,21 @@ app.get('/api/test', (req, res) => {
         'GET /api/extension/health',
         'POST /api/extension/connect',
         'POST /api/extension/disconnect'
+      ],
+      ai: [
+        'POST /api/ai/categorize',
+        'POST /api/ai/enhance',
+        'POST /api/ai/batch-categorize',
+        'GET /api/ai/user-patterns',
+        'POST /api/ai/feedback'
+      ],
+      distribution: [
+        'GET /api/distribution/extension/download',
+        'GET /api/distribution/extension/version',
+        'GET /api/distribution/extension/install-guide',
+        'GET /api/distribution/extension/update-check',
+        'GET /api/distribution/extension/stats',
+        'POST /api/distribution/extension/feedback'
       ],
       testing: [
         'GET /api/test',

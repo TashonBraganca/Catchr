@@ -81,5 +81,4 @@ export declare class StorageManager {
         latency: number;
     }>;
 }
-export { StorageManager };
 //# sourceMappingURL=storage.d.ts.map

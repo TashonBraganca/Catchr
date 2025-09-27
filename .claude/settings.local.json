@@ -34,7 +34,11 @@
       "WebFetch(domain:catchr.vercel.app)",
       "Bash(npm run build:vercel:*)",
       "Bash(git commit:*)",
-      "Bash(set VERCEL_TOKEN=wwxwOH1Z6VZBDhSJsVEDnNZB)"
+      "Bash(set VERCEL_TOKEN=wwxwOH1Z6VZBDhSJsVEDnNZB)",
+      "Bash(npx vercel:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git tag:*)"
     ],
     "deny": [],
     "ask": []
