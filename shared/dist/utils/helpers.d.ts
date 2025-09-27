@@ -1,0 +1,23 @@
+import type { User, Thought } from '../types/index.js';
+export declare const formatTimestamp: (date: Date) => string;
+export declare const formatRelativeTime: (date: Date) => string;
+export declare const isToday: (date: Date) => boolean;
+export declare const isYesterday: (date: Date) => boolean;
+export declare const truncateText: (text: string, maxLength: number) => string;
+export declare const capitalize: (str: string) => string;
+export declare const slugify: (text: string) => string;
+export declare const groupBy: <T, K extends keyof any>(array: T[], key: (item: T) => K) => Record<K, T[]>;
+export declare const uniqueBy: <T, K>(array: T[], key: (item: T) => K) => T[];
+export declare const pick: <T extends object, K extends keyof T>(obj: T, keys: K[]) => Pick<T, K>;
+export declare const omit: <T, K extends keyof T>(obj: T, keys: K[]) => Omit<T, K>;
+export declare const isEmpty: (obj: any) => boolean;
+export declare const groupThoughtsByDate: (thoughts: Thought[]) => Record<string, Thought[]>;
+export declare const getThoughtPreview: (thought: Thought, maxLength?: number) => string;
+export declare const getDisplayName: (user: User) => string;
+export declare const getUserInitials: (user: User) => string;
+export declare const isValidUrl: (url: string) => boolean;
+export declare const extractDomain: (url: string) => string | null;
+export declare const generateId: () => string;
+export declare const generateColor: (seed: string) => string;
+export declare const debounce: <T extends (...args: any[]) => any>(func: T, wait: number) => (...args: Parameters<T>) => void;
+//# sourceMappingURL=helpers.d.ts.map

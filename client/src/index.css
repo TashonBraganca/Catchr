@@ -1,0 +1,1123 @@
+/* Apple System Fonts are built-in, no imports needed */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* 🎨 Cathcr Design System - ULTRATHINK Orange Acrylic Glass + AMOLED Black */
+
+:root {
+  /* Typography - Apple System Fonts */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+
+  /* AMOLED Black Foundation */
+  --color-black: #000000;
+  --color-black-soft: #0a0a0a;
+  --color-black-muted: #141414;
+  --color-white: #ffffff;
+
+  /* VIBRANT PURE ORANGE SPECTRUM - NO BROWN TONES */
+  --color-orange-50: #FFF4E6;
+  --color-orange-100: #FFE0B3;
+  --color-orange-200: #FFCC80;
+  --color-orange-300: #FFB74D;
+  --color-orange-400: #FFA726;
+  --color-orange-500: #FF9800;
+  --color-orange-600: #FB8C00;
+  --color-orange-700: #F57F17;
+  --color-orange-800: #EF6C00;
+  --color-orange-900: #E65100;
+
+  /* CATHCR SIGNATURE VIBRANT ORANGE VARIANTS */
+  --color-primary: #FFA500;     /* Pure Orange - No Red Tint */
+  --color-secondary: #FFAB40;   /* Light Orange - Bright */
+  --color-accent: #FF8C00;      /* Dark Orange - Vivid */
+  --color-tertiary: #FFCC80;    /* Soft Orange - Glowing */
+  --color-bright: #FF7F00;      /* Electric Orange */
+  --color-neon: #FF6F00;        /* Neon Orange */
+  --color-glow: #FFB347;        /* Sunset Orange */
+
+  /* APPLE-STYLE ACRYLIC ORANGE GLASS - PURE ORANGE TRANSPARENCY */
+  --glass-orange-5: rgba(255, 165, 0, 0.05);     /* Pure Orange Base */
+  --glass-orange-8: rgba(255, 165, 0, 0.08);     /* Subtle Glass */
+  --glass-orange-10: rgba(255, 165, 0, 0.12);    /* Light Glass */
+  --glass-orange-15: rgba(255, 165, 0, 0.16);    /* Medium Glass */
+  --glass-orange-20: rgba(255, 165, 0, 0.22);    /* Strong Glass */
+  --glass-orange-25: rgba(255, 165, 0, 0.28);    /* Intense Glass */
+  --glass-orange-30: rgba(255, 165, 0, 0.35);    /* Maximum Glass */
+
+  /* ENHANCED GLASS BORDERS - APPLE ACRYLIC STYLE */
+  --glass-border-ultralight: rgba(255, 165, 0, 0.15);
+  --glass-border-light: rgba(255, 165, 0, 0.25);
+  --glass-border-medium: rgba(255, 165, 0, 0.35);
+  --glass-border-strong: rgba(255, 165, 0, 0.45);
+  --glass-border-intense: rgba(255, 165, 0, 0.55);
+
+  /* VIBRANT ORANGE GLASS SHADOWS - NO BROWN TINTS */
+  --glass-shadow-subtle: 0 4px 12px rgba(255, 165, 0, 0.12);
+  --glass-shadow-medium: 0 8px 32px rgba(255, 165, 0, 0.18);
+  --glass-shadow-strong: 0 16px 48px rgba(255, 165, 0, 0.25);
+  --glass-shadow-glow: 0 0 32px rgba(255, 165, 0, 0.35);
+  --glass-shadow-neon: 0 0 48px rgba(255, 127, 0, 0.45);
+  --glass-shadow-electric: 0 0 64px rgba(255, 140, 0, 0.25), inset 0 0 32px rgba(255, 165, 0, 0.1);
+
+  /* MONOSPACE TEXT COLORS - WCAG AAA COMPLIANT + VIBRANT ORANGE */
+  --text-primary: #FFFFFF;                        /* Pure White */
+  --text-secondary: rgba(255, 255, 255, 0.85);    /* High Contrast */
+  --text-tertiary: rgba(255, 255, 255, 0.70);     /* Medium Contrast */
+  --text-quaternary: rgba(255, 255, 255, 0.55);   /* Low Contrast */
+  --text-orange: #FFA500;                         /* Pure Orange */
+  --text-orange-bright: #FFAB40;                  /* Bright Orange */
+  --text-orange-electric: #FF8C00;                /* Electric Orange */
+  --text-orange-neon: #FF7F00;                    /* Neon Orange */
+  --text-orange-glow: #FFCC80;                    /* Glowing Orange */
+  --text-orange-muted: rgba(255, 165, 0, 0.8);    /* Muted Pure Orange */
+
+  /* Status Colors - Accessible Variants */
+  --text-success: #4ADE80;
+  --text-warning: #FCD34D;
+  --text-error: #F87171;
+  --text-info: #60A5FA;
+
+  /* Legacy Glass Variables (Updated) */
+  --glass-bg: var(--glass-orange-10);
+  --glass-bg-strong: var(--glass-orange-15);
+  --glass-border: var(--glass-border-medium);
+  --glass-shadow: var(--glass-shadow-medium);
+  
+  /* Animation */
+  --animation-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-medium: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* APPLE-STYLE ACRYLIC BLUR EFFECTS */
+  --blur-ultralight: blur(4px);
+  --blur-light: blur(8px);
+  --blur-medium: blur(16px);
+  --blur-strong: blur(24px);
+  --blur-intense: blur(32px);
+  --blur-maximum: blur(48px);
+
+  /* BACKDROP FILTER COMBINATIONS */
+  --backdrop-glass-light: blur(8px) saturate(180%) brightness(1.1);
+  --backdrop-glass-medium: blur(16px) saturate(200%) brightness(1.15);
+  --backdrop-glass-strong: blur(24px) saturate(220%) brightness(1.2);
+  --backdrop-acrylic-apple: blur(20px) saturate(180%) contrast(1.1) brightness(1.1);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-primary);
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Selection */
+::selection {
+  background: var(--glass-orange-20);
+  color: var(--color-white);
+}
+
+::-moz-selection {
+  background: var(--glass-orange-20);
+  color: var(--color-white);
+}
+
+/* Focus */
+:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbar - Premium Glass Style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--glass-orange-15);
+  border-radius: 4px;
+  backdrop-filter: var(--backdrop-glass-light);
+  border: 1px solid var(--glass-border-light);
+  -webkit-backdrop-filter: var(--backdrop-glass-light);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--glass-orange-25);
+  border-color: var(--glass-border-medium);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* APPLE SYSTEM FONTS TYPOGRAPHY SCALE */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.025em;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.3rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.025em;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.025em;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.7rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.02em;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.8rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.02em;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2.1rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.015em;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.3rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.01em;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.7rem;
+  font-family: var(--font-primary);
+  letter-spacing: 0.005em;
+}
+
+.text-5xl {
+  font-size: 3rem;
+  line-height: 1.1;
+  font-family: var(--font-primary);
+  letter-spacing: -0.01em;
+}
+
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1.1;
+  font-family: var(--font-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Apple System Font Weights */
+.font-normal {
+  font-weight: 400;
+  font-family: var(--font-primary);
+}
+
+.font-medium {
+  font-weight: 500;
+  font-family: var(--font-primary);
+}
+
+.font-semibold {
+  font-weight: 600;
+  font-family: var(--font-primary);
+}
+
+.font-bold {
+  font-weight: 700;
+  font-family: var(--font-primary);
+}
+
+.font-extrabold {
+  font-weight: 800;
+  font-family: var(--font-primary);
+}
+
+/* Monospace Utilities */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-primary {
+  font-family: var(--font-primary);
+}
+
+/* APPLE-STYLE ACRYLIC GLASSMORPHISM UTILITIES */
+
+/* Base Glass - Light Acrylic */
+.glass {
+  background: var(--glass-orange-10);
+  backdrop-filter: var(--backdrop-glass-light);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-subtle);
+  -webkit-backdrop-filter: var(--backdrop-glass-light); /* Safari support */
+}
+
+/* Strong Glass - Medium Acrylic */
+.glass-strong {
+  background: var(--glass-orange-15);
+  backdrop-filter: var(--backdrop-glass-medium);
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-medium);
+  -webkit-backdrop-filter: var(--backdrop-glass-medium); /* Safari support */
+}
+
+/* Card Glass - Enhanced Acrylic */
+.glass-card {
+  background: var(--glass-orange-10);
+  backdrop-filter: var(--backdrop-glass-light);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-medium);
+  -webkit-backdrop-filter: var(--backdrop-glass-light); /* Safari support */
+  transition: all var(--animation-medium);
+}
+
+.glass-card:hover {
+  background: var(--glass-orange-15);
+  backdrop-filter: var(--backdrop-glass-medium);
+  border-color: var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-strong);
+  transform: translateY(-2px);
+}
+
+/* Button Glass - Interactive Acrylic */
+.glass-button {
+  background: var(--glass-orange-8);
+  backdrop-filter: var(--backdrop-glass-light);
+  border: 1px solid var(--glass-border-ultralight);
+  border-radius: var(--radius-md);
+  transition: all var(--animation-fast);
+  -webkit-backdrop-filter: var(--backdrop-glass-light); /* Safari support */
+}
+
+.glass-button:hover {
+  background: var(--glass-orange-15);
+  backdrop-filter: var(--backdrop-glass-medium);
+  border-color: var(--glass-border-light);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  background: var(--glass-orange-20);
+}
+
+/* Premium Acrylic - Maximum Glass Effect */
+.glass-premium {
+  background: var(--glass-orange-20);
+  backdrop-filter: var(--backdrop-acrylic-apple);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-electric);
+  -webkit-backdrop-filter: var(--backdrop-acrylic-apple); /* Safari support */
+}
+
+/* Neon Glass - Glowing Effect */
+.glass-neon {
+  background: var(--glass-orange-25);
+  backdrop-filter: var(--backdrop-glass-strong);
+  border: 1px solid var(--glass-border-intense);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-neon);
+  -webkit-backdrop-filter: var(--backdrop-glass-strong); /* Safari support */
+}
+
+/* VIBRANT PURE ORANGE COLOR UTILITIES */
+
+/* Background Colors */
+.bg-orange-primary {
+  background: var(--color-primary); /* Pure Orange */
+}
+
+.bg-orange-secondary {
+  background: var(--color-secondary); /* Light Orange */
+}
+
+.bg-orange-accent {
+  background: var(--color-accent); /* Dark Orange */
+}
+
+.bg-orange-bright {
+  background: var(--color-bright); /* Electric Orange */
+}
+
+.bg-orange-neon {
+  background: var(--color-neon); /* Neon Orange */
+}
+
+.bg-orange-glow {
+  background: var(--color-glow); /* Sunset Orange */
+}
+
+/* Text Colors */
+.text-orange-primary {
+  color: var(--text-orange); /* Pure Orange */
+}
+
+.text-orange-secondary {
+  color: var(--text-orange-bright); /* Bright Orange */
+}
+
+.text-orange-accent {
+  color: var(--text-orange-electric); /* Electric Orange */
+}
+
+.text-orange-neon {
+  color: var(--text-orange-neon); /* Neon Orange */
+}
+
+.text-orange-glow {
+  color: var(--text-orange-glow); /* Glowing Orange */
+}
+
+.text-orange-muted {
+  color: var(--text-orange-muted); /* Muted Pure Orange */
+}
+
+/* Border Colors */
+.border-orange-light {
+  border-color: var(--glass-border-light);
+}
+
+.border-orange-medium {
+  border-color: var(--glass-border-medium);
+}
+
+.border-orange-strong {
+  border-color: var(--glass-border-strong);
+}
+
+/* Shadow Utilities */
+.shadow-orange-glow {
+  box-shadow: var(--glass-shadow-glow);
+}
+
+.shadow-orange-neon {
+  box-shadow: var(--glass-shadow-neon);
+}
+
+.shadow-orange-electric {
+  box-shadow: var(--glass-shadow-electric);
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn var(--animation-medium) ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--animation-medium) ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--animation-medium) ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: var(--glass-shadow-glow);
+    border-color: var(--glass-border-light);
+  }
+  50% {
+    box-shadow: 0 0 48px rgba(255, 165, 0, 0.5), 0 0 96px rgba(255, 140, 0, 0.3);
+    border-color: var(--glass-border-strong);
+  }
+}
+
+/* Enhanced Glow Animation */
+@keyframes neonGlow {
+  0%, 100% {
+    box-shadow: var(--glass-shadow-neon);
+    text-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 64px rgba(255, 127, 0, 0.6), 0 0 128px rgba(255, 140, 0, 0.4);
+    text-shadow: 0 0 20px rgba(255, 165, 0, 1);
+  }
+}
+
+.animate-neon-glow {
+  animation: neonGlow 3s ease-in-out infinite;
+}
+
+/* Synth Wave Background Animation */
+@keyframes synthWave {
+  0% { transform: translateX(-50%) translateY(0px) rotate(0deg); }
+  25% { transform: translateX(-50%) translateY(-10px) rotate(1deg); }
+  50% { transform: translateX(-50%) translateY(0px) rotate(0deg); }
+  75% { transform: translateX(-50%) translateY(10px) rotate(-1deg); }
+  100% { transform: translateX(-50%) translateY(0px) rotate(0deg); }
+}
+
+.synth-wave {
+  animation: synthWave 8s ease-in-out infinite;
+}
+
+/* Enhanced Responsive Design System */
+
+/* Mobile Portrait: 320px - 480px */
+@media (max-width: 480px) {
+  :root {
+    --space-xs: 0.125rem;
+    --space-sm: 0.25rem;
+    --space-md: 0.5rem;
+    --space-lg: 1rem;
+    --space-xl: 1.5rem;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --blur-sm: blur(6px);
+    --blur-md: blur(12px);
+  }
+
+  .glass, .glass-strong, .glass-card {
+    border-radius: var(--radius-md);
+    backdrop-filter: var(--blur-sm);
+  }
+
+  /* Mobile typography adjustments */
+  .text-3xl { font-size: 1.5rem; line-height: 2rem; }
+  .text-2xl { font-size: 1.25rem; line-height: 1.75rem; }
+  .text-xl { font-size: 1.125rem; line-height: 1.625rem; }
+
+  /* Mobile padding adjustments */
+  body { font-size: 14px; }
+  .p-6 { padding: 1rem; }
+  .p-8 { padding: 1.5rem; }
+}
+
+/* Mobile Landscape: 481px - 640px */
+@media (min-width: 481px) and (max-width: 640px) {
+  .glass, .glass-strong, .glass-card {
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* Tablet Portrait: 641px - 768px */
+@media (min-width: 641px) and (max-width: 768px) {
+  :root {
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+  }
+}
+
+/* Tablet Landscape: 769px - 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --blur-md: blur(20px);
+    --blur-lg: blur(28px);
+  }
+
+  .glass-strong {
+    backdrop-filter: var(--blur-lg);
+  }
+}
+
+/* Desktop: 1025px - 1440px */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  :root {
+    --space-xl: 3rem;
+  }
+}
+
+/* Large Desktop: 1441px+ */
+@media (min-width: 1441px) {
+  :root {
+    --blur-md: blur(24px);
+    --blur-lg: blur(32px);
+    --blur-xl: blur(40px);
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets for mobile */
+  .glass-button, button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Reduce hover effects on touch devices */
+  .hover\\:scale-\\[1\\.02\\]:hover {
+    transform: none;
+  }
+
+  /* Optimize tap targets */
+  a, button, [role="button"] {
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Reduce header heights in landscape on mobile */
+  .text-3xl { font-size: 1.5rem; }
+  .text-2xl { font-size: 1.25rem; }
+
+  /* Compact spacing */
+  .mb-8 { margin-bottom: 1rem; }
+  .mb-6 { margin-bottom: 0.75rem; }
+  .p-6 { padding: 1rem; }
+}
+
+/* Safe area handling for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* Performance optimizations for lower-end devices */
+@media (max-width: 768px) {
+  /* Reduce blur intensity for better performance */
+  .glass, .glass-strong, .glass-card {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Simplify animations on mobile */
+  .animate-pulse-glow {
+    animation: none;
+  }
+
+  /* Optimize shadow rendering */
+  .glass-shadow-glow, .glass-shadow-strong {
+    box-shadow: 0 4px 6px rgba(255, 107, 53, 0.1);
+  }
+}
+
+/* WCAG AAA Accessibility Enhancements */
+
+/* High contrast text colors for AAA compliance (7:1 ratio minimum) */
+.text-high-contrast {
+  color: #FFFFFF;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.text-medium-contrast {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Focus indicators for keyboard navigation */
+.focus-ring:focus {
+  outline: 3px solid #FF8F65;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.focus-ring:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 3px solid #FF8F65;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip navigation link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #FF6B35;
+  color: #FFFFFF;
+  padding: 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  z-index: 1000;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: #FF6B35;
+  color: #FFFFFF;
+  border-radius: 4px;
+}
+
+/* Enhanced button states for accessibility */
+.accessible-button {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.accessible-button:hover {
+  background-color: rgba(255, 107, 53, 0.3);
+  transform: translateY(-1px);
+}
+
+.accessible-button:active {
+  transform: translateY(0);
+}
+
+.accessible-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Status announcements for screen readers */
+.status-announcement {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Error and success states with high contrast */
+.error-state {
+  border-color: #FF6B6B !important;
+  background-color: rgba(255, 107, 107, 0.1) !important;
+}
+
+.error-text {
+  color: #FF8A80;
+  font-weight: 500;
+}
+
+.success-state {
+  border-color: #4ADE80 !important;
+  background-color: rgba(74, 222, 128, 0.1) !important;
+}
+
+.success-text {
+  color: #86EFAC;
+  font-weight: 500;
+}
+
+/* Loading states with accessibility */
+@keyframes accessible-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: accessible-spin 1s linear infinite;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #FF6B35;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Performance Optimizations */
+
+/* Force hardware acceleration for animations */
+.animate-fade-in,
+.animate-slide-up,
+.animate-scale-in,
+.animate-pulse-glow,
+.synth-wave,
+.glass-button,
+.accessible-button {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize glassmorphism rendering */
+.glass,
+.glass-strong,
+.glass-card {
+  transform: translateZ(0);
+  will-change: backdrop-filter, background-color;
+  contain: layout style paint;
+}
+
+/* Efficient transition properties */
+.transition-all {
+  transition-property: transform, opacity, background-color, border-color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Optimized hover effects */
+.hover\\:scale-\\[1\\.02\\]:hover {
+  transform: translateZ(0) scale(1.02);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scroll performance optimization */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Animation performance for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    will-change: auto !important;
+  }
+
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .animate-pulse-glow,
+  .synth-wave {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* GPU layer management */
+@supports (transform: translateZ(0)) {
+  .glass-card:hover,
+  .glass-button:hover,
+  .accessible-button:hover {
+    transform: translateZ(0) translateY(-1px);
+  }
+}
+
+/* Container queries for performance (when supported) */
+@supports (container-type: inline-size) {
+  .responsive-container {
+    container-type: inline-size;
+  }
+}
+
+/* CSS containment for performance */
+.glass-card,
+.stats-card,
+.action-card {
+  contain: layout style paint;
+}
+
+/* Cross-Browser Glassmorphism Compatibility */
+
+/* Safari & WebKit support */
+@supports (-webkit-backdrop-filter: blur(16px)) {
+  .glass {
+    -webkit-backdrop-filter: var(--blur-md);
+    backdrop-filter: var(--blur-md);
+  }
+
+  .glass-strong {
+    -webkit-backdrop-filter: var(--blur-lg);
+    backdrop-filter: var(--blur-lg);
+  }
+
+  .glass-card {
+    -webkit-backdrop-filter: var(--blur-md);
+    backdrop-filter: var(--blur-md);
+  }
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(16px)) and not (-webkit-backdrop-filter: blur(16px)) {
+  .glass,
+  .glass-strong,
+  .glass-card {
+    background: rgba(255, 107, 53, 0.15);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+  }
+
+  .glass-strong {
+    background: rgba(255, 107, 53, 0.2);
+    border: 1px solid rgba(255, 107, 53, 0.4);
+  }
+}
+
+/* Firefox specific optimizations */
+@-moz-document url-prefix() {
+  .glass,
+  .glass-strong,
+  .glass-card {
+    background: rgba(255, 107, 53, 0.12);
+    border: 1px solid rgba(255, 107, 53, 0.25);
+  }
+}
+
+/* Internet Explorer / Edge Legacy fallbacks */
+@supports (-ms-ime-align: auto) {
+  .glass,
+  .glass-strong,
+  .glass-card {
+    background: rgba(255, 107, 53, 0.1);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    filter: none;
+  }
+}
+
+/* WebKit specific vendor prefixes */
+.glass-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Transform optimizations for different browsers */
+.hover\\:scale-\\[1\\.02\\]:hover {
+  -webkit-transform: translateZ(0) scale(1.02);
+  -moz-transform: translateZ(0) scale(1.02);
+  -ms-transform: translateZ(0) scale(1.02);
+  -o-transform: translateZ(0) scale(1.02);
+  transform: translateZ(0) scale(1.02);
+}
+
+/* Animation fallbacks */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+    -moz-transform: translateY(20px);
+    -ms-transform: translateY(20px);
+    -o-transform: translateY(20px);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    -o-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+/* Border radius fallbacks */
+.glass,
+.glass-strong,
+.glass-card {
+  -webkit-border-radius: var(--radius-lg);
+  -moz-border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg);
+}
+
+/* Box shadow compatibility */
+.glass-shadow-glow {
+  -webkit-box-shadow: var(--glass-shadow-glow);
+  -moz-box-shadow: var(--glass-shadow-glow);
+  box-shadow: var(--glass-shadow-glow);
+}
+
+/* Text shadow for better contrast across browsers */
+.text-high-contrast {
+  -webkit-text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+  -moz-text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Transition compatibility */
+.transition-all {
+  -webkit-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -moz-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -o-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Chrome, Safari, Edge specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .glass,
+  .glass-strong,
+  .glass-card {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  body {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .synth-wave {
+    animation: none;
+  }
+}
+
+/* Dark mode (always on for AMOLED aesthetic) */
+.dark {
+  color-scheme: dark;
+}
+
+/* Keyboard Shortcut Styling */
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  backdrop-filter: var(--blur-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  letter-spacing: 0.5px;
+}

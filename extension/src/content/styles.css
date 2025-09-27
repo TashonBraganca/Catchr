@@ -1,0 +1,287 @@
+/**
+ * CATHCR Content Script Styles
+ * Modal and toast styles for thought capture
+ */
+
+/* Modal Overlay */
+.cathcr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147483647; /* Maximum z-index */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+.cathcr-modal-overlay.cathcr-modal-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Container */
+.cathcr-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.2s ease;
+}
+
+.cathcr-modal-visible .cathcr-modal {
+  transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.cathcr-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cathcr-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.cathcr-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.cathcr-modal-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Modal Form */
+.cathcr-modal-form {
+  padding: 0 24px 24px;
+}
+
+.cathcr-modal-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #111827;
+  background: #fafafa;
+  resize: vertical;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.cathcr-modal-textarea:focus {
+  outline: none;
+  border-color: #FFA500;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+}
+
+.cathcr-modal-textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Context Info */
+.cathcr-modal-context {
+  margin: 12px 0 20px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Modal Actions */
+.cathcr-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cathcr-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+  min-width: 100px;
+}
+
+.cathcr-btn-primary {
+  background: #FFA500;
+  color: white;
+  border-color: #FFA500;
+}
+
+.cathcr-btn-primary:hover {
+  background: #FF8C00;
+  border-color: #FF8C00;
+  transform: translateY(-1px);
+}
+
+.cathcr-btn-primary:active {
+  transform: translateY(0);
+}
+
+.cathcr-btn-secondary {
+  background: white;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.cathcr-btn-secondary:hover {
+  background: #f9fafb;
+  color: #374151;
+  border-color: #9ca3af;
+}
+
+/* Toast Notifications */
+.cathcr-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 2147483647;
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 0.2s ease;
+  max-width: 300px;
+}
+
+.cathcr-toast.cathcr-toast-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cathcr-toast-success {
+  background: #10b981;
+}
+
+.cathcr-toast-error {
+  background: #ef4444;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .cathcr-modal {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .cathcr-modal-header {
+    border-bottom-color: #374151;
+  }
+
+  .cathcr-modal-header h3 {
+    color: #f9fafb;
+  }
+
+  .cathcr-modal-close {
+    color: #9ca3af;
+  }
+
+  .cathcr-modal-close:hover {
+    background: #374151;
+    color: #d1d5db;
+  }
+
+  .cathcr-modal-textarea {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+
+  .cathcr-modal-textarea:focus {
+    background: #1f2937;
+    border-color: #FFA500;
+  }
+
+  .cathcr-modal-context {
+    background: #111827;
+    border-color: #374151;
+    color: #9ca3af;
+  }
+
+  .cathcr-btn-secondary {
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+  }
+
+  .cathcr-btn-secondary:hover {
+    background: #4b5563;
+    color: #f3f4f6;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .cathcr-modal {
+    border: 2px solid #000;
+  }
+
+  .cathcr-modal-textarea:focus {
+    border-width: 3px;
+  }
+
+  .cathcr-btn {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cathcr-modal-overlay,
+  .cathcr-modal,
+  .cathcr-toast,
+  .cathcr-btn,
+  .cathcr-modal-close,
+  .cathcr-modal-textarea {
+    transition: none;
+  }
+}

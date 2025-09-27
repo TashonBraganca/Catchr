@@ -1,0 +1,41 @@
+{
+  "name": "cathcr",
+  "version": "1.0.0",
+  "description": "AI-powered thought capture and organization platform",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared",
+    "extension"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:extension": "npm run dev --workspace=extension",
+    "dev:all": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:extension\"",
+    "build": "npm run build --workspace=shared && npm run build --workspace=client && npm run build --workspace=server && npm run build --workspace=extension",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "build:shared": "npm run build --workspace=shared",
+    "build:extension": "npm run build --workspace=extension",
+    "start": "npm run start --workspace=server",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "format": "prettier --write .",
+    "typecheck": "npm run typecheck --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.0",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

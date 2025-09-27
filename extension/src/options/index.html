@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CATHCR - Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="options-container">
+    <!-- Header -->
+    <header class="options-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <h1>💭 CATHCR Settings</h1>
+          <p>Configure your instant thought capture experience</p>
+        </div>
+        <div class="version-info" id="versionInfo">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="options-main">
+      <!-- General Settings -->
+      <section class="settings-section">
+        <h2>🔧 General Settings</h2>
+
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="syncEnabled" checked>
+            <span class="checkmark"></span>
+            <div class="setting-info">
+              <strong>Enable Sync</strong>
+              <p>Automatically sync captures to your CATHCR account</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="autoCapture" checked>
+            <span class="checkmark"></span>
+            <div class="setting-info">
+              <strong>Auto-capture Context</strong>
+              <p>Automatically include page URL and title in captures</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="notifications" checked>
+            <span class="checkmark"></span>
+            <div class="setting-info">
+              <strong>Desktop Notifications</strong>
+              <p>Show notifications when thoughts are captured and synced</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Keyboard Shortcuts -->
+      <section class="settings-section">
+        <h2>⌨️ Keyboard Shortcuts</h2>
+
+        <div class="shortcut-group">
+          <div class="shortcut-info">
+            <strong>Quick Capture</strong>
+            <p>Open the capture modal from any webpage</p>
+          </div>
+          <div class="shortcut-keys">
+            <kbd class="kbd-mac">⌘K</kbd>
+            <kbd class="kbd-other">Ctrl+Shift+C</kbd>
+          </div>
+        </div>
+
+        <div class="shortcut-note">
+          <p>💡 You can customize keyboard shortcuts in Chrome's extension settings</p>
+          <button class="btn btn-secondary" id="openShortcutsBtn">
+            Open Shortcuts Settings
+          </button>
+        </div>
+      </section>
+
+      <!-- Privacy & Data -->
+      <section class="settings-section">
+        <h2>🔒 Privacy & Data</h2>
+
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="analyticsEnabled">
+            <span class="checkmark"></span>
+            <div class="setting-info">
+              <strong>Usage Analytics</strong>
+              <p>Help improve CATHCR by sharing anonymous usage data</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="data-info">
+          <h3>What data is collected?</h3>
+          <ul>
+            <li>Number of captures created</li>
+            <li>Feature usage patterns</li>
+            <li>Error reports (no personal content)</li>
+          </ul>
+          <p>Your thought content is never shared in analytics.</p>
+        </div>
+      </section>
+
+      <!-- Storage Management -->
+      <section class="settings-section">
+        <h2>💾 Storage Management</h2>
+
+        <div class="storage-stats" id="storageStats">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="storage-actions">
+          <button class="btn btn-secondary" id="exportDataBtn">
+            📤 Export Data
+          </button>
+          <button class="btn btn-secondary" id="cleanupBtn">
+            🧹 Cleanup Old Data
+          </button>
+          <button class="btn btn-danger" id="clearAllBtn">
+            🗑️ Clear All Data
+          </button>
+        </div>
+      </section>
+
+      <!-- Account Connection -->
+      <section class="settings-section">
+        <h2>🔗 Account Connection</h2>
+
+        <div class="account-status" id="accountStatus">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="account-actions">
+          <button class="btn btn-primary" id="connectAccountBtn">
+            Connect CATHCR Account
+          </button>
+          <button class="btn btn-secondary" id="openDashboardBtn">
+            🚀 Open Dashboard
+          </button>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="settings-section">
+        <h2>ℹ️ About</h2>
+
+        <div class="about-content">
+          <div class="about-logo">
+            <h3>💭 CATHCR</h3>
+            <p>Instant Thought Capture for Modern Life</p>
+          </div>
+
+          <div class="about-links">
+            <a href="https://cathcr.com" target="_blank" class="link">
+              🌐 Website
+            </a>
+            <a href="https://github.com/cathcr/extension" target="_blank" class="link">
+              📦 Source Code
+            </a>
+            <a href="https://cathcr.com/privacy" target="_blank" class="link">
+              🔒 Privacy Policy
+            </a>
+            <a href="https://cathcr.com/support" target="_blank" class="link">
+              💬 Support
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="options-footer">
+      <div class="footer-content">
+        <p>&copy; 2024 CATHCR. Made with ❤️ for thoughtful minds.</p>
+        <div class="footer-actions">
+          <button class="btn btn-secondary" id="resetSettingsBtn">
+            Reset to Defaults
+          </button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal for confirmations -->
+  <div class="modal-overlay" id="modalOverlay" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Confirm Action</h3>
+      </div>
+      <div class="modal-body">
+        <p id="modalMessage">Are you sure?</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+        <button class="btn btn-danger" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script type="module" src="index.ts"></script>
+</body>
+</html>

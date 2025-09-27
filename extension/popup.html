@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CATHCR - Capture Thoughts</title>
+  <style>
+    /* CATHCR Extension Popup Styles */
+    body {
+      width: 350px;
+      min-height: 400px;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #000000, #1a0a00);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      color: #F5F5F5;
+      border-radius: 8px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #FF6A00;
+      margin: 0;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 4px 0 0 0;
+    }
+
+    .main-action {
+      background: linear-gradient(135deg, #FF6A00, #FF8A33);
+      border: none;
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .main-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 106, 0, 0.4);
+    }
+
+    .shortcut-hint {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .shortcut-hint kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-family: "SF Mono", monospace;
+      margin: 0 2px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #FF6A00;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .recent-thoughts {
+      margin-top: 20px;
+    }
+
+    .recent-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .thought-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .thought-content {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 4px;
+    }
+
+    .thought-meta {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 106, 0, 0.5);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 16px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .status.online {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22C55E;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status.offline {
+      background: rgba(239, 68, 68, 0.1);
+      color: #EF4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🧠</div>
+    <h1 class="title">CATHCR</h1>
+    <p class="subtitle">Instant Thought Capture</p>
+  </div>
+
+  <button class="main-action" id="capture-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" fill="none" stroke-width="2"/>
+      <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+      <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    Capture Thought
+  </button>
+
+  <div class="shortcut-hint">
+    Quick capture: <kbd>Cmd</kbd>+<kbd>K</kbd> from any page
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="total-thoughts">-</div>
+      <div class="stat-label">Captured</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="pending-sync">-</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="sync-status">-</div>
+      <div class="stat-label">Synced</div>
+    </div>
+  </div>
+
+  <div class="recent-thoughts">
+    <h3 class="recent-title">Recent Thoughts</h3>
+    <div id="recent-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn" id="sync-btn">Sync Now</button>
+    <button class="action-btn" id="settings-btn">Settings</button>
+    <button class="action-btn" id="clear-btn">Clear</button>
+  </div>
+
+  <div class="status online" id="connection-status">
+    🌐 Connected to CATHCR
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
