@@ -8,24 +8,16 @@ export default defineConfig({
   // Node.js compatibility for CI
   define: {
     global: 'globalThis',
-    File: 'class File {}', // Polyfill for Node.js environment
     __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
     __VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
   },
 
-  // Node.js polyfills for browser environment
+  // TypeScript path resolution
   resolve: {
     alias: {
       '@': '/src',
       '@shared': '../shared/src',
     },
-  },
-
-  // Browser environment for Node.js APIs
-  server: {
-    fs: {
-      allow: ['..']
-    }
   },
 
   // Build configuration
@@ -34,6 +26,7 @@ export default defineConfig({
     sourcemap: process.env.NODE_ENV === 'development',
     minify: process.env.NODE_ENV === 'production',
     rollupOptions: {
+      external: ['undici'], // Exclude undici from build
       output: {
         chunkFileNames: 'assets/chunk-[hash].js',
       },
@@ -47,6 +40,9 @@ export default defineConfig({
     hmr: {
       port: 5174,
     },
+    fs: {
+      allow: ['..']
+    }
   },
 
 
@@ -54,5 +50,6 @@ export default defineConfig({
   // Optimize dependencies
   optimizeDeps: {
     include: ['webextension-polyfill'],
+    exclude: ['undici'] // Exclude problematic undici from optimization
   },
 });
