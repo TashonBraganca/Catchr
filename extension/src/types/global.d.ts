@@ -2,7 +2,13 @@
  * Global TypeScript declarations for CATHCR Extension
  */
 
-// Vite environment globals
+// Vite environment globals - make these globally available
+declare global {
+  const __DEV__: boolean;
+  const __VERSION__: string;
+}
+
+// Also declare them as module-level constants for backup
 declare const __DEV__: boolean;
 declare const __VERSION__: string;
 
