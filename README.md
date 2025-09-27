@@ -70,8 +70,8 @@ cathcr/
 
 ### 1. Clone and Install
 ```bash
-git clone <repository-url>
-cd cathcr
+git clone https://github.com/TashonBraganca/Catchr.git
+cd Catchr
 npm install
 ```
 

@@ -32,7 +32,9 @@
       "Bash(git add:*)",
       "Bash(git push:*)",
       "WebFetch(domain:catchr.vercel.app)",
-      "Bash(npm run build:vercel:*)"
+      "Bash(npm run build:vercel:*)",
+      "Bash(git commit:*)",
+      "Bash(set VERCEL_TOKEN=wwxwOH1Z6VZBDhSJsVEDnNZB)"
     ],
     "deny": [],
     "ask": []
