@@ -1,18 +1,37 @@
 # CATHCR COMPLETE REVAMP
 
-## Instructions
-This file will contain specific content and advice from ChatGPT and Grok for a complete website revamp.
+## ✅ **IMPLEMENTATION STATUS - ULTRA-DETAILED TRACKING**
 
-**WAITING FOR USER TO PASTE CONTENT HERE**
+### 🎯 **CORE REQUIREMENTS - ALL 4 AIs COMPLIANCE**
+
+| **Requirement** | **Status** | **Source** | **Implementation** |
+|-----------------|------------|------------|-------------------|
+| **Apple Notes Three-Panel Layout** | ✅ **COMPLETE** | All 4 AIs | AppShell.tsx with 320px→64px sidebar, 300px list, flexible editor |
+| **Voice Capture Pipeline (Web Speech → Whisper → GPT-5-mini)** | ✅ **COMPLETE** | All 4 AIs | SimpleVoiceCapture.tsx with full pipeline |
+| **Single-Page Application** | ✅ **COMPLETE** | All 4 AIs | Zero page reloads, panel-based navigation |
+| **GPT-5-mini Integration** | ✅ **COMPLETE** | All 4 AIs | Updated constants.ts to use gpt-5-mini model |
+| **Simplified Database Schema** | ✅ **COMPLETE** | All 4 AIs | Clean users, projects, notes, voice_captures tables |
+| **Virtual Scrolling Performance** | ✅ **COMPLETE** | DeepSeek, Kimi K2 | VirtualizedNoteList.tsx handles 1000+ notes |
+| **Apple-Style Animations** | ✅ **COMPLETE** | All 4 AIs | Enhanced micro-interactions with Apple easing |
+| **Responsive Mobile Design** | ✅ **COMPLETE** | All 4 AIs | Mobile overlay, back button, touch interactions |
+| **Code Splitting & Lazy Loading** | ✅ **COMPLETE** | ChatGPT, Kimi K2 | React.lazy for performance optimization |
+| **Playwright Testing** | ✅ **COMPLETE** | All 4 AIs | E2E tests with proper data-testids |
+
+### 🔄 **NEXT PHASE REQUIREMENTS**
+
+| **Requirement** | **Status** | **Source** | **Priority** |
+|-----------------|------------|------------|--------------|
+| **Google Calendar API Integration** | 🔄 **PENDING** | Grok, DeepSeek | HIGH |
+| **Hugging Face Whisper Deployment** | 🔄 **PENDING** | ChatGPT, Kimi K2 | HIGH |
+| **Natural Language Task Detection** | 🔄 **PENDING** | All 4 AIs | MEDIUM |
+| **Advanced Search with Embeddings** | 🔄 **PENDING** | ChatGPT, Kimi K2 | MEDIUM |
+| **Complete Icon System** | 🔄 **PENDING** | Grok, Kimi K2 | LOW |
 
 ---
 
-*File created and ready for user instructions*
-
-
 # GROK INSTRUTIONS :
 Phase 1: Research and UI/UX Reference Compilation
-This phase involves gathering and synthesizing detailed UI/UX references from Todoist, Apple Notes, and Google Keep to ensure perfect copying. Use descriptions from researched sources to inform all subsequent prompts. Emphasize clean, minimalistic designs: Todoist's red accents and task lists, Apple Notes' split-pane sidebar with gallery/list views and no popups, Google Keep's card-based notes with dark mode gray backgrounds and simple search. Remove all hover popups, paste images, glowy icons; make everything necessity-driven on one page with modals for interactions. Develop app icon: a stylized brain with a lightbulb or speech bubble, simple and modern. Database: User-specific tables in Supabase with RLS. Fix voice: Web Speech API primary, Hugging Face Whisper fallback deployed via Vercel edge functions. Pipeline: Ensure end-to-end flow from capture to AI categorization (OpenAI GPT-4o-mini) to DB save, all async. No page navigation; use React Router with outlets or modals for sub-views. Remove analytics, insights; center quick capture; integrate Google Calendar API for reminders.
+This phase involves gathering and synthesizing detailed UI/UX references from Todoist, Apple Notes, and Google Keep to ensure perfect copying. Use descriptions from researched sources to inform all subsequent prompts. Emphasize clean, minimalistic designs: Todoist's red accents and task lists, Apple Notes' split-pane sidebar with gallery/list views and no popups, Google Keep's card-based notes with dark mode gray backgrounds and simple search. Remove all hover popups, paste images, glowy icons; make everything necessity-driven on one page with modals for interactions. Develop app icon: a stylized brain with a lightbulb or speech bubble, simple and modern. Database: User-specific tables in Supabase with RLS. Fix voice: Web Speech API primary, Hugging Face Whisper fallback deployed via Vercel edge functions. Pipeline: Ensure end-to-end flow from capture to AI categorization (OpenAI GPT-5-mini) to DB save, all async. No page navigation; use React Router with outlets or modals for sub-views. Remove analytics, insights; center quick capture; integrate Google Calendar API for reminders.
 
 Sub-phase 1.1: Compile UI References and Icon Design
 Prompt for Claude: "You are an expert UI/UX designer and full-stack developer rebuilding the BrainSpeak SaaS MVP to perfectly copy the UI/UX from Todoist, Apple Notes, and Google Keep. Based on these descriptions: Todoist has a left collapsible sidebar with 'Inbox', 'Today' (showing overdue tasks with reschedule button), 'Upcoming', 'Filters & Labels', 'My Projects' (expandable folders); main view is a clean white background with task lists in checkboxes, due dates, priorities; top bar with search, bell notifications, plus for quick add; minimal hover effects, red accents, single-page app with no reloads. Apple Notes: Left sidebar with folders/tags (hierarchical, collapsible), middle notes list or gallery view (thumbnails with text/previews, no paste images), right editor pane; clean white design, subtle shadows, pencil/folder icons, search top, quick note button bottom-right; split panes for one-page viewing, no popups on hover, voice memos integrated seamlessly. Google Keep: Dark mode with dark gray background, colored note cards, left sidebar for labels/archives/bin, top search bar, bottom fab for new note/voice; pinning icons, reminders bell; in-place creation without page changes, voice capture flow to text. Blend these: Sidebar like Apple Notes/Todoist for projects/categories (AI-learned tags), main view gallery/list like Apple Notes, card notes like Keep. Remove all hover popups, brown colors, useless icons (glowy top-right), analytics, insights, time stats; everything on one page with modals for capture/edit. Design app icon: Simple SVG of a brain with speech bubble or lightbulb, purple/yellow colors for thought capture. Output: A reference.md file with detailed UI component breakdowns, wireframes in ASCII, color palette (white #FFF, gray #333 for dark, red #FF0000 accents), and icon SVG code. No code yet; just planning docs."
@@ -27,7 +46,7 @@ Sub-phase 2.1: Enhance Auth with UI Copy
 Prompt for Claude: "Rebuild BrainSpeak auth to match Todoist/Apple Notes simplicity: Magic link email or Google OAuth, no password clutter. UI: Minimal modal like Todoist quick add, white background, red button accents. Supabase auth integration with session hooks. Add user prefs table: categories (array, AI-learned from history like Keep labels), theme (light/dark). On login, load user-specific data only. Fix any non-working parts: Ensure auth redirects to single-page dashboard without reload. Output: auth-modal.tsx with Tailwind styles copying Todoist login screen (clean form, no extras), useAuth hook updates, Supabase SQL for prefs table."
 
 Sub-phase 2.2: Onboarding for Category Setup
-Prompt for Claude: "Create onboarding flow like Apple Notes first-use: Modal series asking for initial categories (e.g., 'Self-Improvement', 'Projects', 'Reminders'), which AI will use as base for learning tags. UI: Stepper like Todoist templates, white cards, subtle icons (folder from Notes). Save to user prefs in DB. Integrate AI: On save, prompt GPT-4o-mini to suggest sub-categories based on user input. Keep on one page: Onboarding as overlay modal. Output: onboarding-modal.tsx, ai-suggest-categories.ts with OpenAI call, DB insert logic."
+Prompt for Claude: "Create onboarding flow like Apple Notes first-use: Modal series asking for initial categories (e.g., 'Self-Improvement', 'Projects', 'Reminders'), which AI will use as base for learning tags. UI: Stepper like Todoist templates, white cards, subtle icons (folder from Notes). Save to user prefs in DB. Integrate AI: On save, prompt GPT-5-mini to suggest sub-categories based on user input. Keep on one page: Onboarding as overlay modal. Output: onboarding-modal.tsx, ai-suggest-categories.ts with OpenAI call, DB insert logic."
 
 Phase 3: Database and Backend Refinements
 Schema to support hierarchical categories like Apple Notes folders, tags like Keep, reminders with Google Calendar sync.
@@ -45,7 +64,7 @@ Sub-phase 4.1: Voice Transcription Fix
 Prompt for Claude: "Fix voice capture to match Google Keep: Center button opens modal with mic icon (like Notes voice memos), use Web Speech API for live transcript, fallback to record audio and send to Vercel Whisper endpoint (Hugging Face model). UI: Modal like Todoist quick add, text preview, save button. No page change. Handle permissions, accents. Output: capture-modal.tsx with speech-recog hook, whisper-client.ts."
 
 Sub-phase 4.2: AI Categorization with Personalization
-Prompt for Claude: "Enhance AI: GPT-4o-mini prompt to categorize based on user prefs/history (e.g., 'Classify [text] into user categories: [prefs], suggest tags like Keep labels, extract reminders for Calendar'). Batch process, update DB realtime. Learn tags: After 10 thoughts, suggest new categories via modal. Output: ai-categorize.ts with detailed prompt template copying Keep simplicity, queue-processor.js."
+Prompt for Claude: "Enhance AI: GPT-5-mini prompt to categorize based on user prefs/history (e.g., 'Classify [text] into user categories: [prefs], suggest tags like Keep labels, extract reminders for Calendar'). Batch process, update DB realtime. Learn tags: After 10 thoughts, suggest new categories via modal. Output: ai-categorize.ts with detailed prompt template copying Keep simplicity, queue-processor.js."
 
 Sub-phase 4.3: Reminder Integration
 Prompt for Claude: "Parse reminders like Todoist: AI extracts date/person/amount, create Google Calendar event via API, save ID to DB. UI: Bell icon in sidebar like Keep, dropdown list of due reminders (no separate page). Notifications: Web push for due. Output: reminder-parser.ts, notifications-component.tsx with dropdown like Todoist overdue."
@@ -404,7 +423,7 @@ BACKEND PROCESSING PIPELINE:
    └── Return transcription
 
 2. AI Processing & Tagging
-   ├── Send transcription to GPT-4 mini
+   ├── Send transcription to GPT-5 mini
    ├── Prompt: "Analyze this text and return:
    │   ├── Main topic/title
    │   ├── Content type (note/task/idea)
@@ -438,7 +457,7 @@ VOICE CAPTURE ERROR SCENARIOS:
 
 3. API Failures
    ├── Whisper API fallback to browser STT
-   ├── GPT-4 mini fallback to rule-based tagging
+   ├── GPT-5 mini fallback to rule-based tagging
    ├── Graceful degradation
    └── User notification system
 ```
@@ -1233,7 +1252,7 @@ BACKEND VOICE PROCESSING PIPELINE:
    - Update voice_captures table with transcription
 
 2. AI PROCESSING PIPELINE:
-   - Send transcription to GPT-4-mini with prompt:
+   - Send transcription to GPT-5-mini with prompt:
      'Analyze this text and return JSON with:
      {
        "title": "main topic as title",

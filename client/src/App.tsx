@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import HomePage from './pages/HomePage';
-import ColorTestPage from './pages/ColorTestPage';
-import ApiTestPage from './pages/ApiTestPage';
-import WCAGComplianceTest from './components/testing/WCAGComplianceTest';
 import { Button } from './components/ui/button';
 import { Palette, Home, Code, Shield } from 'lucide-react';
+
+// Lazy load test pages for better performance
+const ColorTestPage = React.lazy(() => import('./pages/ColorTestPage'));
+const ApiTestPage = React.lazy(() => import('./pages/ApiTestPage'));
+const WCAGComplianceTest = React.lazy(() => import('./components/testing/WCAGComplianceTest'));
 
 function App(): React.ReactElement {
   const [currentPage, setCurrentPage] = useState<'home' | 'colortest' | 'apitest' | 'wcagtest'>('home');
 
-  // Simple page switching for testing
+  // Simple loading component for lazy-loaded pages
+  const LoadingFallback = () => (
+    <div className="flex items-center justify-center min-h-screen bg-[#fbfbfd]">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-8 h-8 border-2 border-[#007aff] border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-[#8e8e93]">Loading...</p>
+      </div>
+    </div>
+  );
+
+  // Simple page switching for testing with lazy loading
   if (currentPage === 'colortest') {
     return (
       <div>
@@ -23,7 +35,9 @@ function App(): React.ReactElement {
             Back to Home
           </Button>
         </div>
-        <ColorTestPage />
+        <Suspense fallback={<LoadingFallback />}>
+          <ColorTestPage />
+        </Suspense>
       </div>
     );
   }
@@ -41,7 +55,9 @@ function App(): React.ReactElement {
             Back to Home
           </Button>
         </div>
-        <ApiTestPage />
+        <Suspense fallback={<LoadingFallback />}>
+          <ApiTestPage />
+        </Suspense>
       </div>
     );
   }
@@ -59,7 +75,9 @@ function App(): React.ReactElement {
             Back to Home
           </Button>
         </div>
-        <WCAGComplianceTest />
+        <Suspense fallback={<LoadingFallback />}>
+          <WCAGComplianceTest />
+        </Suspense>
       </div>
     );
   }

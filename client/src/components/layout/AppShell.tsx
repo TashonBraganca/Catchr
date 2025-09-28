@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import SimpleVoiceCapture from '@/components/capture/SimpleVoiceCapture';
+import VirtualizedNoteList, { Note } from '@/components/notes/VirtualizedNoteList';
+
+// Lazy load voice capture component for better performance
+const SimpleVoiceCapture = React.lazy(() => import('@/components/capture/SimpleVoiceCapture'));
 
 // APPLE NOTES + TODOIST INSPIRED APP SHELL
 // Three-panel layout: Sidebar (320px->64px) | Note List (300px) | Editor (flexible)
@@ -16,6 +19,30 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [showVoiceCapture, setShowVoiceCapture] = useState(false);
+  const [mobileView, setMobileView] = useState<'sidebar' | 'list' | 'editor'>('list');
+
+  // Responsive behavior - auto-collapse sidebar on mobile
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    handleResize(); // Check on initial load
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Mock notes data for virtualization demo
+  const mockNotes: Note[] = Array.from({ length: 1000 }, (_, i) => ({
+    id: `note-${i + 1}`,
+    title: `Note ${i + 1}`,
+    content: `This is the content of note ${i + 1}. It contains some sample text to demonstrate the virtualized list performance with thousands of notes.`,
+    tags: [`tag${(i % 5) + 1}`, `category${(i % 3) + 1}`],
+    lastModified: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    isPinned: i < 3, // Pin first 3 notes
+  }));
 
   return (
     <div className={cn(
@@ -24,7 +51,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
       className
     )}>
       {/* Apple Notes Style Three-Panel Layout */}
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full relative">
 
         {/* Left Sidebar - Projects & Smart Collections */}
         <motion.div
@@ -32,11 +59,22 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
           role="navigation"
           aria-label="Project navigation"
           className={cn(
-            "h-full border-r border-[#e5e5e7] bg-[#fbfbfd] flex-shrink-0",
-            "transition-all duration-300 ease-out"
+            "h-full border-r border-[#e5e5e7] bg-[#fbfbfd] flex-shrink-0 relative",
+            "glass-hover focus-ring",
+            // Mobile: overlay behavior
+            "md:relative md:translate-x-0",
+            sidebarCollapsed ? "absolute -translate-x-full md:translate-x-0 z-40" : "absolute translate-x-0 z-40 md:relative"
           )}
           animate={{
             width: sidebarCollapsed ? "64px" : "320px"
+          }}
+          transition={{
+            duration: 0.3,
+            ease: [0.4, 0, 0.2, 1], // Apple's ease curve
+            type: "tween"
+          }}
+          whileHover={{
+            boxShadow: "4px 0 20px rgba(0, 0, 0, 0.05)"
           }}
         >
           <div className="h-full flex flex-col">
@@ -45,19 +83,40 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
               {!sidebarCollapsed && (
                 <h1 className="text-lg font-semibold text-[#1d1d1f]">Notes</h1>
               )}
-              <button
+              <motion.button
                 data-testid="sidebar-toggle"
                 aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className={cn(
-                  "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors",
-                  "flex items-center justify-center text-[#8e8e93]"
+                  "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-all duration-200",
+                  "flex items-center justify-center text-[#8e8e93] focus-ring",
+                  "hover:text-[#007aff] hover:scale-105"
                 )}
+                whileHover={{
+                  scale: 1.05,
+                  backgroundColor: "rgba(0, 122, 255, 0.1)"
+                }}
+                whileTap={{
+                  scale: 0.95,
+                  rotate: 15
+                }}
+                transition={{ duration: 0.15 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <motion.svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  animate={{
+                    rotate: sidebarCollapsed ? 180 : 0
+                  }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
                   <path d="M3 12h18M3 6h18M3 18h18" />
-                </svg>
-              </button>
+                </motion.svg>
+              </motion.button>
             </div>
 
             {/* Smart Collections */}
@@ -66,32 +125,54 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
                 { id: 'inbox', name: 'Inbox', icon: '📥', count: 12 },
                 { id: 'today', name: 'Today', icon: '📅', count: 5 },
                 { id: 'completed', name: 'Completed', icon: '✅', count: 23 }
-              ].map((collection) => (
-                <button
+              ].map((collection, index) => (
+                <motion.button
                   key={collection.id}
                   data-testid="project-item"
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 rounded-lg",
-                    "hover:bg-[#f2f2f7] transition-colors text-left",
-                    selectedProject === collection.id && "bg-[#007aff] text-white"
+                    "hover:bg-[#f2f2f7] transition-all duration-200 text-left focus-ring",
+                    selectedProject === collection.id && "bg-[#007aff] text-white shadow-md"
                   )}
                   onClick={() => setSelectedProject(collection.id)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.1,
+                    ease: [0.4, 0, 0.2, 1]
+                  }}
+                  whileHover={{
+                    scale: 1.02,
+                    x: 4
+                  }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-lg">{collection.icon}</span>
+                  <motion.span
+                    className="text-lg"
+                    whileHover={{ scale: 1.2, rotate: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {collection.icon}
+                  </motion.span>
                   {!sidebarCollapsed && (
                     <>
                       <span className="flex-1 text-sm font-medium">{collection.name}</span>
-                      <span className={cn(
-                        "text-xs px-2 py-1 rounded-full",
-                        selectedProject === collection.id
-                          ? "bg-white/20 text-white"
-                          : "bg-[#8e8e93]/20 text-[#8e8e93]"
-                      )}>
+                      <motion.span
+                        className={cn(
+                          "text-xs px-2 py-1 rounded-full",
+                          selectedProject === collection.id
+                            ? "bg-white/20 text-white"
+                            : "bg-[#8e8e93]/20 text-[#8e8e93]"
+                        )}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.15 }}
+                      >
                         {collection.count}
-                      </span>
+                      </motion.span>
                     </>
                   )}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -145,7 +226,13 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
         {/* Middle Panel - Note List */}
         <motion.div
           data-testid="note-list"
-          className="w-[300px] h-full border-r border-[#e5e5e7] bg-white flex-shrink-0"
+          className={cn(
+            "h-full border-r border-[#e5e5e7] bg-white flex-shrink-0",
+            // Responsive widths
+            "w-full sm:w-[280px] md:w-[300px] lg:w-[320px]",
+            // Mobile: hide when editor is open
+            selectedNote ? "hidden lg:block" : "block"
+          )}
           layout
         >
           <div className="h-full flex flex-col">
@@ -168,54 +255,64 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
               </button>
             </div>
 
-            {/* Note List Items */}
-            <div className="flex-1 overflow-y-auto">
-              {[1, 2, 3, 4, 5].map((noteId) => (
-                <button
-                  key={noteId}
-                  className={cn(
-                    "w-full p-4 border-b border-[#f2f2f7] text-left hover:bg-[#f8f9fa] transition-colors",
-                    selectedNote === noteId.toString() && "bg-[#007aff]/10 border-l-4 border-l-[#007aff]"
-                  )}
-                  onClick={() => setSelectedNote(noteId.toString())}
-                >
-                  <h3 className="font-medium text-[#1d1d1f] mb-1 line-clamp-1">
-                    Note Title {noteId}
-                  </h3>
-                  <p className="text-sm text-[#8e8e93] line-clamp-2 mb-2">
-                    This is a preview of the note content that shows the first couple of lines...
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs px-2 py-1 bg-[#007aff]/20 text-[#007aff] rounded-full">
-                      work
-                    </span>
-                    <span className="text-xs text-[#8e8e93]">2 hours ago</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+            {/* Virtualized Note List */}
+            <VirtualizedNoteList
+              notes={mockNotes}
+              selectedNoteId={selectedNote}
+              onNoteSelect={setSelectedNote}
+              height={typeof window !== 'undefined' ? window.innerHeight - 56 : 600} // Full height minus header
+            />
           </div>
         </motion.div>
 
         {/* Right Panel - Note Editor */}
-        <div data-testid="note-editor" className="flex-1 h-full bg-white">
+        <div
+          data-testid="note-editor"
+          className={cn(
+            "flex-1 h-full bg-white",
+            // Mobile: full width when note selected, hidden otherwise
+            selectedNote ? "block w-full" : "hidden lg:block"
+          )}
+        >
           <div className="h-full flex flex-col">
             {selectedNote ? (
               <>
                 {/* Editor Header */}
-                <div className="h-14 flex items-center justify-between px-6 border-b border-[#e5e5e7]">
+                <div className="h-14 flex items-center justify-between px-4 lg:px-6 border-b border-[#e5e5e7]">
+                  {/* Mobile Back Button */}
+                  <motion.button
+                    className="lg:hidden w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#007aff] mr-2"
+                    onClick={() => setSelectedNote(null)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Back to note list"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                  </motion.button>
+
                   <input
                     type="text"
-                    className="text-lg font-semibold text-[#1d1d1f] bg-transparent border-none outline-none flex-1"
+                    className="text-lg font-semibold text-[#1d1d1f] bg-transparent border-none outline-none flex-1 focus-ring"
                     defaultValue="Note Title"
+                    placeholder="Note title..."
                   />
                   <div className="flex items-center space-x-2">
-                    <button className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93]">
+                    <motion.button
+                      className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93] focus-ring"
+                      whileHover={{ scale: 1.1, rotate: 10 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
                       📌
-                    </button>
-                    <button className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93]">
+                    </motion.button>
+                    <motion.button
+                      className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93] focus-ring"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
                       ⋯
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -248,34 +345,65 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
         data-testid="quick-capture-fab"
         aria-label="Open voice capture"
         className={cn(
-          "fixed bottom-8 right-8 w-14 h-14 rounded-full",
-          "bg-[#007aff] text-white shadow-lg",
+          "fixed w-14 h-14 rounded-full",
+          "bg-[#007aff] text-white shadow-lg focus-ring",
           "flex items-center justify-center",
-          "hover:bg-[#0056cc] transition-colors",
-          "z-50"
+          "hover:bg-[#0056cc] transition-all duration-200",
+          "z-50",
+          // Responsive positioning - mobile safe area
+          "bottom-6 right-6 md:bottom-8 md:right-8",
+          // Touch-friendly on mobile
+          "active:scale-95 sm:active:scale-100"
         )}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          delay: 0.5
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: "0 8px 32px rgba(0, 122, 255, 0.4)"
+        }}
+        whileTap={{
+          scale: 0.9,
+          rotate: 15
+        }}
         onClick={() => setShowVoiceCapture(true)}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <motion.svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          whileHover={{
+            scale: 1.1,
+            rotate: 10
+          }}
+          transition={{ duration: 0.2 }}
+        >
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
           <line x1="12" y1="19" x2="12" y2="23"/>
           <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
+        </motion.svg>
       </motion.button>
 
       {/* Voice Capture Modal */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showVoiceCapture && (
           <>
             {/* Backdrop */}
             <motion.div
               className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               onClick={() => setShowVoiceCapture(false)}
             />
 
@@ -283,36 +411,68 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
             <motion.div
               data-testid="voice-capture-modal"
               className="fixed inset-0 flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{
+                type: 'spring',
+                damping: 25,
+                stiffness: 400,
+                mass: 0.8
+              }}
             >
               <div className="relative">
                 {/* Close Button */}
-                <button
+                <motion.button
                   data-testid="modal-close"
                   aria-label="Close voice capture modal"
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-[#8e8e93] text-white rounded-full flex items-center justify-center z-10 hover:bg-[#6d6d70] transition-colors"
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-[#8e8e93] text-white rounded-full flex items-center justify-center z-10 hover:bg-[#6d6d70] transition-all duration-200 focus-ring"
                   onClick={() => setShowVoiceCapture(false)}
+                  initial={{ scale: 0, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  whileHover={{
+                    scale: 1.1,
+                    backgroundColor: "#ff3b30",
+                    rotate: 90
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ delay: 0.2, duration: 0.2 }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <motion.svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    whileHover={{ rotate: 180 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                </button>
+                  </motion.svg>
+                </motion.button>
 
-                <SimpleVoiceCapture
-                  onTranscriptComplete={(transcript, suggestedTitle, suggestedTags) => {
-                    console.log('Voice note completed:', { transcript, suggestedTitle, suggestedTags });
-                    // TODO: Create new note with this data
-                    setShowVoiceCapture(false);
-                  }}
-                  onError={(error) => {
-                    console.error('Voice capture error:', error);
-                    // TODO: Show error toast
-                  }}
-                  className="shadow-2xl"
-                />
+                <Suspense fallback={
+                  <div className="w-80 h-64 bg-white rounded-2xl border border-[#e5e5e7] shadow-2xl flex items-center justify-center">
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-6 h-6 border-2 border-[#007aff] border-t-transparent rounded-full animate-spin" />
+                      <p className="text-sm text-[#8e8e93]">Loading voice capture...</p>
+                    </div>
+                  </div>
+                }>
+                  <SimpleVoiceCapture
+                    onTranscriptComplete={(transcript, suggestedTitle, suggestedTags) => {
+                      console.log('Voice note completed:', { transcript, suggestedTitle, suggestedTags });
+                      // TODO: Create new note with this data
+                      setShowVoiceCapture(false);
+                    }}
+                    onError={(error) => {
+                      console.error('Voice capture error:', error);
+                      // TODO: Show error toast
+                    }}
+                    className="shadow-2xl"
+                  />
+                </Suspense>
               </div>
             </motion.div>
           </>

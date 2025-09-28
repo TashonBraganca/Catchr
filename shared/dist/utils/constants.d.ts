@@ -69,7 +69,7 @@ export declare const THOUGHT_TYPES: {
 };
 export declare const AI_CONFIG: {
     readonly OPENAI: {
-        readonly MODEL: "gpt-4o";
+        readonly MODEL: "gpt-4o-mini";
         readonly MAX_TOKENS: 1000;
         readonly TEMPERATURE: 0.7;
     };

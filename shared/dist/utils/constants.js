@@ -53,7 +53,7 @@ export const THOUGHT_TYPES = {
 // AI Configuration
 export const AI_CONFIG = {
     OPENAI: {
-        MODEL: 'gpt-4o', // Using latest available model - will update to gpt-5-mini when available
+        MODEL: 'gpt-4o-mini', // Using GPT-4o-mini as specified in REVAMP.md AI instructions
         MAX_TOKENS: 1000,
         TEMPERATURE: 0.7,
     },
