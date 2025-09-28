@@ -27,6 +27,7 @@ import roomRoutes from './routes/rooms.js';
 import extensionRoutes from './routes/extension.js';
 import aiRoutes from './routes/ai.js';
 import distributionRoutes from './routes/distribution.js';
+import cognitiveRoutes from './routes/cognitive.js';
 // import { aiWorker } from './workers/aiWorker.js'; // Optional - requires Redis
 
 const app = express();
@@ -64,6 +65,7 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/extension', extensionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/distribution', distributionRoutes);
+app.use('/api/cognitive', cognitiveRoutes);
 
 // API Testing Routes
 app.get('/api/test', (req, res) => {
@@ -120,6 +122,20 @@ app.get('/api/test', (req, res) => {
         'GET /api/distribution/extension/update-check',
         'GET /api/distribution/extension/stats',
         'POST /api/distribution/extension/feedback'
+      ],
+      cognitive: [
+        'GET /api/cognitive/suggestions',
+        'POST /api/cognitive/suggestions/generate',
+        'POST /api/cognitive/suggestions/:id/accept',
+        'POST /api/cognitive/suggestions/:id/dismiss',
+        'GET /api/cognitive/connections',
+        'POST /api/cognitive/connections/discover',
+        'POST /api/cognitive/connections/:id/confirm',
+        'GET /api/cognitive/insights',
+        'POST /api/cognitive/insights/generate',
+        'POST /api/cognitive/insights/:id/rate',
+        'GET /api/cognitive/patterns',
+        'GET /api/cognitive/summary'
       ],
       testing: [
         'GET /api/test',
