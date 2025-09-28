@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import HomePage from './pages/HomePage';
 import ColorTestPage from './pages/ColorTestPage';
 import ApiTestPage from './pages/ApiTestPage';
+import CognitiveInsightsPage from './pages/CognitiveInsightsPage';
 import WCAGComplianceTest from './components/testing/WCAGComplianceTest';
 import { Button } from './components/ui/button';
-import { Palette, Home, Code, Shield } from 'lucide-react';
+import { Palette, Home, Code, Shield, Brain } from 'lucide-react';
 
 function App(): React.ReactElement {
-  const [currentPage, setCurrentPage] = useState<'home' | 'colortest' | 'apitest' | 'wcagtest'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'colortest' | 'apitest' | 'wcagtest' | 'cognitive'>('home');
 
   // Simple page switching for testing
   if (currentPage === 'colortest') {
@@ -64,6 +65,24 @@ function App(): React.ReactElement {
     );
   }
 
+  if (currentPage === 'cognitive') {
+    return (
+      <div>
+        <div className="fixed top-4 left-4 z-50">
+          <Button
+            variant="glass"
+            size="sm"
+            onClick={() => setCurrentPage('home')}
+            leftIcon={<Home className="w-4 h-4" />}
+          >
+            Back to Home
+          </Button>
+        </div>
+        <CognitiveInsightsPage />
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Test Access Buttons */}
@@ -93,6 +112,15 @@ function App(): React.ReactElement {
           className="border-green-400/30 text-green-400"
         >
           ✅ WCAG Test
+        </Button>
+        <Button
+          variant="premium"
+          size="sm"
+          onClick={() => setCurrentPage('cognitive')}
+          leftIcon={<Brain className="w-4 h-4" />}
+          className="animate-orange-glow border-orange-400/30"
+        >
+          🧠 Cognitive Insights
         </Button>
       </div>
       <HomePage />
