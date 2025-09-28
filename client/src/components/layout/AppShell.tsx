@@ -28,6 +28,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
 
         {/* Left Sidebar - Projects & Smart Collections */}
         <motion.div
+          data-testid="sidebar"
+          role="navigation"
+          aria-label="Project navigation"
           className={cn(
             "h-full border-r border-[#e5e5e7] bg-[#fbfbfd] flex-shrink-0",
             "transition-all duration-300 ease-out"
@@ -43,6 +46,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
                 <h1 className="text-lg font-semibold text-[#1d1d1f]">Notes</h1>
               )}
               <button
+                data-testid="sidebar-toggle"
+                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className={cn(
                   "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors",
@@ -64,6 +69,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
               ].map((collection) => (
                 <button
                   key={collection.id}
+                  data-testid="project-item"
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 rounded-lg",
                     "hover:bg-[#f2f2f7] transition-colors text-left",
@@ -138,6 +144,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
 
         {/* Middle Panel - Note List */}
         <motion.div
+          data-testid="note-list"
           className="w-[300px] h-full border-r border-[#e5e5e7] bg-white flex-shrink-0"
           layout
         >
@@ -191,7 +198,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
         </motion.div>
 
         {/* Right Panel - Note Editor */}
-        <div className="flex-1 h-full bg-white">
+        <div data-testid="note-editor" className="flex-1 h-full bg-white">
           <div className="h-full flex flex-col">
             {selectedNote ? (
               <>
@@ -238,6 +245,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
 
       {/* Todoist-Style Quick Capture FAB */}
       <motion.button
+        data-testid="quick-capture-fab"
+        aria-label="Open voice capture"
         className={cn(
           "fixed bottom-8 right-8 w-14 h-14 rounded-full",
           "bg-[#007aff] text-white shadow-lg",
@@ -272,6 +281,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
 
             {/* Modal */}
             <motion.div
+              data-testid="voice-capture-modal"
               className="fixed inset-0 flex items-center justify-center z-50 p-4"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -281,6 +291,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
               <div className="relative">
                 {/* Close Button */}
                 <button
+                  data-testid="modal-close"
+                  aria-label="Close voice capture modal"
                   className="absolute -top-2 -right-2 w-8 h-8 bg-[#8e8e93] text-white rounded-full flex items-center justify-center z-10 hover:bg-[#6d6d70] transition-colors"
                   onClick={() => setShowVoiceCapture(false)}
                 >

@@ -261,6 +261,8 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
     >
       {/* Recording Button */}
       <motion.button
+        data-testid="voice-record-button"
+        aria-label={isRecording ? "Stop recording" : "Start recording"}
         className={cn(
           "relative w-20 h-20 rounded-full border-4 transition-all duration-200",
           "flex items-center justify-center",
@@ -313,6 +315,7 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       {/* Status Text */}
       <div className="text-center">
         <motion.p
+          data-testid="voice-status"
           className="text-lg font-medium text-[#1d1d1f]"
           animate={{ scale: isRecording ? 1.05 : 1 }}
         >
