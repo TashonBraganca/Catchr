@@ -6,7 +6,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { CognitiveAI } from '../services/cognitiveAI.js';
-import { supabase } from '../config/supabase.js';
+import { supabaseAdmin as supabase } from '../config/supabase.js';
 
 const router = express.Router();
 const cognitiveAI = new CognitiveAI();

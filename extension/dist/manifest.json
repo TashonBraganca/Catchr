@@ -26,7 +26,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/index.ts-loader-B77w1-XE.js"
+        "assets/index.ts-loader-C55ES2J1.js"
       ],
       "matches": [
         "<all_urls>"
@@ -68,8 +68,8 @@
       "resources": [
         "icons/*.png",
         "src/content/styles.css",
-        "assets/chunk-DX5UB71L.js",
-        "assets/chunk-B1k59mVR.js"
+        "assets/chunk-BYVbgdLO.js",
+        "assets/chunk-5E0qI-gM.js"
       ],
       "use_dynamic_url": false
     }

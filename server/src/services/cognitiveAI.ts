@@ -4,7 +4,7 @@
  */
 
 import OpenAI from 'openai';
-import { supabase } from '../config/supabase.js';
+import { supabaseAdmin as supabase } from '../config/supabase.js';
 
 // =====================================================
 // TYPES AND INTERFACES

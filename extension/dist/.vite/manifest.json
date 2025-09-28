@@ -9,53 +9,53 @@
     "file": "assets/chunk-B5Qt9EMX.js",
     "name": "modulepreload-polyfill"
   },
-  "_chunk-DX5UB71L.js": {
-    "file": "assets/chunk-DX5UB71L.js",
+  "_chunk-BYVbgdLO.js": {
+    "file": "assets/chunk-BYVbgdLO.js",
     "name": "browser-polyfill"
   },
   "index.ts-loader.js": {
-    "file": "assets/index.ts-loader-B77w1-XE.js",
+    "file": "assets/index.ts-loader-C55ES2J1.js",
     "src": "index.ts-loader.js"
   },
   "src/background/index.ts": {
-    "file": "assets/chunk-U5N3jxkW.js",
+    "file": "assets/chunk-89s7kwuG.js",
     "name": "index.ts",
     "src": "src/background/index.ts",
     "isEntry": true,
     "imports": [
-      "_chunk-DX5UB71L.js"
+      "_chunk-BYVbgdLO.js"
     ]
   },
   "src/content/index.ts": {
-    "file": "assets/chunk-B1k59mVR.js",
+    "file": "assets/chunk-5E0qI-gM.js",
     "name": "index.ts",
     "src": "src/content/index.ts",
     "isEntry": true,
     "imports": [
-      "_chunk-DX5UB71L.js"
+      "_chunk-BYVbgdLO.js"
     ]
   },
   "src/options/index.html": {
-    "file": "assets/chunk-CK_gIMTA.js",
+    "file": "assets/chunk-B5ZylMBS.js",
     "name": "index.html",
     "src": "src/options/index.html",
     "isEntry": true,
     "imports": [
       "_chunk-B5Qt9EMX.js",
-      "_chunk-DX5UB71L.js"
+      "_chunk-BYVbgdLO.js"
     ],
     "css": [
       "assets/index-eHWQkH0w.css"
     ]
   },
   "src/popup/index.html": {
-    "file": "assets/chunk-BA4u7_Mo.js",
+    "file": "assets/chunk-BczgUK73.js",
     "name": "index.html",
     "src": "src/popup/index.html",
     "isEntry": true,
     "imports": [
       "_chunk-B5Qt9EMX.js",
-      "_chunk-DX5UB71L.js"
+      "_chunk-BYVbgdLO.js"
     ],
     "css": [
       "assets/index-DxGcGyfZ.css"

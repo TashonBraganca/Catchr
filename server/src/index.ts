@@ -28,6 +28,7 @@ import extensionRoutes from './routes/extension.js';
 import aiRoutes from './routes/ai.js';
 import distributionRoutes from './routes/distribution.js';
 import cognitiveRoutes from './routes/cognitive.js';
+import voiceRoutes from './routes/voice.js';
 // import { aiWorker } from './workers/aiWorker.js'; // Optional - requires Redis
 
 const app = express();
@@ -66,6 +67,7 @@ app.use('/api/extension', extensionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/distribution', distributionRoutes);
 app.use('/api/cognitive', cognitiveRoutes);
+app.use('/api/voice', voiceRoutes);
 
 // API Testing Routes
 app.get('/api/test', (req, res) => {
@@ -136,6 +138,11 @@ app.get('/api/test', (req, res) => {
         'POST /api/cognitive/insights/:id/rate',
         'GET /api/cognitive/patterns',
         'GET /api/cognitive/summary'
+      ],
+      voice: [
+        'POST /api/voice/transcribe',
+        'POST /api/voice/categorize',
+        'POST /api/voice/save'
       ],
       testing: [
         'GET /api/test',

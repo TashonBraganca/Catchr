@@ -40,7 +40,16 @@
       "WebFetch(domain:github.com)",
       "Bash(git tag:*)",
       "Bash(gh run list:*)",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "WebFetch(domain:www.apple.com)",
+      "WebSearch",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:nicelydone.club)",
+      "WebFetch(domain:www.todoist.com)",
+      "WebFetch(domain:keep.google.com)",
+      "Bash(npx playwright:*)",
+      "Bash(npx supabase db reset:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
