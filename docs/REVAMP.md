@@ -29,6 +29,489 @@
 
 ---
 
+# 📍 **REDDIT RESEARCH: WHY THESE APPS ARE EXCELLENT**
+
+## 🍎 **APPLE NOTES - REDDIT USER INSIGHTS**
+
+### **Key Success Factors According to Reddit Users:**
+
+| **Success Factor** | **Reddit User Quotes & Insights** |
+|-------------------|-----------------------------------|
+| **🔗 Seamless Apple Ecosystem Integration** | "Apple Notes 'just works' within the Apple ecosystem" - seamlessly syncs across iPhone, iPad, and Mac via iCloud. "Start a note on your iPhone and finish it on your Mac without missing a beat." |
+| **✨ Simplicity and Ease of Use** | "Apple seems to prioritize simplicity when designing its products, and Notes is no exception." Users appreciate the "clean, uncluttered, and user-friendly interface that makes it easy for anyone to intuitively navigate and start writing immediately." |
+| **💰 Free and Built-In** | "Apple Notes takes it because it is free and built in. Completely free! If you own an Apple device, you already have access to it—no hidden costs, no subscriptions." |
+| **🚀 Powerful Features That Keep Getting Better** | "Over the past few years, Apple has added features like tags, sharing, and a powerful search. You can add text, record audio and get live transcripts, attach images, scan documents, draw or handwrite, and basically format them as you need." |
+| **⚡ Quick Note-Taking vs Complex Apps** | Reddit user: "For my workflow, I use Apple notes to jot things down quickly so I don't get out of my flow when using other tools. Anything that needs to be shared, archived, or given serious attention goes into Notion." |
+| **🎯 Perfect Balance** | "Apple Notes has a lot of good features, works on all of your Apple devices, is already pre-installed, easily supports sharing/syncing between other people, and fits the needs of many people." |
+
+### **Expert 2024 Assessment:**
+> *"There's a very healthy notes app ecosystem for Apple devices; however, since they're all paid products and Apple Notes is so good, none of them made this list according to Zapier's 2025 note-taking app roundup."*
+
+---
+
+## ✅ **TODOIST - REDDIT USER INSIGHTS**
+
+### **Key Success Factors According to Reddit Users:**
+
+| **Success Factor** | **Reddit User Quotes & Insights** |
+|-------------------|-----------------------------------|
+| **🌐 Cross-Platform Excellence** | "Todoist is most praised for its minimalist design, user-friendly layout, and cross-platform compatibility. Dedicated apps across every major device type – iOS, Android, Windows, Mac, and web – and they all work super well." |
+| **🗣️ Natural Language Processing** | "The natural language makes adding a new task on the fly so quick and easy." Users love typing "buy milk Monday" and having the task automatically set for next Monday. |
+| **⚡ Speed and Simplicity** | "Todoist - It looks good, does what it's supposed to do very well and doesn't try to be anything more. Smooth, quick, easy - many of my interactions with it are less than 3 seconds." |
+| **🔄 Life-Changing Impact** | "I've only recently started using Todoist, and it's already changed my life. With ToDoist, I've been more productive this week than I have in years. I sound like I'm getting paid to say this, which is the sign of a great product." |
+| **⚖️ Balance of Power and Simplicity** | "Todoist isn't the most powerful to-do list website out there, it's also not the simplest, but it balances power with simplicity and runs on basically every platform that exists." |
+| **🎯 Long-term User Satisfaction** | "I've been a Pro subscriber for about 7 years and have never considered switching. Before Todoist, I hopped around every few years. I have never felt the need to switch from Todoist." |
+| **🧠 True Second Brain** | "It's truly my secret weapon. People wonder how I stay on top of my work and responsibilities. I could not do it without Todoist. It's my true second brain." |
+
+---
+
+## 📝 **GOOGLE KEEP - REDDIT USER INSIGHTS**
+
+### **Key Success Factors According to Reddit Users:**
+
+| **Success Factor** | **Reddit User Quotes & Insights** |
+|-------------------|-----------------------------------|
+| **📄 Digital Sticky Notes Simplicity** | "Google Keep is as plain as a sticky note with no databases to structure or pages to nest, allowing users to open the app and type without thinking about where the note belongs." |
+| **🔗 Seamless Google Integration** | "Google Keep integrates with Google in multiple ways - you can copy notes to Google Docs, set reminders that appear in Google Calendar, and Google automatically transcribes audio notes." |
+| **👥 Real-Time Collaboration** | "Instead of sending messages about errands or shopping lists, users can share a Keep note with family members who can all edit it in real-time. When shopping, you can share your list and watch as items get checked off without needing text messages." |
+| **📍 Location-Based Features** | "Setting location-based reminders in Keep is a game-changer - like a grocery list that alerts you when you walk into the supermarket, or a reminder to drop off a package when you arrive at the post office." |
+| **🎤 Voice Notes and Transcription** | "Voice notes allow users to dictate to-do lists into Keep while walking without needing to type anything." Google automatically transcribes audio with impressive accuracy. |
+| **⚡ Instant Access Across Devices** | "Notes appear on phone, computer, and tablet within seconds, allowing users to jot a shopping list on their computer and have it ready on their phone at the store." |
+
+### **User Evolution Insights:**
+> *"For quick notes and everyday lists it's excellent, but some users still rely on apps like Obsidian for deeper projects that need backlinks, rich formatting, and vault-style organization. The consensus is that Google Keep excels as a go-to app for anything fleeting or immediate."*
+
+---
+
+## 🎯 **IMPLEMENTATION STRATEGY: REDDIT-DRIVEN FEATURES**
+
+### **🔥 Critical Success Patterns to Implement:**
+
+| **Pattern** | **Implementation Priority** | **Reddit Insight** |
+|-------------|---------------------------|-------------------|
+| **⚡ 3-Second Interactions** | **CRITICAL** | "Many of my interactions with it are less than 3 seconds" (Todoist) |
+| **🗣️ Natural Language Input** | **CRITICAL** | "Type 'buy milk Monday' and the task 'buy milk' will be added with the next Monday set as your due date" |
+| **🔄 Instant Sync Across Devices** | **CRITICAL** | "Start a note on your iPhone and finish it on your Mac without missing a beat" |
+| **📱 No Learning Curve** | **HIGH** | "Zero learning curve for Apple Notes users - intuitive navigation without tutorials" |
+| **🎯 Quick Capture Dominance** | **HIGH** | "For my workflow, I use Apple notes to jot things down quickly so I don't get out of my flow" |
+| **🧠 True Second Brain Feel** | **HIGH** | "It's truly my secret weapon... It's my true second brain" |
+
+### **⚠️ Anti-Patterns to Avoid (Based on Reddit Complaints):**
+- ❌ Complex setup processes that break flow
+- ❌ Learning curves or tutorials required
+- ❌ Slow interactions (anything over 3 seconds)
+- ❌ Platform-specific limitations
+- ❌ Feature bloat that complicates simple tasks
+
+---
+
+# 🌐 **WEBSITE ANALYSIS: UX PATTERNS & DESIGN INSIGHTS**
+
+## 📋 **TODOIST WEBSITE ANALYSIS (2024)**
+
+### **🎯 Core Design Patterns Extracted:**
+
+| **Design Element** | **Implementation Details** | **Key Success Factor** |
+|-------------------|---------------------------|------------------------|
+| **🏗️ Layout & Visual Hierarchy** | Clean, minimalist design with clear sectioning, prominent "Clarity, finally" headline, strategic white space usage | **Immediate value proposition** with visual storytelling |
+| **🧭 Navigation Patterns** | Simplified top nav with dropdowns ("Made For", "Resources", "Pricing"), quick login/signup access | **Reduced cognitive load** with categorized sections |
+| **⚡ Quick Capture Emphasis** | "Capture tasks at the speed of thought" prominently featured, natural language support highlighted | **Speed as primary value proposition** |
+| **📁 Project Organization** | Templates for work/personal contexts, multiple views (list/board/calendar), color-coded categorization | **Flexible organization** without complexity |
+| **🎨 Visual Design System** | Minimalist red/white/gray palette, modern sans-serif typography, high-contrast design | **Clean aesthetic** that reduces distractions |
+| **🔄 User Interaction Patterns** | "Start for free" CTA, interactive template browsing, smooth scrolling transitions | **Friction-free onboarding** process |
+
+### **📱 Mobile Responsiveness Insights:**
+- Adaptive interface screenshots across devices
+- Touch-friendly navigation elements
+- Consistent visual branding mobile-to-desktop
+
+---
+
+## 🍎 **APPLE NOTES DESIGN PATTERNS (2024)**
+
+### **🏛️ Three-Panel Layout Architecture:**
+
+| **Panel** | **Width/Behavior** | **Adaptive Response** |
+|-----------|-------------------|----------------------|
+| **📂 Sidebar (Folders)** | 320px expanded, collapsed in portrait | Left-anchored in landscape, overlay in portrait |
+| **📄 Notes List** | Variable width, responsive | Adaptive based on content and screen size |
+| **✏️ Content Editor** | Flexible, takes remaining space | Full-width when focused |
+
+### **🆕 2024 "Liquid Glass" Design Language:**
+- **Material Properties**: Combines optical glass qualities with fluid transformations
+- **Context Awareness**: Material transforms based on content and context
+- **Enhanced Elements**: Updated buttons, switches, sliders, tab bars, and sidebars
+- **Immersive Experience**: Content refraction with wallpaper reflection
+- **Device Adaptation**: NavigationSplitView API for adaptive experiences
+
+### **📐 Technical Specifications:**
+- **Expanded Sidebar**: 320px wide, full screen height
+- **Collapsed Mode**: Default in portrait, expanded in landscape
+- **Responsive Behavior**: Automatic adaptation based on device orientation
+
+---
+
+## 📝 **GOOGLE KEEP INTERFACE PATTERNS (2024)**
+
+### **🎴 Card-Based Layout System:**
+
+| **Feature** | **Implementation** | **User Benefit** |
+|-------------|-------------------|------------------|
+| **🖼️ Flexible Views** | Single-column or multi-column layout options | **Visual organization** flexibility |
+| **🌈 Color Coding** | 8 color options (white, red, orange, yellow, green, teal, blue, gray) | **Quick visual identification** |
+| **🏷️ Label System** | Category labels with navigation bar integration | **Organized categorization** |
+| **🎤 Voice Integration** | Automatic transcription of voice recordings | **Hands-free note creation** |
+| **👥 Real-Time Collaboration** | Live editing with multiple users | **Instant collaboration** feedback |
+
+### **🔄 2024 Interface Improvements:**
+- Enhanced widgets for Google Chat app cards (October 2024)
+- Improved card-based interface systems
+- Focus on simplicity while maintaining powerful collaboration features
+
+---
+
+## ✅ **GOOGLE TASKS SIDEBAR DESIGN (2024)**
+
+### **🎨 Major 2024 Interface Refresh:**
+
+| **Update Category** | **Specific Improvements** | **Impact** |
+|--------------------|--------------------------|------------|
+| **🎨 Visual Modernization** | Modern, accessible controls (buttons, dialogs, sidebars) | **Enhanced usability** |
+| **🔤 Typography System** | Google's custom-designed, highly-legible typefaces | **Improved readability** |
+| **🌙 Dark Mode Support** | Light/dark/device default theme options | **Customizable viewing experience** |
+| **📱 Responsive Design** | Optimized for mobile and web access | **Cross-platform consistency** |
+
+### **🏗️ Sidebar Architecture:**
+- **Left Panel**: Task lists switching and creation
+- **Main Area**: Task details and management
+- **Gmail/Calendar Integration**: Lives in sidebar of both apps
+- **Quick Access**: "Show side panel" toggle for visibility
+
+### **📅 Due Date Management Innovations:**
+- **Drag-and-Drop**: Tasks onto calendar dates for due date assignment
+- **Calendar Integration**: Tasks appear on calendar on due dates
+- **Visual Indicators**: Clear due date and priority displays
+
+---
+
+## 🚀 **NATURAL LANGUAGE & SPEED PATTERNS**
+
+### **⚡ Todoist's "3-Second Interaction" Philosophy:**
+
+| **Speed Optimization** | **Implementation** | **User Impact** |
+|----------------------|-------------------|----------------|
+| **🗣️ Natural Language Processing** | "Take trash to curb every Sunday at 8pm" → Auto-scheduled recurring task | **Telepathic-like** task creation |
+| **⚡ Quick Add Feature** | Fastest task addition with dates, labels, reminders | **Effortless capture** experience |
+| **🎯 Spartan Design** | Zero interface fluff, no unnecessary animations | **Responsive, quick** interactions |
+| **📱 Mobile Optimization** | Particularly fast on mobile devices | **On-the-go** efficiency |
+
+### **🧠 Cognitive Load Reduction:**
+- **No Learning Curve**: "Tell the computer like you'd tell a human"
+- **Instant Recognition**: Keywords automatically parsed for dates/recurrence
+- **Joyful Interaction**: Users report "effortless and joyful" task capture
+
+---
+
+## 🎯 **IMPLEMENTATION ROADMAP: KEY UX PATTERNS**
+
+### **🔥 Critical Design Patterns to Implement:**
+
+| **Priority** | **Pattern** | **Source App** | **Implementation Detail** |
+|-------------|-------------|---------------|--------------------------|
+| **🚨 CRITICAL** | **Three-Panel Layout** | Apple Notes | 320px sidebar → adaptive → content editor |
+| **🚨 CRITICAL** | **Natural Language Input** | Todoist | "buy milk Monday" → auto-scheduled task |
+| **🚨 CRITICAL** | **Liquid Glass Design** | Apple 2024 | Backdrop-blur + content refraction |
+| **🔥 HIGH** | **Card-Based Organization** | Google Keep | Color-coded, flexible layout cards |
+| **🔥 HIGH** | **Voice-to-Text Pipeline** | Google Keep | Automatic transcription + categorization |
+| **⚡ HIGH** | **3-Second Interactions** | Todoist | Ultra-fast capture without UI friction |
+
+### **🛠️ Technical Implementation Strategy:**
+
+```typescript
+// Three-Panel Layout Implementation
+interface ThreePanelLayout {
+  sidebar: {
+    expanded: '320px',
+    collapsed: '64px',
+    adaptive: 'landscape-expanded | portrait-overlay'
+  },
+  notesList: {
+    width: 'variable',
+    responsive: 'content-based'
+  },
+  editor: {
+    width: 'flexible',
+    takesRemainingSpace: true
+  }
+}
+
+// Natural Language Processing Flow
+interface NLPCapture {
+  input: string, // "buy milk Monday"
+  parsing: DateExtraction | TaskType | Priority,
+  output: StructuredTask
+}
+
+// Liquid Glass Material System
+interface LiquidGlass {
+  backdropFilter: 'blur(20px)',
+  reflection: 'wallpaper-aware',
+  refraction: 'content-based',
+  adaptation: 'context-responsive'
+}
+```
+
+---
+
+# 🚀 **NEXT PHASE IMPLEMENTATION ROADMAP**
+
+## 🎯 **PHASE 3: REDDIT-DRIVEN IMPLEMENTATION (Priority 1)**
+
+### **⚡ Critical Success Patterns from Reddit Research:**
+
+| **Week** | **Feature** | **Reddit Insight Source** | **Success Metric** |
+|----------|-------------|---------------------------|-------------------|
+| **Week 1** | **3-Second Interactions** | Todoist users: "interactions are less than 3 seconds" | Task capture < 3 seconds |
+| **Week 1** | **Natural Language Input** | "type 'buy milk Monday' → auto-scheduled task" | NLP parsing accuracy > 95% |
+| **Week 2** | **Apple Notes Three-Panel** | "start note on iPhone, finish on Mac seamlessly" | Perfect 320px sidebar adaptation |
+| **Week 2** | **Liquid Glass Design** | Apple 2024: backdrop-blur + content refraction | Glass morphism implementation |
+| **Week 3** | **Google Keep Voice Pipeline** | "dictate to-do lists while walking" | Voice-to-text accuracy > 90% |
+| **Week 3** | **Zero Learning Curve** | "intuitive navigation without tutorials" | First-time user success rate |
+
+### **🔧 Technical Implementation Strategy:**
+
+```typescript
+// Week 1: Speed Optimization Foundation
+interface SpeedOptimization {
+  captureModal: {
+    openTime: '< 200ms',
+    textFocus: 'immediate',
+    autoSave: '< 1s debounce'
+  },
+  naturalLanguage: {
+    parsing: 'real-time',
+    dateExtraction: 'chrono-node',
+    taskDetection: 'GPT-5-mini'
+  }
+}
+
+// Week 2: Layout & Design System
+interface LayoutSystem {
+  threePanelLayout: {
+    sidebar: '320px → 64px adaptive',
+    notesList: 'virtual scrolling',
+    editor: 'flexible width'
+  },
+  liquidGlass: {
+    backdropFilter: 'blur(20px)',
+    refraction: 'content-aware',
+    reflection: 'wallpaper-based'
+  }
+}
+
+// Week 3: Voice & AI Pipeline
+interface VoiceAIPipeline {
+  webSpeechAPI: 'primary capture',
+  whisperFallback: 'HuggingFace endpoint',
+  gpt5Processing: 'categorization + tagging',
+  realTimeSync: 'Supabase subscriptions'
+}
+```
+
+---
+
+## 🛠️ **PHASE 4: TECHNICAL DEBT RESOLUTION (Priority 2)**
+
+### **🚨 Build Issues Resolution Plan:**
+
+| **Priority** | **Issue Category** | **TypeScript Errors** | **Solution** |
+|-------------|-------------------|----------------------|------------|
+| **CRITICAL** | **Component Type Mismatches** | 60+ variant errors | Standardize glass component variant types |
+| **CRITICAL** | **Database Type Generation** | 50+ Supabase errors | Regenerate database types from schema |
+| **HIGH** | **Missing Dependencies** | socket.io-client, @vercel/node | Install and configure missing packages |
+| **HIGH** | **Import/Export Conflicts** | Supabase configuration | Fix module export consistency |
+| **MEDIUM** | **Property Interface Mismatches** | Component props errors | Align component interfaces |
+
+### **📋 Build Fix Checklist:**
+
+```bash
+# Week 1: Core Type Issues
+1. Fix glass component variant types (AuthForm, OnboardingFlow, etc.)
+2. Regenerate Supabase database types
+3. Resolve component property interface mismatches
+4. Fix import/export naming conflicts
+
+# Week 2: Dependencies & Configuration
+5. Install missing dependencies (socket.io-client, @vercel/node)
+6. Configure Vercel deployment credentials
+7. Set up production environment variables
+8. Test production build pipeline
+
+# Week 3: Integration & Deployment
+9. Fix Supabase configuration exports
+10. Resolve worker and queue type conflicts
+11. Test end-to-end build process
+12. Deploy to Vercel production
+```
+
+---
+
+## 🎨 **PHASE 5: UX PATTERN IMPLEMENTATION (Priority 3)**
+
+### **📱 Interface Patterns from Website Analysis:**
+
+| **Source App** | **Pattern** | **Implementation** | **Timeline** |
+|---------------|-------------|-------------------|-------------|
+| **🍎 Apple Notes** | Three-panel adaptive layout | 320px sidebar with landscape/portrait modes | Week 1-2 |
+| **✅ Todoist** | Natural language quick capture | "buy milk Monday" → structured task | Week 1 |
+| **📝 Google Keep** | Card-based color organization | 8-color system with flexible layouts | Week 2-3 |
+| **✅ Google Tasks** | Drag-and-drop due dates | Tasks onto calendar integration | Week 3-4 |
+| **🍎 Apple 2024** | Liquid Glass design system | Backdrop-blur + content refraction | Week 2 |
+
+### **🎯 UX Success Metrics:**
+
+```typescript
+interface UXMetrics {
+  speedMetrics: {
+    taskCapture: '< 3 seconds',
+    modalOpen: '< 200ms',
+    searchResults: '< 200ms',
+    voiceProcessing: '< 5 seconds'
+  },
+  usabilityMetrics: {
+    firstTimeUserSuccess: '> 95%',
+    learningCurve: 'zero tutorials required',
+    taskCompletionRate: '> 90%',
+    userRetention: '> 80% week 1'
+  },
+  technicalMetrics: {
+    voiceAccuracy: '> 90%',
+    nlpParsingAccuracy: '> 95%',
+    crossDeviceSync: '< 1 second',
+    offlineCapability: 'full CRUD operations'
+  }
+}
+```
+
+---
+
+## 🧠 **PHASE 6: AI & VOICE ENHANCEMENT (Priority 4)**
+
+### **🎤 Reddit-Inspired Voice Features:**
+
+| **Reddit Quote** | **Feature Implementation** | **Technical Approach** |
+|-----------------|---------------------------|------------------------|
+| **"dictate while walking"** | Mobile-optimized voice capture | Web Speech API + mobile detection |
+| **"automatically transcribes audio"** | Real-time transcription display | Live transcript with confidence indicators |
+| **"hands-free note creation"** | Voice-only workflow completion | Complete capture without touching screen |
+| **"telepathic-like task creation"** | AI-powered intent recognition | GPT-5-mini with contextual prompts |
+
+### **🤖 AI Pipeline Enhancement:**
+
+```typescript
+interface EnhancedAIPipeline {
+  voiceCapture: {
+    realTimeTranscription: 'WebSpeech + visual feedback',
+    backgroundProcessing: 'Whisper for accuracy',
+    confidenceScoring: 'adaptive fallback system'
+  },
+  naturalLanguageProcessing: {
+    intentRecognition: 'GPT-5-mini with context',
+    dateExtraction: 'chrono-node + custom patterns',
+    taskClassification: 'note/task/reminder/idea',
+    priorityDetection: 'urgency keywords + context'
+  },
+  personalization: {
+    learningPatterns: 'user vocabulary + preferences',
+    categoryPrediction: 'historical categorization',
+    smartSuggestions: 'contextual recommendations',
+    adaptiveInterface: 'usage-based UI optimization'
+  }
+}
+```
+
+---
+
+## 📈 **PHASE 7: PERFORMANCE & SCALE (Priority 5)**
+
+### **⚡ Speed Optimizations from Research:**
+
+| **Performance Target** | **Reddit/Website Insight** | **Implementation Strategy** |
+|----------------------|---------------------------|----------------------------|
+| **< 3 Second Interactions** | Todoist "spartan design, no fluff" | Remove animations, optimize renders |
+| **< 2 Second Load Time** | Apple Notes "instant access" | Code splitting, lazy loading |
+| **< 200ms Search** | Google Keep "instant search" | Client-side indexing + debouncing |
+| **< 1 Second Sync** | "Start iPhone, finish Mac" | Real-time Supabase subscriptions |
+
+### **🏗️ Architecture Optimizations:**
+
+```typescript
+interface PerformanceArchitecture {
+  frontendOptimizations: {
+    virtualScrolling: 'react-window for 1000+ notes',
+    codesplitting: 'route-based + component lazy loading',
+    memorization: 'React.memo for expensive components',
+    stateOptimization: 'Zustand with selectors'
+  },
+  backendOptimizations: {
+    edgeFunctions: 'Vercel serverless for AI processing',
+    databaseIndexing: 'user_id, created_at, search vectors',
+    caching: 'Redis for frequent queries',
+    queueSystem: 'BullMQ for background processing'
+  },
+  realTimeFeatures: {
+    supabaseSubscriptions: 'selective row-level filtering',
+    optimisticUpdates: 'immediate UI feedback',
+    conflictResolution: 'last-write-wins with timestamps',
+    offlineSupport: 'IndexedDB with sync queue'
+  }
+}
+```
+
+---
+
+## 🎯 **SUCCESS VALIDATION CRITERIA**
+
+### **🔥 Critical Success Metrics (Must Achieve):**
+
+| **Category** | **Metric** | **Target** | **Validation Method** |
+|-------------|------------|------------|----------------------|
+| **⚡ Speed** | Task capture time | < 3 seconds | Automated timing tests |
+| **🧠 Intelligence** | Voice transcription accuracy | > 90% | Sample testing with varied accents |
+| **🎨 Usability** | First-time user success | > 95% | User testing sessions |
+| **🔄 Reliability** | Cross-device sync speed | < 1 second | Multi-device testing |
+| **📱 Responsiveness** | Mobile interface fluidity | 60fps animations | Performance profiling |
+
+### **📊 Implementation Timeline:**
+
+```mermaid
+gantt
+    title Implementation Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 3: Reddit-Driven
+    3-Second Interactions    :crit, p3a, 2024-01-01, 7d
+    Natural Language Input   :crit, p3b, 2024-01-08, 7d
+    Three-Panel Layout       :p3c, 2024-01-15, 7d
+
+    section Phase 4: Technical Debt
+    Build Issues Resolution  :crit, p4a, 2024-01-01, 21d
+    Deployment Setup         :p4b, 2024-01-15, 7d
+
+    section Phase 5: UX Patterns
+    Interface Implementation :p5a, 2024-01-22, 14d
+    Design System            :p5b, 2024-01-29, 7d
+
+    section Phase 6: AI Enhancement
+    Voice Pipeline           :p6a, 2024-02-05, 14d
+    AI Personalization       :p6b, 2024-02-12, 7d
+
+    section Phase 7: Performance
+    Speed Optimization       :p7a, 2024-02-19, 7d
+    Scale Testing            :p7b, 2024-02-26, 7d
+```
+
+---
+
 # GROK INSTRUTIONS :
 Phase 1: Research and UI/UX Reference Compilation
 This phase involves gathering and synthesizing detailed UI/UX references from Todoist, Apple Notes, and Google Keep to ensure perfect copying. Use descriptions from researched sources to inform all subsequent prompts. Emphasize clean, minimalistic designs: Todoist's red accents and task lists, Apple Notes' split-pane sidebar with gallery/list views and no popups, Google Keep's card-based notes with dark mode gray backgrounds and simple search. Remove all hover popups, paste images, glowy icons; make everything necessity-driven on one page with modals for interactions. Develop app icon: a stylized brain with a lightbulb or speech bubble, simple and modern. Database: User-specific tables in Supabase with RLS. Fix voice: Web Speech API primary, Hugging Face Whisper fallback deployed via Vercel edge functions. Pipeline: Ensure end-to-end flow from capture to AI categorization (OpenAI GPT-5-mini) to DB save, all async. No page navigation; use React Router with outlets or modals for sub-views. Remove analytics, insights; center quick capture; integrate Google Calendar API for reminders.

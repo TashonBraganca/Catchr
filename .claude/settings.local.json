@@ -49,7 +49,10 @@
       "WebFetch(domain:keep.google.com)",
       "Bash(npx playwright:*)",
       "Bash(npx supabase db reset:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:tasks.google.com)",
+      "WebFetch(domain:support.apple.com)",
+      "WebFetch(domain:support.google.com)"
     ],
     "deny": [],
     "ask": []

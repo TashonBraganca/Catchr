@@ -1,77 +1,115 @@
 export interface Database {
     public: {
         Tables: {
-            profiles: {
-                Row: {
-                    id: string;
-                    username: string | null;
-                    preferences: any | null;
-                    created_at: string;
-                    updated_at: string;
-                };
-                Insert: {
-                    id: string;
-                    username?: string | null;
-                    preferences?: any | null;
-                    created_at?: string;
-                    updated_at?: string;
-                };
-                Update: {
-                    id?: string;
-                    username?: string | null;
-                    preferences?: any | null;
-                    created_at?: string;
-                    updated_at?: string;
-                };
-            };
             thoughts: {
                 Row: {
                     id: string;
                     user_id: string;
                     content: string;
                     transcribed_text: string | null;
-                    category: any | null;
+                    audio_url: string | null;
+                    category: ThoughtCategory | null;
                     tags: string[] | null;
-                    type: string;
-                    reminder_date: string | null;
-                    is_processed: boolean;
-                    processed_by_ai: string | null;
-                    ai_confidence: number | null;
-                    ai_suggestions: any | null;
+                    metadata: Record<string, any> | null;
+                    is_pinned: boolean;
+                    is_archived: boolean;
                     created_at: string;
-                    updated_at: string | null;
+                    updated_at: string;
                 };
                 Insert: {
                     id?: string;
                     user_id: string;
                     content: string;
                     transcribed_text?: string | null;
-                    category?: any | null;
+                    audio_url?: string | null;
+                    category?: ThoughtCategory | null;
                     tags?: string[] | null;
-                    type?: string;
-                    reminder_date?: string | null;
-                    is_processed?: boolean;
-                    processed_by_ai?: string | null;
-                    ai_confidence?: number | null;
-                    ai_suggestions?: any | null;
+                    metadata?: Record<string, any> | null;
+                    is_pinned?: boolean;
+                    is_archived?: boolean;
                     created_at?: string;
-                    updated_at?: string | null;
+                    updated_at?: string;
                 };
                 Update: {
                     id?: string;
                     user_id?: string;
                     content?: string;
                     transcribed_text?: string | null;
-                    category?: any | null;
+                    audio_url?: string | null;
+                    category?: ThoughtCategory | null;
                     tags?: string[] | null;
-                    type?: string;
-                    reminder_date?: string | null;
-                    is_processed?: boolean;
-                    processed_by_ai?: string | null;
-                    ai_confidence?: number | null;
-                    ai_suggestions?: any | null;
+                    metadata?: Record<string, any> | null;
+                    is_pinned?: boolean;
+                    is_archived?: boolean;
                     created_at?: string;
-                    updated_at?: string | null;
+                    updated_at?: string;
+                };
+            };
+            users: {
+                Row: {
+                    id: string;
+                    email: string;
+                    name: string | null;
+                    avatar_url: string | null;
+                    preferences: UserPreferences | null;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    email: string;
+                    name?: string | null;
+                    avatar_url?: string | null;
+                    preferences?: UserPreferences | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    email?: string;
+                    name?: string | null;
+                    avatar_url?: string | null;
+                    preferences?: UserPreferences | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+            };
+            user_learning_patterns: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    vocabulary_weights: Record<string, number>;
+                    category_preferences: Record<string, string>;
+                    time_patterns: Record<string, any>;
+                    context_patterns: Record<string, any>;
+                    categorization_accuracy: number;
+                    total_thoughts: number;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    vocabulary_weights?: Record<string, number>;
+                    category_preferences?: Record<string, string>;
+                    time_patterns?: Record<string, any>;
+                    context_patterns?: Record<string, any>;
+                    categorization_accuracy?: number;
+                    total_thoughts?: number;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    vocabulary_weights?: Record<string, number>;
+                    category_preferences?: Record<string, string>;
+                    time_patterns?: Record<string, any>;
+                    context_patterns?: Record<string, any>;
+                    categorization_accuracy?: number;
+                    total_thoughts?: number;
+                    created_at?: string;
+                    updated_at?: string;
                 };
             };
             notifications: {
@@ -82,9 +120,10 @@ export interface Database {
                     title: string;
                     message: string;
                     thought_id: string | null;
-                    is_read: boolean;
                     scheduled_for: string | null;
+                    is_read: boolean;
                     created_at: string;
+                    updated_at: string;
                 };
                 Insert: {
                     id?: string;
@@ -93,9 +132,10 @@ export interface Database {
                     title: string;
                     message: string;
                     thought_id?: string | null;
-                    is_read?: boolean;
                     scheduled_for?: string | null;
+                    is_read?: boolean;
                     created_at?: string;
+                    updated_at?: string;
                 };
                 Update: {
                     id?: string;
@@ -104,137 +144,131 @@ export interface Database {
                     title?: string;
                     message?: string;
                     thought_id?: string | null;
-                    is_read?: boolean;
                     scheduled_for?: string | null;
-                    created_at?: string;
-                };
-            };
-            ai_processing_queue: {
-                Row: {
-                    id: string;
-                    thought_id: string;
-                    user_id: string;
-                    status: string;
-                    processing_type: string;
-                    retry_count: number;
-                    error_message: string | null;
-                    created_at: string;
-                    updated_at: string;
-                };
-                Insert: {
-                    id?: string;
-                    thought_id: string;
-                    user_id: string;
-                    status?: string;
-                    processing_type: string;
-                    retry_count?: number;
-                    error_message?: string | null;
+                    is_read?: boolean;
                     created_at?: string;
                     updated_at?: string;
                 };
+            };
+            ai_feedback: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    thought_id: string;
+                    suggested_category: string;
+                    user_chosen_category: string;
+                    was_correct: boolean;
+                    feedback_type: 'category' | 'tags' | 'enhancement';
+                    metadata: Record<string, any> | null;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    thought_id: string;
+                    suggested_category: string;
+                    user_chosen_category: string;
+                    was_correct: boolean;
+                    feedback_type: 'category' | 'tags' | 'enhancement';
+                    metadata?: Record<string, any> | null;
+                    created_at?: string;
+                };
                 Update: {
                     id?: string;
+                    user_id?: string;
                     thought_id?: string;
-                    user_id?: string;
-                    status?: string;
-                    processing_type?: string;
-                    retry_count?: number;
-                    error_message?: string | null;
-                    created_at?: string;
-                    updated_at?: string;
-                };
-            };
-            user_activity: {
-                Row: {
-                    id: string;
-                    user_id: string;
-                    activity_type: string;
-                    metadata: any | null;
-                    created_at: string;
-                };
-                Insert: {
-                    id?: string;
-                    user_id: string;
-                    activity_type: string;
-                    metadata?: any | null;
-                    created_at?: string;
-                };
-                Update: {
-                    id?: string;
-                    user_id?: string;
-                    activity_type?: string;
-                    metadata?: any | null;
+                    suggested_category?: string;
+                    user_chosen_category?: string;
+                    was_correct?: boolean;
+                    feedback_type?: 'category' | 'tags' | 'enhancement';
+                    metadata?: Record<string, any> | null;
                     created_at?: string;
                 };
             };
         };
         Views: {
-            user_thought_stats: {
-                Row: {
-                    user_id: string;
-                    total_thoughts: number;
-                    thoughts_today: number;
-                    thoughts_this_week: number;
-                    pending_reminders: number;
-                    unprocessed_thoughts: number;
-                };
-            };
-            category_breakdown: {
-                Row: {
-                    user_id: string;
-                    main_category: string;
-                    thought_count: number;
-                    avg_confidence: number;
-                };
-            };
+            [_ in never]: never;
         };
         Functions: {
-            get_thoughts_for_user: {
-                Args: {
-                    p_user_id: string;
-                    p_limit?: number;
-                    p_offset?: number;
-                    p_category?: string;
-                    p_type?: string;
-                };
-                Returns: {
-                    id: string;
-                    content: string;
-                    category: any;
-                    tags: string[];
-                    type: string;
-                    reminder_date: string | null;
-                    is_processed: boolean;
-                    ai_confidence: number | null;
-                    created_at: string;
-                    updated_at: string | null;
-                }[];
-            };
-            search_thoughts: {
-                Args: {
-                    p_user_id: string;
-                    p_query: string;
-                    p_limit?: number;
-                };
-                Returns: {
-                    id: string;
-                    content: string;
-                    category: any;
-                    tags: string[];
-                    type: string;
-                    created_at: string;
-                    rank: number;
-                }[];
-            };
-            setup_user_profile: {
-                Args: {
-                    p_user_id: string;
-                    p_email: string;
-                    p_username?: string;
-                };
-                Returns: void;
-            };
+            [_ in never]: never;
+        };
+        Enums: {
+            [_ in never]: never;
         };
     };
 }
+export interface ThoughtCategory {
+    main: string;
+    subcategory?: string;
+    color: string;
+    icon: string;
+}
+export interface UserPreferences {
+    theme?: 'light' | 'dark' | 'system';
+    defaultCategory?: string;
+    autoTranscribe?: boolean;
+    keyboardShortcuts?: Record<string, string>;
+    notifications?: {
+        reminders?: boolean;
+        suggestions?: boolean;
+        achievements?: boolean;
+    };
+    privacy?: {
+        shareAnalytics?: boolean;
+        saveAudioLocally?: boolean;
+    };
+}
+export interface AISuggestions {
+    category?: ThoughtCategory;
+    tags?: string[];
+    enhancement?: string;
+    confidence?: number;
+    alternativeCategories?: ThoughtCategory[];
+    extractedEntities?: ExtractedEntity[];
+    relatedThoughts?: string[];
+    suggestedActions?: SuggestedAction[];
+}
+export interface ExtractedEntity {
+    type: 'date' | 'person' | 'amount' | 'task' | 'location';
+    value: string;
+    confidence: number;
+    metadata?: Record<string, any>;
+}
+export interface SuggestedAction {
+    type: 'calendar_event' | 'reminder' | 'task' | 'note' | 'contact';
+    title: string;
+    description?: string;
+    data: Record<string, any>;
+    confidence: number;
+}
+export interface CategorizationContext {
+    timeOfDay?: string;
+    location?: string;
+    browserContext?: string;
+    recentThoughts?: string[];
+}
+export interface UserLearningPattern {
+    vocabularyWeights: Record<string, number>;
+    categoryPreferences: Record<string, string>;
+    timePatterns: Record<string, any>;
+    contextPatterns: Record<string, any>;
+    categorizationAccuracy: number;
+    totalThoughts: number;
+}
+export type ThoughtRow = Database['public']['Tables']['thoughts']['Row'];
+export type ThoughtInsert = Database['public']['Tables']['thoughts']['Insert'];
+export type ThoughtUpdate = Database['public']['Tables']['thoughts']['Update'];
+export type UserRow = Database['public']['Tables']['users']['Row'];
+export type UserInsert = Database['public']['Tables']['users']['Insert'];
+export type UserUpdate = Database['public']['Tables']['users']['Update'];
+export type NotificationRow = Database['public']['Tables']['notifications']['Row'];
+export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
+export type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
+export type AIFeedbackRow = Database['public']['Tables']['ai_feedback']['Row'];
+export type AIFeedbackInsert = Database['public']['Tables']['ai_feedback']['Insert'];
+export type AIFeedbackUpdate = Database['public']['Tables']['ai_feedback']['Update'];
+export type UserLearningPatternRow = Database['public']['Tables']['user_learning_patterns']['Row'];
+export type UserLearningPatternInsert = Database['public']['Tables']['user_learning_patterns']['Insert'];
+export type UserLearningPatternUpdate = Database['public']['Tables']['user_learning_patterns']['Update'];
+export default Database;
 //# sourceMappingURL=database.d.ts.map
