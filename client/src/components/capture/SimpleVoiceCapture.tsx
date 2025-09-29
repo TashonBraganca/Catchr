@@ -25,6 +25,8 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
   const [confidence, setConfidence] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [processingStage, setProcessingStage] = useState<'listening' | 'transcribing' | 'processing' | 'completed'>('listening');
+  const [showAdvancedStats, setShowAdvancedStats] = useState(false); // Progressive disclosure
+  const [realtimeWords, setRealtimeWords] = useState<string[]>([]); // "Words as you speak" tracking
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -48,12 +50,24 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
         let totalConfidence = 0;
         let resultCount = 0;
 
+        // Process both interim and final results for real-time feedback
+        let interimTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
             totalConfidence += event.results[i][0].confidence || 0.8; // Fallback confidence
             resultCount++;
+          } else {
+            // Show interim results for "words as you speak" experience
+            interimTranscript += event.results[i][0].transcript;
           }
+        }
+
+        // Update real-time words array for enhanced visualization
+        const currentText = finalTranscript + interimTranscript;
+        if (currentText) {
+          const words = currentText.split(' ').filter(word => word.length > 0);
+          setRealtimeWords(words);
         }
 
         if (finalTranscript) {
@@ -61,9 +75,13 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
           setTranscript(prev => prev + newText);
           setWordCount(prev => prev + newText.split(' ').filter(word => word.length > 0).length);
 
-          // Update confidence (Reddit insight: visual feedback for accuracy)
+          // Enhanced confidence tracking (Reddit insight: visual feedback builds trust)
           if (resultCount > 0) {
             setConfidence(totalConfidence / resultCount);
+            // Auto-show advanced stats if confidence is concerning
+            if (totalConfidence / resultCount < 0.6) {
+              setShowAdvancedStats(true);
+            }
           }
         }
       };
@@ -248,28 +266,43 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
     return await response.json();
   };
 
-  // Simple waveform visualization
-  const WaveformBars = () => (
-    <div className="flex items-center space-x-1">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-1 bg-[#007aff] rounded-full"
-          style={{
-            height: isRecording
-              ? Math.max(4, (audioLevel * 30 * Math.random() * (i % 3 + 1)))
-              : 4
-          }}
-          animate={{
-            height: isRecording
-              ? Math.max(4, (audioLevel * 30 * Math.random() * (i % 3 + 1)))
-              : 4
-          }}
-          transition={{ duration: 0.1 }}
-        />
-      ))}
-    </div>
-  );
+  // Enhanced waveform visualization (Research insight: more responsive and polished)
+  const WaveformBars = () => {
+    // Create more natural waveform pattern based on actual audio levels
+    const barHeights = Array.from({ length: 12 }, (_, i) => {
+      if (!isRecording) return 4;
+
+      // Create more natural wave pattern without Math.random()
+      const baseHeight = audioLevel * 40;
+      const waveOffset = Math.sin((Date.now() * 0.005) + (i * 0.5)) * 8;
+      const barVariation = [1, 0.8, 1.2, 0.9, 1.1, 0.7, 1.3, 0.8, 1.1, 0.9, 1.2, 0.8][i];
+
+      return Math.max(4, baseHeight * barVariation + waveOffset);
+    });
+
+    return (
+      <div className="flex items-center space-x-1">
+        {barHeights.map((height, i) => (
+          <motion.div
+            key={i}
+            className={cn(
+              "w-1 rounded-full transition-colors duration-200",
+              // Confidence-based color coding (Reddit insight: visual trust indicators)
+              confidence > 0.8 ? "bg-green-500" :
+              confidence > 0.6 ? "bg-[#007aff]" :
+              confidence > 0 ? "bg-yellow-500" : "bg-[#007aff]"
+            )}
+            animate={{ height }}
+            transition={{
+              duration: 0.1,
+              ease: "easeOut"
+            }}
+            style={{ height: Math.round(height) }}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <motion.div
@@ -353,33 +386,68 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
         <div className="text-sm text-[#8e8e93] mt-1 space-y-1">
           <p>
             {isProcessing
-              ? processingStage === 'transcribing' ? 'Converting speech to text with Whisper' :
-                processingStage === 'processing' ? 'Analyzing with GPT-5-mini for categorization' :
-                'Converting speech to text'
+              ? processingStage === 'transcribing' ? 'Converting speech to text with Whisper AI' :
+                processingStage === 'processing' ? 'Analyzing content with GPT-5-mini' :
+                'Processing audio...'
               : isRecording
-                ? 'Speak clearly into your microphone'
-                : 'Voice notes will be automatically transcribed'
+                ? 'Speak naturally - I\'m listening'
+                : 'Tap to start voice capture'
             }
           </p>
 
-          {/* Real-time stats (Reddit insight: Google Keep-style feedback) */}
-          {(isRecording && wordCount > 0) && (
+          {/* Enhanced real-time stats (Reddit insight: instant feedback builds trust) */}
+          {(isRecording && realtimeWords.length > 0) && (
             <motion.div
-              className="flex items-center justify-center space-x-4 text-xs"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              className="space-y-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
             >
-              <span>📝 {wordCount} words</span>
-              {confidence > 0 && (
-                <span className={cn(
-                  "flex items-center space-x-1",
-                  confidence > 0.8 ? "text-green-600" :
-                  confidence > 0.6 ? "text-yellow-600" : "text-red-600"
-                )}>
-                  <span>🎯</span>
-                  <span>{Math.round(confidence * 100)}% confidence</span>
+              {/* Primary stats always visible */}
+              <div className="flex items-center justify-center space-x-4 text-xs">
+                <span className="flex items-center space-x-1">
+                  <span>📝</span>
+                  <span>{realtimeWords.length} words</span>
                 </span>
-              )}
+                {confidence > 0 && (
+                  <motion.span
+                    className={cn(
+                      "flex items-center space-x-1 px-2 py-1 rounded-full",
+                      confidence > 0.8 ? "bg-green-100 text-green-700" :
+                      confidence > 0.6 ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"
+                    )}
+                    animate={{ scale: confidence < 0.6 ? [1, 1.05, 1] : 1 }}
+                    transition={{ duration: 0.5, repeat: confidence < 0.6 ? Infinity : 0 }}
+                  >
+                    <span>{confidence > 0.8 ? '🟢' : confidence > 0.6 ? '🔵' : '🟡'}</span>
+                    <span>{Math.round(confidence * 100)}%</span>
+                  </motion.span>
+                )}
+
+                {/* Progressive disclosure toggle */}
+                <button
+                  onClick={() => setShowAdvancedStats(!showAdvancedStats)}
+                  className="text-[#007aff] hover:text-[#0051d5] transition-colors"
+                  aria-label="Toggle advanced statistics"
+                >
+                  {showAdvancedStats ? '📊 Less' : '📈 More'}
+                </button>
+              </div>
+
+              {/* Advanced stats with progressive disclosure */}
+              <AnimatePresence>
+                {showAdvancedStats && (
+                  <motion.div
+                    className="flex items-center justify-center space-x-3 text-xs text-[#8e8e93] p-2 bg-[#f8f9fa] rounded-lg"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <span>⏱️ {Math.floor(realtimeWords.length / 2.5)}/min</span>
+                    <span>🎚️ {Math.round(audioLevel * 100)}% level</span>
+                    <span>🧠 {processingStage}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </div>
@@ -423,14 +491,29 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
               )}
             </div>
 
-            <p className="text-sm text-[#1d1d1f] leading-relaxed mb-2">
-              {transcript}
+            <div className="text-sm text-[#1d1d1f] leading-relaxed mb-2">
+              {/* Show real-time words with typing effect (Reddit insight: words as you speak) */}
+              {realtimeWords.map((word, index) => (
+                <motion.span
+                  key={`${word}-${index}`}
+                  className={cn(
+                    "inline-block mr-1",
+                    // Highlight recent words (last 3) for real-time feedback
+                    index >= realtimeWords.length - 3 ? "text-[#007aff] font-medium" : ""
+                  )}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2, delay: index * 0.05 }}
+                >
+                  {word}
+                </motion.span>
+              ))}
               <motion.span
                 className="inline-block w-0.5 h-4 bg-[#007aff] ml-1"
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
               />
-            </p>
+            </div>
 
             <div className="flex items-center justify-between text-xs text-[#8e8e93] pt-2 border-t border-[#e5e5e7]">
               <span>{wordCount} words captured</span>
