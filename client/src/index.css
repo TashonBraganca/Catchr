@@ -3,6 +3,9 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Apple 2024 Liquid Glass Design System */
+@import './styles/liquidGlass.css';
+
 /* 🎨 Cathcr Design System - ULTRATHINK Orange Acrylic Glass + AMOLED Black */
 
 :root {

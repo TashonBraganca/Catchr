@@ -33,7 +33,7 @@ interface NoteItemProps {
   };
 }
 
-const NoteItem: React.FC<NoteItemProps> = ({ index, style, data }) => {
+const NoteItemComponent: React.FC<NoteItemProps> = ({ index, style, data }) => {
   const { notes, selectedNoteId, onNoteSelect } = data;
   const note = notes[index];
 
@@ -101,6 +101,9 @@ const NoteItem: React.FC<NoteItemProps> = ({ index, style, data }) => {
     </div>
   );
 };
+
+// Performance optimization - memoize NoteItem to prevent unnecessary re-renders
+const NoteItem = React.memo(NoteItemComponent);
 
 const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
   notes,

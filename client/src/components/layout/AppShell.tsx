@@ -14,7 +14,7 @@ interface AppShellProps {
   className?: string;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
+const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
@@ -59,8 +59,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
           role="navigation"
           aria-label="Project navigation"
           className={cn(
-            "h-full border-r border-[#e5e5e7] bg-[#fbfbfd] flex-shrink-0 relative",
-            "glass-hover focus-ring",
+            "h-full flex-shrink-0 relative",
+            "liquid-glass liquid-glass--sidebar liquid-glass--animate-entrance",
+            "focus-ring",
             // Mobile: overlay behavior
             "md:relative md:translate-x-0",
             sidebarCollapsed ? "absolute -translate-x-full md:translate-x-0 z-40" : "absolute translate-x-0 z-40 md:relative"
@@ -69,7 +70,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
             width: sidebarCollapsed ? "64px" : "320px"
           }}
           transition={{
-            duration: 0.3,
+            duration: 0.15, // Faster for 3-second rule (Reddit optimization)
             ease: [0.4, 0, 0.2, 1], // Apple's ease curve
             type: "tween"
           }}
@@ -227,7 +228,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
         <motion.div
           data-testid="note-list"
           className={cn(
-            "h-full border-r border-[#e5e5e7] bg-white flex-shrink-0",
+            "h-full flex-shrink-0",
+            "liquid-glass liquid-glass--note-list liquid-glass--animate-entrance",
             // Responsive widths
             "w-full sm:w-[280px] md:w-[300px] lg:w-[320px]",
             // Mobile: hide when editor is open
@@ -269,7 +271,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
         <div
           data-testid="note-editor"
           className={cn(
-            "flex-1 h-full bg-white",
+            "flex-1 h-full",
+            "liquid-glass liquid-glass--editor liquid-glass--animate-entrance",
             // Mobile: full width when note selected, hidden otherwise
             selectedNote ? "block w-full" : "hidden lg:block"
           )}
@@ -481,3 +484,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children, className }) => {
     </div>
   );
 };
+
+// Performance optimization - memoize AppShell to prevent unnecessary re-renders
+export const AppShell = React.memo(AppShellComponent);

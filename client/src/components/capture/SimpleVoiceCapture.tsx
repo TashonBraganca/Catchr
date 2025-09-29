@@ -21,6 +21,11 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
   const [transcript, setTranscript] = useState('');
   const [audioLevel, setAudioLevel] = useState(0);
 
+  // Enhanced state for Reddit-inspired feedback (Google Keep insights)
+  const [confidence, setConfidence] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
+  const [processingStage, setProcessingStage] = useState<'listening' | 'transcribing' | 'processing' | 'completed'>('listening');
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -40,13 +45,26 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
 
       recognition.onresult = (event) => {
         let finalTranscript = '';
+        let totalConfidence = 0;
+        let resultCount = 0;
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
+            totalConfidence += event.results[i][0].confidence || 0.8; // Fallback confidence
+            resultCount++;
           }
         }
+
         if (finalTranscript) {
-          setTranscript(prev => prev + finalTranscript);
+          const newText = finalTranscript;
+          setTranscript(prev => prev + newText);
+          setWordCount(prev => prev + newText.split(' ').filter(word => word.length > 0).length);
+
+          // Update confidence (Reddit insight: visual feedback for accuracy)
+          if (resultCount > 0) {
+            setConfidence(totalConfidence / resultCount);
+          }
         }
       };
 
@@ -157,8 +175,9 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       cancelAnimationFrame(animationFrameRef.current);
     }
 
-    // Process the recording
+    // Process the recording with enhanced stages (Reddit insight: Google Keep processing feedback)
     try {
+      setProcessingStage('transcribing');
       let finalTranscript = transcript;
 
       // If Web Speech API didn't work or gave poor results, use Whisper
@@ -170,6 +189,7 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       }
 
       if (finalTranscript && finalTranscript.length > 0) {
+        setProcessingStage('processing');
         // Use GPT-5-mini for categorization and enhancement
         const aiResult = await processWithGPT(finalTranscript);
 
@@ -189,6 +209,9 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       setIsProcessing(false);
       setTranscript('');
       setAudioLevel(0);
+      setConfidence(0);
+      setWordCount(0);
+      setProcessingStage('completed');
     }
   }, [transcript, onTranscriptComplete, onError]);
 
@@ -320,20 +343,46 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
           animate={{ scale: isRecording ? 1.05 : 1 }}
         >
           {isProcessing
-            ? 'Processing...'
+            ? processingStage === 'transcribing' ? 'Transcribing...' :
+              processingStage === 'processing' ? 'Processing with AI...' : 'Processing...'
             : isRecording
               ? 'Recording...'
               : 'Tap to record'
           }
         </motion.p>
-        <p className="text-sm text-[#8e8e93] mt-1">
-          {isProcessing
-            ? 'Converting speech to text'
-            : isRecording
-              ? 'Speak clearly into your microphone'
-              : 'Voice notes will be automatically transcribed'
-          }
-        </p>
+        <div className="text-sm text-[#8e8e93] mt-1 space-y-1">
+          <p>
+            {isProcessing
+              ? processingStage === 'transcribing' ? 'Converting speech to text with Whisper' :
+                processingStage === 'processing' ? 'Analyzing with GPT-5-mini for categorization' :
+                'Converting speech to text'
+              : isRecording
+                ? 'Speak clearly into your microphone'
+                : 'Voice notes will be automatically transcribed'
+            }
+          </p>
+
+          {/* Real-time stats (Reddit insight: Google Keep-style feedback) */}
+          {(isRecording && wordCount > 0) && (
+            <motion.div
+              className="flex items-center justify-center space-x-4 text-xs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <span>📝 {wordCount} words</span>
+              {confidence > 0 && (
+                <span className={cn(
+                  "flex items-center space-x-1",
+                  confidence > 0.8 ? "text-green-600" :
+                  confidence > 0.6 ? "text-yellow-600" : "text-red-600"
+                )}>
+                  <span>🎯</span>
+                  <span>{Math.round(confidence * 100)}% confidence</span>
+                </span>
+              )}
+            </motion.div>
+          )}
+        </div>
       </div>
 
       {/* Waveform Visualization */}
@@ -350,17 +399,43 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Live Transcript Preview */}
+      {/* Enhanced Live Transcript Preview (Reddit insight: Google Keep real-time feedback) */}
       <AnimatePresence>
         {transcript && isRecording && (
           <motion.div
-            className="w-full max-w-md p-3 bg-[#f2f2f7] rounded-lg"
+            className="w-full max-w-md p-4 liquid-glass liquid-glass--rounded-lg"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <p className="text-sm text-[#8e8e93] mb-1">Live transcript:</p>
-            <p className="text-sm text-[#1d1d1f]">{transcript}</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-[#007aff]">🎤 Live transcript</p>
+              {confidence > 0 && (
+                <div className={cn(
+                  "flex items-center space-x-1 text-xs px-2 py-1 rounded-full",
+                  confidence > 0.8 ? "bg-green-100 text-green-700" :
+                  confidence > 0.6 ? "bg-yellow-100 text-yellow-700" :
+                  "bg-red-100 text-red-700"
+                )}>
+                  <span>{confidence > 0.8 ? '🟢' : confidence > 0.6 ? '🟡' : '🔴'}</span>
+                  <span>{Math.round(confidence * 100)}%</span>
+                </div>
+              )}
+            </div>
+
+            <p className="text-sm text-[#1d1d1f] leading-relaxed mb-2">
+              {transcript}
+              <motion.span
+                className="inline-block w-0.5 h-4 bg-[#007aff] ml-1"
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+            </p>
+
+            <div className="flex items-center justify-between text-xs text-[#8e8e93] pt-2 border-t border-[#e5e5e7]">
+              <span>{wordCount} words captured</span>
+              <span>Auto-saving in 1s</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

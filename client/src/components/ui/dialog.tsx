@@ -26,7 +26,7 @@ const DialogOverlay = React.forwardRef<
       initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
       animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
       exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+      transition={{ duration: 0.08, ease: "easeOut" }}
     />
   </DialogPrimitive.Overlay>
 ));
@@ -98,11 +98,11 @@ const DialogContent = React.forwardRef<
             backdropFilter: "blur(0px)"
           }}
           transition={{
-            duration: 0.15,
+            duration: 0.1,
             ease: [0.4, 0, 0.2, 1],
             type: "spring",
-            stiffness: 400,
-            damping: 25
+            stiffness: 600,
+            damping: 30
           }}
         >
           {children}

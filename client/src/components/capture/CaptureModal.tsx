@@ -25,6 +25,7 @@ import { useCaptureShortcuts, useShortcutHelpers } from '@/hooks/useGlobalShortc
 import { useTranscription } from '@/hooks/useTranscription';
 import { VoiceWaveform, CircularWaveform } from '@/components/capture/VoiceWaveform';
 import { cn } from '@/lib/utils';
+import { processNaturalLanguage, formatNLPPreview, isNLPAvailable, type NLPResult } from '@/services/naturalLanguageService';
 
 interface CaptureModalProps {
   className?: string;
@@ -48,6 +49,10 @@ export const CaptureModal: React.FC<CaptureModalProps> = ({ className }) => {
   const [textInput, setTextInput] = useState('');
   const [audioLevel, setAudioLevel] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
+
+  // Natural Language Processing state (Reddit-inspired Todoist functionality)
+  const [nlpResult, setNlpResult] = useState<NLPResult | null>(null);
+  const [showNLPPreview, setShowNLPPreview] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const animationFrameRef = useRef<number>();
@@ -89,24 +94,62 @@ export const CaptureModal: React.FC<CaptureModalProps> = ({ className }) => {
     };
   }, [state.isRecording, getAudioLevel]);
 
-  // Ultra-fast focus for zero-friction experience
+  // ULTRA-FAST focus for <50ms performance (Todoist 3-second rule optimization)
   useEffect(() => {
     if (state.isOpen && textareaRef.current) {
-      // Immediate focus using requestAnimationFrame for <100ms performance
-      requestAnimationFrame(() => {
-        textareaRef.current?.focus();
-        // Additional optimization: select any existing text
-        if (textareaRef.current?.value) {
-          textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
-        }
-      });
+      // Immediate synchronous focus - no requestAnimationFrame delay
+      textareaRef.current.focus();
+      // Set cursor position to end immediately
+      if (textareaRef.current?.value) {
+        textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+      }
     }
   }, [state.isOpen]);
 
-  // Handle text input
+  // Debounced auto-save for 1-second rule (Reddit insight: speed optimization)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Handle text input with real-time NLP processing and auto-save debouncing
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setTextInput(e.target.value);
+    const value = e.target.value;
+    setTextInput(value);
+
+    // Real-time natural language processing (Reddit insight: "telepathic-like task creation")
+    if (value.trim().length > 3 && isNLPAvailable()) {
+      try {
+        const result = processNaturalLanguage(value);
+        setNlpResult(result);
+        setShowNLPPreview(true);
+      } catch (error) {
+        console.warn('NLP processing failed:', error);
+        setShowNLPPreview(false);
+      }
+    } else {
+      setShowNLPPreview(false);
+      setNlpResult(null);
+    }
+
+    // Clear previous auto-save timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Set new auto-save timeout for 1 second (Todoist speed optimization)
+    if (value.trim().length > 0) {
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        setFinalText(value);
+      }, 1000);
+    }
   };
+
+  // Cleanup auto-save timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle save
   const handleSave = () => {
@@ -190,8 +233,8 @@ export const CaptureModal: React.FC<CaptureModalProps> = ({ className }) => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{
-                  duration: TIMING.lightning,
-                  ease: EASING.glass
+                  duration: 0.1,
+                  ease: "easeOut"
                 }}
                 className="glass-card p-4 space-y-2"
               >
@@ -215,10 +258,8 @@ export const CaptureModal: React.FC<CaptureModalProps> = ({ className }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -10 }}
                 transition={{
-                  duration: TIMING.lightning,
-                  ease: EASING.apple,
-                  type: 'spring',
-                  ...SPRINGS.lightning
+                  duration: 0.1,
+                  ease: "easeOut"
                 }}
               >
                 <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
@@ -644,6 +685,77 @@ export const CaptureModal: React.FC<CaptureModalProps> = ({ className }) => {
                 </span>
                 <span>{textInput.length} characters</span>
               </div>
+
+              {/* Real-time NLP Preview (Reddit-inspired: "telepathic-like task creation") */}
+              <AnimatePresence>
+                {showNLPPreview && nlpResult && (
+                  <motion.div
+                    className="glass-card p-3 border border-blue-500/30 bg-blue-500/5"
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <motion.div
+                        className="w-6 h-6 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                        animate={{
+                          scale: [1, 1.1, 1],
+                          backgroundColor: ['rgba(59, 130, 246, 0.2)', 'rgba(59, 130, 246, 0.3)', 'rgba(59, 130, 246, 0.2)']
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Brain className="w-3 h-3 text-blue-400" />
+                      </motion.div>
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium text-blue-400">Smart Detection</h4>
+                          <div className="flex items-center space-x-2 text-xs text-blue-400/70">
+                            <Zap className="w-3 h-3" />
+                            <span>Auto-parsed</span>
+                          </div>
+                        </div>
+
+                        <p className="text-sm text-white leading-relaxed">
+                          {formatNLPPreview(nlpResult)}
+                        </p>
+
+                        {/* Enhanced details */}
+                        <div className="flex items-center justify-between pt-2 border-t border-blue-500/20">
+                          <div className="flex items-center space-x-3 text-xs text-white/60">
+                            <span className={`px-2 py-1 rounded ${
+                              nlpResult.priority === 'urgent' ? 'bg-red-500/20 text-red-400' :
+                              nlpResult.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                              nlpResult.priority === 'medium' ? 'bg-blue-500/20 text-blue-400' :
+                              'bg-gray-500/20 text-gray-400'
+                            }`}>
+                              {nlpResult.priority} priority
+                            </span>
+                            {nlpResult.context.isActionable && (
+                              <span className="px-2 py-1 rounded bg-green-500/20 text-green-400">
+                                actionable
+                              </span>
+                            )}
+                          </div>
+
+                          {nlpResult.extractedDate && (
+                            <div className="text-xs text-blue-400">
+                              📅 {nlpResult.extractedDate.toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: nlpResult.extractedDate.getHours() !== 0 ? 'numeric' : undefined,
+                                minute: nlpResult.extractedDate.getMinutes() !== 0 ? '2-digit' : undefined
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
