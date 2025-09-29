@@ -1,255 +1,395 @@
 /**
  * Natural Language Processing Service
  *
- * Reddit-inspired feature: Todoist users love "buy milk Monday" → auto-scheduled task
- * Based on research showing "natural language makes adding a new task on the fly quick and easy"
+ * Based on Reddit research insights:
+ * - Todoist: "Natural language makes adding tasks so quick and easy"
+ * - "Type 'buy milk Monday' and the task 'buy milk' will be added with the next Monday set as your due date"
+ * - "Tell the computer like you'd tell a human"
  *
- * Key insight: "telepathic-like task creation" that "sets Todoist apart for speed of capture"
+ * Features:
+ * - Smart date parsing (tomorrow, next Friday, Dec 25)
+ * - Task intent recognition (buy, call, email, remind)
+ * - Priority detection (urgent, important, ASAP)
+ * - Context extraction (location, person, project)
+ * - Tag suggestions based on content
  */
 
-import * as chrono from 'chrono-node';
+import { format, addDays, nextDay, startOfDay, parse, isValid } from 'date-fns';
 
-export interface NLPResult {
-  cleanText: string;
-  extractedDate?: Date;
-  taskType: 'note' | 'task' | 'reminder' | 'idea';
+// Types for parsed results
+export interface ParsedTask {
+  title: string;
+  originalText: string;
+  dueDate?: Date;
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  taskType: 'task' | 'reminder' | 'note' | 'idea';
   tags: string[];
-  context: {
-    hasTimeContext: boolean;
-    hasLocationContext: boolean;
-    hasPersonContext: boolean;
-    isActionable: boolean;
+  context?: {
+    person?: string;
+    location?: string;
+    project?: string;
+    timeOfDay?: 'morning' | 'afternoon' | 'evening';
+  };
+  confidence: number; // How confident we are in the parsing (0-1)
+  isRecurring?: {
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval?: number; // every 2 days, every 3 weeks
   };
 }
 
-export interface DateExtraction {
-  date: Date;
-  text: string;
-  confidence: number;
-}
+export class NaturalLanguageService {
+  private readonly dateKeywords = {
+    // Relative dates (Reddit insight: natural human language)
+    today: () => new Date(),
+    tomorrow: () => addDays(new Date(), 1),
+    yesterday: () => addDays(new Date(), -1),
 
-// Task detection patterns (inspired by Todoist's natural language)
-const TASK_PATTERNS = [
-  /\b(buy|get|pick up|purchase|order|grab)\b/i,
-  /\b(call|email|text|message|contact)\b/i,
-  /\b(schedule|book|arrange|plan|set up)\b/i,
-  /\b(finish|complete|work on|do|handle)\b/i,
-  /\b(remember to|don't forget to|need to|have to)\b/i,
-  /\b(remind me to|tell me to)\b/i,
-];
+    // Next weekdays
+    'next monday': () => nextDay(new Date(), 1),
+    'next tuesday': () => nextDay(new Date(), 2),
+    'next wednesday': () => nextDay(new Date(), 3),
+    'next thursday': () => nextDay(new Date(), 4),
+    'next friday': () => nextDay(new Date(), 5),
+    'next saturday': () => nextDay(new Date(), 6),
+    'next sunday': () => nextDay(new Date(), 0),
 
-// Priority keywords
-const PRIORITY_PATTERNS = {
-  urgent: /\b(urgent|asap|emergency|critical|now|immediately)\b/i,
-  high: /\b(important|priority|high|crucial|vital|key)\b/i,
-  medium: /\b(should|ought|medium|normal)\b/i,
-  low: /\b(later|eventually|sometime|when possible|low)\b/i,
-};
-
-// Context detection patterns
-const CONTEXT_PATTERNS = {
-  time: /\b(today|tomorrow|next week|this week|monday|tuesday|wednesday|thursday|friday|saturday|sunday|morning|afternoon|evening|night|am|pm|\d{1,2}:\d{2}|\d{1,2}(am|pm))\b/i,
-  location: /\b(at|in|near|store|office|home|work|school|gym|mall|restaurant)\b/i,
-  person: /\b(with|for|tell|ask|call|email|meet)\s+([A-Z][a-z]+)\b/i,
-};
-
-/**
- * Extract dates and times from natural language
- * Examples: "buy milk Monday", "call mom tomorrow at 3pm", "meeting next week"
- */
-export function extractDates(text: string): DateExtraction[] {
-  try {
-    const results = chrono.parse(text, new Date(), { forwardDate: true });
-
-    return results.map(result => ({
-      date: result.start.date(),
-      text: result.text,
-      confidence: result.start.isCertain('day') ? 0.9 : 0.7
-    }));
-  } catch (error) {
-    console.warn('Date extraction failed:', error);
-    return [];
-  }
-}
-
-/**
- * Clean text by removing extracted date/time references
- * "buy milk Monday" → "buy milk" + extracted date
- */
-export function cleanTextFromDates(text: string, extractions: DateExtraction[]): string {
-  let cleaned = text;
-
-  // Remove date phrases but preserve the core action
-  extractions.forEach(extraction => {
-    cleaned = cleaned.replace(extraction.text, '').trim();
-  });
-
-  // Clean up extra spaces
-  return cleaned.replace(/\s+/g, ' ').trim();
-}
-
-/**
- * Detect if text describes a task vs note vs idea
- * Based on action words and structure
- */
-export function detectTaskType(text: string): NLPResult['taskType'] {
-  const lowerText = text.toLowerCase();
-
-  // Check for explicit task patterns
-  if (TASK_PATTERNS.some(pattern => pattern.test(lowerText))) {
-    return 'task';
-  }
-
-  // Check for reminder patterns
-  if (/\b(remind|reminder|don't forget|remember)\b/i.test(lowerText)) {
-    return 'reminder';
-  }
-
-  // Check for idea patterns
-  if (/\b(idea|thought|concept|maybe|what if|consider)\b/i.test(lowerText)) {
-    return 'idea';
-  }
-
-  // Default to note for general content
-  return 'note';
-}
-
-/**
- * Extract priority level from text
- */
-export function detectPriority(text: string): NLPResult['priority'] {
-  const lowerText = text.toLowerCase();
-
-  if (PRIORITY_PATTERNS.urgent.test(lowerText)) return 'urgent';
-  if (PRIORITY_PATTERNS.high.test(lowerText)) return 'high';
-  if (PRIORITY_PATTERNS.low.test(lowerText)) return 'low';
-
-  return 'medium'; // Default priority
-}
-
-/**
- * Extract hashtags and contextual tags
- */
-export function extractTags(text: string): string[] {
-  const tags: string[] = [];
-
-  // Extract hashtags
-  const hashtagMatches = text.match(/#[\w]+/g);
-  if (hashtagMatches) {
-    tags.push(...hashtagMatches.map(tag => tag.substring(1).toLowerCase()));
-  }
-
-  // Auto-generate contextual tags
-  const lowerText = text.toLowerCase();
-
-  if (/\b(work|job|office|meeting|project)\b/i.test(lowerText)) {
-    tags.push('work');
-  }
-
-  if (/\b(home|house|family|personal)\b/i.test(lowerText)) {
-    tags.push('personal');
-  }
-
-  if (/\b(health|doctor|medicine|workout|gym)\b/i.test(lowerText)) {
-    tags.push('health');
-  }
-
-  if (/\b(buy|shop|store|purchase|order)\b/i.test(lowerText)) {
-    tags.push('shopping');
-  }
-
-  return [...new Set(tags)]; // Remove duplicates
-}
-
-/**
- * Analyze context and actionability
- */
-export function analyzeContext(text: string): NLPResult['context'] {
-  const lowerText = text.toLowerCase();
-
-  return {
-    hasTimeContext: CONTEXT_PATTERNS.time.test(lowerText),
-    hasLocationContext: CONTEXT_PATTERNS.location.test(lowerText),
-    hasPersonContext: CONTEXT_PATTERNS.person.test(lowerText),
-    isActionable: TASK_PATTERNS.some(pattern => pattern.test(lowerText))
-  };
-}
-
-/**
- * Main NLP processing function
- *
- * Examples:
- * - "buy milk Monday" → { cleanText: "buy milk", extractedDate: [Monday], taskType: "task", ... }
- * - "call mom tomorrow at 3pm" → { cleanText: "call mom", extractedDate: [Tomorrow 3pm], taskType: "task", ... }
- * - "interesting idea about AI" → { cleanText: "interesting idea about AI", taskType: "idea", ... }
- */
-export function processNaturalLanguage(text: string): NLPResult {
-  // Extract dates first
-  const dateExtractions = extractDates(text);
-  const primaryDate = dateExtractions.length > 0 ? dateExtractions[0].date : undefined;
-
-  // Clean text by removing date references
-  const cleanText = cleanTextFromDates(text, dateExtractions);
-
-  // Analyze the content
-  const taskType = detectTaskType(text);
-  const priority = detectPriority(text);
-  const tags = extractTags(text);
-  const context = analyzeContext(text);
-
-  return {
-    cleanText,
-    extractedDate: primaryDate,
-    taskType,
-    priority,
-    tags,
-    context
-  };
-}
-
-/**
- * Format result for display (Todoist-style preview)
- * "buy milk Monday" → "📝 Task: buy milk (Due: Monday, Dec 4)"
- */
-export function formatNLPPreview(result: NLPResult): string {
-  const typeEmojis = {
-    task: '✅',
-    reminder: '⏰',
-    idea: '💡',
-    note: '📝'
+    // Current week
+    monday: () => nextDay(new Date(), 1),
+    tuesday: () => nextDay(new Date(), 2),
+    wednesday: () => nextDay(new Date(), 3),
+    thursday: () => nextDay(new Date(), 4),
+    friday: () => nextDay(new Date(), 5),
+    saturday: () => nextDay(new Date(), 6),
+    sunday: () => nextDay(new Date(), 0),
   };
 
-  const priorityText = result.priority === 'urgent' ? '🔥 ' :
-                     result.priority === 'high' ? '⭐ ' : '';
+  private readonly priorityKeywords = {
+    urgent: ['urgent', 'asap', 'emergency', 'critical', '!!!', 'now'],
+    high: ['important', 'high', 'priority', 'soon', '!!'],
+    medium: ['medium', '!'],
+    low: ['low', 'eventually', 'someday', 'maybe']
+  };
 
-  let preview = `${typeEmojis[result.taskType]} ${result.taskType.charAt(0).toUpperCase() + result.taskType.slice(1)}: ${result.cleanText}`;
+  private readonly taskTypeKeywords = {
+    task: ['buy', 'get', 'pick up', 'purchase', 'do', 'complete', 'finish'],
+    reminder: ['remind', 'remember', 'don\'t forget', 'note to self'],
+    note: ['note', 'idea', 'thought', 'remember that'],
+    idea: ['idea', 'brainstorm', 'concept', 'think about']
+  };
 
-  if (result.extractedDate) {
-    const dateStr = result.extractedDate.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+  private readonly contextKeywords = {
+    person: ['call', 'text', 'email', 'meet', 'talk to', 'contact'],
+    location: ['at', 'in', '@', 'from', 'to'],
+    project: ['for', 'regarding', 'about', 'project', 'work on']
+  };
+
+  private readonly recurringKeywords = {
+    daily: ['every day', 'daily', 'each day'],
+    weekly: ['every week', 'weekly', 'each week', 'every monday', 'every tuesday', 'every wednesday', 'every thursday', 'every friday'],
+    monthly: ['every month', 'monthly', 'each month'],
+    yearly: ['every year', 'yearly', 'annually']
+  };
+
+  /**
+   * Main parsing function - converts natural language to structured task
+   * Based on Todoist's "telepathic-like" natural language processing
+   */
+  public parseNaturalLanguage(text: string): ParsedTask {
+    const normalizedText = text.toLowerCase().trim();
+
+    // Extract components
+    const dueDate = this.extractDueDate(normalizedText);
+    const priority = this.extractPriority(normalizedText);
+    const taskType = this.extractTaskType(normalizedText);
+    const context = this.extractContext(normalizedText);
+    const tags = this.generateTags(normalizedText, context);
+    const isRecurring = this.extractRecurring(normalizedText);
+
+    // Clean title (remove parsed elements)
+    const title = this.cleanTitle(text, dueDate, priority, isRecurring);
+
+    // Calculate confidence based on how many elements we successfully parsed
+    const confidence = this.calculateConfidence(normalizedText, {
+      dueDate: !!dueDate,
+      priority: priority !== 'medium',
+      taskType: taskType !== 'task',
+      context: Object.keys(context).length > 0,
+      recurring: !!isRecurring
     });
-    preview += ` (Due: ${dateStr})`;
+
+    return {
+      title,
+      originalText: text,
+      dueDate,
+      priority,
+      taskType,
+      tags,
+      context,
+      confidence,
+      isRecurring
+    };
   }
 
-  if (result.tags.length > 0) {
-    preview += ` #${result.tags.join(' #')}`;
+  /**
+   * Extract due date from natural language
+   * Handles: "tomorrow", "next Friday", "Dec 25", "in 3 days"
+   */
+  private extractDueDate(text: string): Date | undefined {
+    // Check for relative date keywords
+    for (const [keyword, dateFunction] of Object.entries(this.dateKeywords)) {
+      if (text.includes(keyword)) {
+        return startOfDay(dateFunction());
+      }
+    }
+
+    // Check for "in X days/weeks" patterns
+    const relativePattern = /in (\d+) (day|days|week|weeks)/;
+    const relativeMatch = text.match(relativePattern);
+    if (relativeMatch) {
+      const amount = parseInt(relativeMatch[1]);
+      const unit = relativeMatch[2];
+      const multiplier = unit.includes('week') ? 7 : 1;
+      return startOfDay(addDays(new Date(), amount * multiplier));
+    }
+
+    // Check for specific dates (MM/DD, Dec 25, etc.)
+    const datePatterns = [
+      /(\d{1,2})\/(\d{1,2})/, // MM/DD
+      /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+(\d{1,2})/i, // Dec 25
+      /(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i // 25 Dec
+    ];
+
+    for (const pattern of datePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        try {
+          let dateString = match[0];
+          let parsedDate;
+
+          if (pattern === datePatterns[0]) { // MM/DD
+            parsedDate = parse(dateString + '/' + new Date().getFullYear(), 'M/d/yyyy', new Date());
+          } else {
+            parsedDate = parse(dateString + ' ' + new Date().getFullYear(), 'MMM d yyyy', new Date());
+          }
+
+          if (isValid(parsedDate)) {
+            return startOfDay(parsedDate);
+          }
+        } catch (error) {
+          // Continue to next pattern
+        }
+      }
+    }
+
+    return undefined;
   }
 
-  return priorityText + preview;
+  /**
+   * Extract priority level from text
+   * Based on urgency keywords and punctuation
+   */
+  private extractPriority(text: string): 'low' | 'medium' | 'high' | 'urgent' {
+    for (const [level, keywords] of Object.entries(this.priorityKeywords)) {
+      for (const keyword of keywords) {
+        if (text.includes(keyword)) {
+          return level as 'low' | 'medium' | 'high' | 'urgent';
+        }
+      }
+    }
+    return 'medium'; // Default priority
+  }
+
+  /**
+   * Extract task type based on action verbs
+   */
+  private extractTaskType(text: string): 'task' | 'reminder' | 'note' | 'idea' {
+    for (const [type, keywords] of Object.entries(this.taskTypeKeywords)) {
+      for (const keyword of keywords) {
+        if (text.includes(keyword)) {
+          return type as 'task' | 'reminder' | 'note' | 'idea';
+        }
+      }
+    }
+    return 'task'; // Default to task
+  }
+
+  /**
+   * Extract context information (person, location, project)
+   */
+  private extractContext(text: string): ParsedTask['context'] {
+    const context: ParsedTask['context'] = {};
+
+    // Extract person names (after "call", "text", "email", etc.)
+    const personPattern = /(call|text|email|meet|contact)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i;
+    const personMatch = text.match(personPattern);
+    if (personMatch) {
+      context.person = personMatch[2];
+    }
+
+    // Extract locations (after "at", "in", "@")
+    const locationPattern = /(?:at|in|@)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i;
+    const locationMatch = text.match(locationPattern);
+    if (locationMatch) {
+      context.location = locationMatch[1];
+    }
+
+    // Extract time of day
+    if (text.includes('morning') || text.includes('am')) {
+      context.timeOfDay = 'morning';
+    } else if (text.includes('afternoon') || text.includes('pm')) {
+      context.timeOfDay = 'afternoon';
+    } else if (text.includes('evening') || text.includes('night')) {
+      context.timeOfDay = 'evening';
+    }
+
+    return context;
+  }
+
+  /**
+   * Generate relevant tags based on content and context
+   */
+  private generateTags(text: string, context: ParsedTask['context']): string[] {
+    const tags: string[] = [];
+
+    // Add context-based tags
+    if (context?.person) tags.push('people');
+    if (context?.location) tags.push('location');
+
+    // Content-based tags
+    const tagPatterns = {
+      shopping: ['buy', 'purchase', 'get', 'pick up', 'store', 'mall'],
+      work: ['work', 'office', 'meeting', 'project', 'deadline'],
+      health: ['doctor', 'appointment', 'medicine', 'exercise', 'gym'],
+      finance: ['pay', 'bill', 'money', 'bank', 'budget', 'tax'],
+      home: ['clean', 'fix', 'repair', 'maintenance', 'house'],
+      family: ['mom', 'dad', 'family', 'kids', 'parent'],
+      travel: ['flight', 'hotel', 'vacation', 'trip', 'travel']
+    };
+
+    for (const [tag, keywords] of Object.entries(tagPatterns)) {
+      for (const keyword of keywords) {
+        if (text.toLowerCase().includes(keyword)) {
+          tags.push(tag);
+          break;
+        }
+      }
+    }
+
+    return [...new Set(tags)]; // Remove duplicates
+  }
+
+  /**
+   * Extract recurring information
+   */
+  private extractRecurring(text: string): ParsedTask['isRecurring'] {
+    for (const [frequency, keywords] of Object.entries(this.recurringKeywords)) {
+      for (const keyword of keywords) {
+        if (text.includes(keyword)) {
+          return { frequency: frequency as 'daily' | 'weekly' | 'monthly' | 'yearly' };
+        }
+      }
+    }
+
+    // Check for "every X days/weeks" patterns
+    const intervalPattern = /every (\d+) (day|days|week|weeks|month|months)/;
+    const intervalMatch = text.match(intervalPattern);
+    if (intervalMatch) {
+      const interval = parseInt(intervalMatch[1]);
+      const unit = intervalMatch[2];
+
+      if (unit.includes('day')) {
+        return { frequency: 'daily', interval };
+      } else if (unit.includes('week')) {
+        return { frequency: 'weekly', interval };
+      } else if (unit.includes('month')) {
+        return { frequency: 'monthly', interval };
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Clean the title by removing parsed elements
+   */
+  private cleanTitle(original: string, dueDate?: Date, priority?: string, recurring?: ParsedTask['isRecurring']): string {
+    let cleaned = original.trim();
+
+    // Remove date references
+    cleaned = cleaned.replace(/\b(tomorrow|today|yesterday|next \w+day|\w+day|in \d+ \w+)\b/gi, '');
+
+    // Remove priority indicators
+    cleaned = cleaned.replace(/\b(urgent|asap|important|high|low|priority|!!+|!+)\b/gi, '');
+
+    // Remove recurring indicators
+    cleaned = cleaned.replace(/\b(every \w+|daily|weekly|monthly|yearly)\b/gi, '');
+
+    // Clean up extra spaces and punctuation
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    cleaned = cleaned.replace(/^[^\w]+|[^\w]+$/g, ''); // Remove leading/trailing non-word chars
+
+    // Capitalize first letter
+    if (cleaned) {
+      cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    }
+
+    return cleaned || original; // Fallback to original if cleaning resulted in empty string
+  }
+
+  /**
+   * Calculate confidence score based on parsing success
+   */
+  private calculateConfidence(text: string, parsed: Record<string, boolean>): number {
+    const weights = {
+      dueDate: 0.3,
+      priority: 0.2,
+      taskType: 0.2,
+      context: 0.2,
+      recurring: 0.1
+    };
+
+    let score = 0.5; // Base score
+
+    for (const [key, found] of Object.entries(parsed)) {
+      if (found) {
+        score += weights[key as keyof typeof weights] || 0;
+      }
+    }
+
+    // Bonus for longer, more descriptive text
+    if (text.length > 20) score += 0.1;
+    if (text.split(' ').length > 5) score += 0.1;
+
+    return Math.min(1, Math.max(0, score));
+  }
+
+  /**
+   * Quick test method for development
+   */
+  public test(): void {
+    const testCases = [
+      "buy milk tomorrow",
+      "call mom next friday at 2pm",
+      "pay bills every month",
+      "doctor appointment dec 15",
+      "urgent: fix the printer asap!",
+      "remind me to take medicine daily",
+      "meeting with john about project next tuesday"
+    ];
+
+    console.log('🧠 Natural Language Processing Test Results:');
+    testCases.forEach(test => {
+      const result = this.parseNaturalLanguage(test);
+      console.log(`\n📝 "${test}"`);
+      console.log(`   Title: "${result.title}"`);
+      console.log(`   Due: ${result.dueDate ? format(result.dueDate, 'MMM dd, yyyy') : 'None'}`);
+      console.log(`   Priority: ${result.priority}`);
+      console.log(`   Type: ${result.taskType}`);
+      console.log(`   Tags: ${result.tags.join(', ') || 'None'}`);
+      console.log(`   Confidence: ${Math.round(result.confidence * 100)}%`);
+    });
+  }
 }
 
-/**
- * Check if natural language processing is available
- */
-export function isNLPAvailable(): boolean {
-  try {
-    // Test chrono parsing
-    chrono.parse('tomorrow');
-    return true;
-  } catch {
-    return false;
-  }
-}
+// Export singleton instance
+export const nlpService = new NaturalLanguageService();
