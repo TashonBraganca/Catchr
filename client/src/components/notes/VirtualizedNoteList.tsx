@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList } from 'react-window';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -141,7 +141,7 @@ const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
 
   return (
     <div className={cn("flex-1", className)}>
-      <List
+      <FixedSizeList
         height={height}
         itemCount={notes.length}
         itemSize={ITEM_HEIGHT}
@@ -153,7 +153,7 @@ const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
         }}
       >
         {NoteItem}
-      </List>
+      </FixedSizeList>
     </div>
   );
 };
