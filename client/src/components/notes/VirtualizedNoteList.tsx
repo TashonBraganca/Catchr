@@ -158,21 +158,20 @@ const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
   }
 
   return (
-    <div ref={containerRef} className={cn("flex-1", className)}>
-      <List
-        height={height}
-        itemCount={notes.length}
-        itemSize={ITEM_HEIGHT}
-        itemData={itemData}
-        width={containerWidth}
-        className="scrollbar-thin scrollbar-thumb-[#8e8e93]/20 scrollbar-track-transparent"
-        overscanCount={5}
-        style={{
-          background: 'white',
-        }}
-      >
-        {NoteItem}
-      </List>
+    <div ref={containerRef} className={cn("flex-1 bg-white", className)}>
+      {containerWidth > 0 && (
+        <List
+          height={height}
+          itemCount={notes.length}
+          itemSize={ITEM_HEIGHT}
+          itemData={itemData}
+          width={containerWidth}
+          className="scrollbar-thin scrollbar-thumb-[#8e8e93]/20 scrollbar-track-transparent"
+          overscanCount={5}
+        >
+          {NoteItem}
+        </List>
+      )}
     </div>
   );
 };
