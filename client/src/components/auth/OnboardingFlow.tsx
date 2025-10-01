@@ -172,7 +172,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       initial="hidden"
       animate="visible"
     >
-      <Card variant="glass-strong" className="p-8 space-y-8 min-h-[600px]">
+      <Card variant="strong" className="p-8 space-y-8 min-h-[600px]">
         
         {/* Progress Bar */}
         <motion.div 
@@ -333,7 +333,7 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ preferences, onUpdate }) => (
         placeholder="What should we call you?"
         value={preferences.displayName}
         onChange={(e) => onUpdate({ displayName: e.target.value })}
-        variant="glass-strong"
+        variant="strong"
       />
       
       <p className="text-sm text-white/60 text-center">

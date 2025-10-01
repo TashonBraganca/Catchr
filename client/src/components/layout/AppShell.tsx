@@ -1,7 +1,13 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import VirtualizedNoteList, { Note } from '@/components/notes/VirtualizedNoteList';
+import {
+  ProgressiveToolbar,
+  ProgressiveSearch,
+  ProgressiveActions,
+  ContentFocusMode
+} from '@/components/ui/ProgressiveDisclosure';
 
 // Lazy load voice capture component for better performance
 const SimpleVoiceCapture = React.lazy(() => import('@/components/capture/SimpleVoiceCapture'));
@@ -21,6 +27,16 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
   const [showVoiceCapture, setShowVoiceCapture] = useState(false);
   const [mobileView, setMobileView] = useState<'sidebar' | 'list' | 'editor'>('list');
 
+  // Progressive disclosure state
+  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [selectedText, setSelectedText] = useState(false);
+  const [isWriting, setIsWriting] = useState(false);
+
+  // Editor reference for progressive features
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+
   // Responsive behavior - auto-collapse sidebar on mobile
   React.useEffect(() => {
     const handleResize = () => {
@@ -33,6 +49,36 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Progressive disclosure handlers
+  const handleToolbarAction = (action: string) => {
+    console.log(`Editor toolbar action: ${action}`);
+    // TODO: Apply formatting to selected text in editor
+  };
+
+  const handleSearch = (query: string, filters: string[]) => {
+    console.log(`Search: "${query}" with filters:`, filters);
+    // TODO: Filter notes based on query and filters
+  };
+
+  const handleSidebarAction = (action: string) => {
+    console.log(`Sidebar action: ${action}`);
+    // TODO: Handle sidebar actions (new folder, import, settings)
+  };
+
+  const handleListAction = (action: string) => {
+    console.log(`Note list action: ${action}`);
+    // TODO: Handle list actions (sort, filter, export)
+  };
+
+  const handleTextSelection = () => {
+    if (!editorRef.current) return;
+
+    const selection = window.getSelection();
+    const hasSelection = selection && selection.toString().length > 0;
+    setSelectedText(!!hasSelection);
+    setShowToolbar(!!hasSelection);
+  };
 
   // Mock notes data for virtualization demo
   const mockNotes: Note[] = Array.from({ length: 1000 }, (_, i) => ({
@@ -121,7 +167,19 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             </div>
 
             {/* Smart Collections */}
-            <div className="p-2">
+            <div
+              className="p-2 relative"
+              onMouseEnter={() => setHoveredElement('collections')}
+              onMouseLeave={() => setHoveredElement(null)}
+            >
+              {/* Progressive Actions for Collections */}
+              <ProgressiveActions
+                isVisible={hoveredElement === 'collections' && !sidebarCollapsed}
+                context="sidebar"
+                onAction={handleSidebarAction}
+                className="absolute top-2 right-2 z-10"
+              />
+
               {[
                 { id: 'inbox', name: 'Inbox', icon: '📥', count: 12 },
                 { id: 'today', name: 'Today', icon: '📅', count: 5 },
@@ -239,22 +297,40 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         >
           <div className="h-full flex flex-col">
             {/* Note List Header */}
-            <div className="h-14 flex items-center justify-between px-4 border-b border-[#e5e5e7]">
-              <div>
-                <h2 className="text-lg font-semibold text-[#1d1d1f]">
-                  {selectedProject ?
-                    selectedProject.charAt(0).toUpperCase() + selectedProject.slice(1) :
-                    'All Notes'
-                  }
-                </h2>
-                <p className="text-sm text-[#8e8e93]">42 notes</p>
+            <div className="border-b border-[#e5e5e7]">
+              <div className="h-14 flex items-center justify-between px-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-[#1d1d1f]">
+                    {selectedProject ?
+                      selectedProject.charAt(0).toUpperCase() + selectedProject.slice(1) :
+                      'All Notes'
+                    }
+                  </h2>
+                  <p className="text-sm text-[#8e8e93]">42 notes</p>
+                </div>
+
+                {/* Progressive Actions for Note List */}
+                <div
+                  className="relative"
+                  onMouseEnter={() => setHoveredElement('note-list-header')}
+                  onMouseLeave={() => setHoveredElement(null)}
+                >
+                  <ProgressiveActions
+                    isVisible={hoveredElement === 'note-list-header'}
+                    context="list"
+                    onAction={handleListAction}
+                  />
+                </div>
               </div>
-              <button className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
-                </svg>
-              </button>
+
+              {/* Progressive Search */}
+              <div className="px-4 pb-3">
+                <ProgressiveSearch
+                  isExpanded={showAdvancedSearch}
+                  onExpand={setShowAdvancedSearch}
+                  onSearch={handleSearch}
+                />
+              </div>
             </div>
 
             {/* Virtualized Note List */}
@@ -262,7 +338,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
               notes={mockNotes}
               selectedNoteId={selectedNote}
               onNoteSelect={setSelectedNote}
-              height={typeof window !== 'undefined' ? window.innerHeight - 56 : 600} // Full height minus header
+              height={typeof window !== 'undefined' ? window.innerHeight - (showAdvancedSearch ? 140 : 110) : 600} // Full height minus expanded header
             />
           </div>
         </motion.div>
@@ -280,8 +356,15 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
           <div className="h-full flex flex-col">
             {selectedNote ? (
               <>
-                {/* Editor Header */}
-                <div className="h-14 flex items-center justify-between px-4 lg:px-6 border-b border-[#e5e5e7]">
+                {/* Editor Header - hides when writing */}
+                <motion.div
+                  className="h-14 flex items-center justify-between px-4 lg:px-6 border-b border-[#e5e5e7]"
+                  animate={{
+                    opacity: isWriting ? 0 : 1,
+                    y: isWriting ? -20 : 0
+                  }}
+                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                >
                   {/* Mobile Back Button */}
                   <motion.button
                     className="lg:hidden w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#007aff] mr-2"
@@ -317,16 +400,52 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                       ⋯
                     </motion.button>
                   </div>
-                </div>
+                </motion.div>
 
-                {/* Editor Content */}
-                <div className="flex-1 p-6">
-                  <textarea
-                    className="w-full h-full resize-none border-none outline-none text-[#1d1d1f] text-base leading-relaxed"
-                    placeholder="Start writing..."
-                    defaultValue="This is the note content area where users can write their thoughts..."
+                {/* Editor Content with Progressive Disclosure */}
+                <ContentFocusMode
+                  isActive={isWriting}
+                  onToggle={setIsWriting}
+                  className="flex-1 p-6 relative"
+                >
+                  {/* Progressive Toolbar - appears on text selection */}
+                  <ProgressiveToolbar
+                    isVisible={showToolbar && selectedText}
+                    position="floating"
+                    onAction={handleToolbarAction}
                   />
-                </div>
+
+                  <textarea
+                    ref={editorRef}
+                    className={cn(
+                      "w-full h-full resize-none border-none outline-none text-[#1d1d1f] leading-relaxed transition-all duration-300",
+                      isWriting ? "text-lg leading-loose" : "text-base"
+                    )}
+                    placeholder="Start writing... Select text to see formatting options appear."
+                    defaultValue="This is the note content area where users can write their thoughts..."
+                    onFocus={() => setIsWriting(true)}
+                    onBlur={() => {
+                      setIsWriting(false);
+                      setShowToolbar(false);
+                      setSelectedText(false);
+                    }}
+                    onMouseUp={handleTextSelection}
+                    onKeyUp={handleTextSelection}
+                  />
+
+                  {/* Writing mode indicator */}
+                  <motion.div
+                    className="absolute bottom-4 right-4 px-3 py-1 bg-[#007aff] text-white text-xs rounded-full"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{
+                      opacity: isWriting ? 1 : 0,
+                      scale: isWriting ? 1 : 0.8
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Content Focus Mode
+                  </motion.div>
+                </ContentFocusMode>
               </>
             ) : (
               <div className="flex-1 flex items-center justify-center">

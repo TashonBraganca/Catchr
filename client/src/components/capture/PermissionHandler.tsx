@@ -296,7 +296,7 @@ export const PermissionHandler: React.FC<PermissionHandlerProps> = ({
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Card variant="glass-strong" className="p-4 space-y-3">
+              <Card variant="strong" className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium text-white">Microphone Permission Help</h4>
                   <Button

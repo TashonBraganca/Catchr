@@ -52,6 +52,20 @@ const buttonVariants = cva(
           "active:scale-[0.98] active:bg-orange-accent transition-all duration-200"
         ],
 
+        // Primary button (alias for orange)
+        primary: [
+          "bg-orange-primary text-black font-semibold border border-orange-primary",
+          "hover:bg-orange-bright hover:border-orange-bright hover:shadow-orange-glow",
+          "active:scale-[0.98] active:bg-orange-accent transition-all duration-200"
+        ],
+
+        // Secondary button - Glass with orange accent
+        secondary: [
+          "glass-card text-orange-primary border-orange-light",
+          "hover:glass-strong hover:border-orange-medium hover:text-orange-bright",
+          "active:scale-[0.98] transition-all duration-200"
+        ],
+
         // Ghost Glass - Subtle transparent
         ghost: [
           "text-orange-primary hover:glass-card hover:text-orange-bright",

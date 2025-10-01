@@ -29,6 +29,12 @@ const glassVariants = cva(
           "hover:glass-hover",
           "shadow-glass-strong hover:shadow-glass-glow"
         ],
+        // Alias for strong variant (backward compatibility)
+        "glass-strong": [
+          "glass-strong",
+          "hover:glass-hover",
+          "shadow-glass-strong hover:shadow-glass-glow"
+        ],
         // Apple-Style Premium Glass - Flagship Experience
         premium: [
           "glass-premium",
@@ -48,6 +54,28 @@ const glassVariants = cva(
           "backdrop-blur-sm saturate-150 brightness-110",
           "hover:bg-glass-orange-10 hover:border-border-glass-light",
           "shadow-glass-subtle hover:shadow-glass-medium"
+        ],
+        // Orange accent variant
+        orange: [
+          "glass-medium",
+          "border-2 border-border-orange",
+          "hover:glass-hover hover:border-border-orange-bright",
+          "shadow-glass-medium hover:shadow-glass-strong",
+          "text-text-orange"
+        ],
+        // Standard glass variant
+        glass: [
+          "glass-medium",
+          "hover:glass-hover",
+          "shadow-glass-medium hover:shadow-glass-strong"
+        ],
+        // Bento grid style variant
+        bento: [
+          "glass-light",
+          "rounded-3xl p-8",
+          "hover:glass-hover hover:scale-[1.02]",
+          "shadow-glass-subtle hover:shadow-glass-medium",
+          "transition-all duration-300"
         ],
       },
       size: {

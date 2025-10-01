@@ -45,6 +45,24 @@ const cardVariants = cva(
           "hover:border-orange-medium hover:shadow-orange-glow transition-all duration-300"
         ],
 
+        // Primary variant (alias for strong)
+        primary: [
+          "glass-strong text-white",
+          "hover:glass-premium transition-all duration-300"
+        ],
+
+        // Secondary variant (glass with less intensity)
+        secondary: [
+          "glass-card text-white border-orange-light",
+          "hover:glass-strong hover:border-orange-medium transition-all duration-300"
+        ],
+
+        // Subtle variant (minimal glass effect)
+        subtle: [
+          "glass text-white",
+          "hover:glass-card transition-all duration-300"
+        ],
+
         // Minimal Glass - Subtle transparency
         minimal: [
           "glass text-white",

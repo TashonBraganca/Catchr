@@ -393,3 +393,41 @@ export class NaturalLanguageService {
 
 // Export singleton instance
 export const nlpService = new NaturalLanguageService();
+
+// Export type alias for convenience
+export type NLPResult = ParsedTask;
+
+// Helper function exports for direct use
+export function processNaturalLanguage(text: string): ParsedTask {
+  return nlpService.parseNaturalLanguage(text);
+}
+
+export function formatNLPPreview(result: ParsedTask): string {
+  const parts: string[] = [];
+
+  parts.push(result.title);
+
+  if (result.dueDate) {
+    parts.push(`📅 ${format(result.dueDate, 'MMM dd')}`);
+  }
+
+  if (result.priority !== 'medium') {
+    const priorityEmoji = {
+      urgent: '🔴',
+      high: '🟠',
+      low: '🟢'
+    };
+    parts.push(`${priorityEmoji[result.priority as keyof typeof priorityEmoji] || ''} ${result.priority}`);
+  }
+
+  if (result.tags.length > 0) {
+    parts.push(`#${result.tags.join(' #')}`);
+  }
+
+  return parts.join(' • ');
+}
+
+export function isNLPAvailable(): boolean {
+  // Check if the service is available and functional
+  return typeof nlpService !== 'undefined' && typeof nlpService.parseNaturalLanguage === 'function';
+}

@@ -192,7 +192,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       initial="hidden"
       animate="visible"
     >
-      <Card variant="glass-strong" className="p-8 space-y-6">
+      <Card variant="strong" className="p-8 space-y-6">
         
         {/* Logo */}
         <motion.div 

@@ -7,9 +7,10 @@ import { Palette, Home, Code, Shield } from 'lucide-react';
 const ColorTestPage = React.lazy(() => import('./pages/ColorTestPage'));
 const ApiTestPage = React.lazy(() => import('./pages/ApiTestPage'));
 const WCAGComplianceTest = React.lazy(() => import('./components/testing/WCAGComplianceTest'));
+const ProgressiveDisclosureDemo = React.lazy(() => import('./components/demo/ProgressiveDisclosureDemo'));
 
 function App(): React.ReactElement {
-  const [currentPage, setCurrentPage] = useState<'home' | 'colortest' | 'apitest' | 'wcagtest'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'colortest' | 'apitest' | 'wcagtest' | 'progressive'>('home');
 
   // Simple loading component for lazy-loaded pages
   const LoadingFallback = () => (
@@ -77,6 +78,26 @@ function App(): React.ReactElement {
         </div>
         <Suspense fallback={<LoadingFallback />}>
           <WCAGComplianceTest />
+        </Suspense>
+      </div>
+    );
+  }
+
+  if (currentPage === 'progressive') {
+    return (
+      <div className="h-screen">
+        <div className="fixed top-4 left-4 z-50">
+          <Button
+            variant="glass"
+            size="sm"
+            onClick={() => setCurrentPage('home')}
+            leftIcon={<Home className="w-4 h-4" />}
+          >
+            Back to Home
+          </Button>
+        </div>
+        <Suspense fallback={<LoadingFallback />}>
+          <ProgressiveDisclosureDemo className="pt-16" />
         </Suspense>
       </div>
     );
