@@ -56,9 +56,10 @@ export const THOUGHT_TYPES = {
 // AI Configuration
 export const AI_CONFIG = {
   OPENAI: {
-    MODEL: 'gpt-5-mini', // Using GPT-5-mini as specified in REVAMP.md AI instructions
-    MAX_TOKENS: 1000,
-    TEMPERATURE: 0.7,
+    MODEL: 'gpt-5', // Correct OpenAI API model identifier (learned from Context7)
+    MAX_TOKENS: 1500,
+    TEMPERATURE: 0.3, // Lower for consistent categorization (Context7 best practice)
+    REASONING_EFFORT: 'minimal', // Faster responses for real-time UX
   },
   TRANSCRIPTION: {
     WHISPER_MODEL: 'whisper-1', // OpenAI Whisper model

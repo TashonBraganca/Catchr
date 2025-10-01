@@ -1,10 +1,9 @@
 import express from 'express';
-import { UltrathinkAI } from '../services/ultrathinkAI.js';
+import { gpt5Orchestrator } from '../services/gpt5MiniOrchestrator.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { rateLimit } from 'express-rate-limit';
 
 const router = express.Router();
-const ultrathinkAI = new UltrathinkAI();
 
 // Rate limiting for AI endpoints
 const aiRateLimit = rateLimit({
@@ -58,29 +57,29 @@ router.post('/categorize', authenticateToken, async (req, res) => {
     // Add timing for performance monitoring
     const startTime = Date.now();
 
-    // Prepare context
-    const enhancedContext = {
+    // Prepare user context with Context7 best practices
+    const userContext = {
+      userId,
       timeOfDay: new Date().toLocaleTimeString(),
-      ...context
+      recentThoughts: context?.recentThoughts,
+      projects: context?.projects,
+      frequentTags: context?.frequentTags,
+      vocabularyPreferences: context?.vocabularyPreferences,
+      location: context?.location,
+      browserContext: context?.browserContext,
     };
 
-    // Categorize the thought using GPT-5 Mini
-    const categorization = await ultrathinkAI.categorizeThought(
-      content,
-      userId,
-      enhancedContext
-    );
-
-    const processingTime = Date.now() - startTime;
+    // Categorize using GPT-5 with supernatural intelligence
+    const analysis = await gpt5Orchestrator.analyzeThought(content, userContext);
 
     // Log performance metrics
-    console.log(`AI categorization completed in ${processingTime}ms for user ${userId}`);
+    console.log(`✅ GPT-5 analysis completed in ${analysis.processingTime}ms for user ${userId} (confidence: ${analysis.confidence})`);
 
-    // Return the categorization result
+    // Return the supernatural categorization result
     res.json({
-      ...categorization,
-      processingTime,
-      model: 'gpt-5-mini',
+      ...analysis,
+      model: 'gpt-5',
+      orchestrator: 'gpt5-mini-v1',
       timestamp: new Date().toISOString()
     });
 
@@ -116,26 +115,25 @@ router.post('/enhance', authenticateToken, async (req, res) => {
       });
     }
 
-    const startTime = Date.now();
-
-    // Get enhanced categorization with user feedback incorporated
-    const categorization = await ultrathinkAI.categorizeThought(
-      content,
+    // Prepare enhanced context with feedback
+    const userContext = {
       userId,
-      {
-        currentCategory,
-        userFeedback,
-        enhancementMode: true
-      }
-    );
+      recentThoughts: [{
+        content,
+        category: currentCategory,
+        tags: [],
+      }],
+      timeOfDay: new Date().toLocaleTimeString(),
+    };
 
-    const processingTime = Date.now() - startTime;
+    // Get enhanced categorization using GPT-5
+    const analysis = await gpt5Orchestrator.analyzeThought(content, userContext);
 
     res.json({
-      ...categorization,
-      processingTime,
-      model: 'gpt-5-mini',
+      ...analysis,
+      model: 'gpt-5',
       enhanced: true,
+      userFeedback,
       timestamp: new Date().toISOString()
     });
 
@@ -179,19 +177,26 @@ router.post('/batch-categorize', authenticateToken, async (req, res) => {
 
     const startTime = Date.now();
 
-    // Process thoughts in parallel with controlled concurrency
-    const results = await Promise.allSettled(
-      thoughts.map((content, index) =>
-        ultrathinkAI.categorizeThought(content, userId, { batchIndex: index })
-      )
-    );
+    // Prepare user context
+    const userContext = {
+      userId,
+      timeOfDay: new Date().toLocaleTimeString(),
+    };
 
-    const categorizations = results.map((result, index) => ({
-      index,
-      content: thoughts[index],
-      success: result.status === 'fulfilled',
-      categorization: result.status === 'fulfilled' ? result.value : null,
-      error: result.status === 'rejected' ? result.reason.message : null
+    // Process thoughts using GPT-5 batch analyzer (efficient)
+    const thoughtsWithIds = thoughts.map((content, index) => ({
+      id: `batch-${index}`,
+      content
+    }));
+
+    const batchResults = await gpt5Orchestrator.batchAnalyzeThoughts(thoughtsWithIds, userContext);
+
+    const categorizations = batchResults.map((result) => ({
+      index: parseInt(result.id.split('-')[1]),
+      content: result.analysis.cleanedText,
+      success: true,
+      analysis: result.analysis,
+      error: null
     }));
 
     const processingTime = Date.now() - startTime;
@@ -201,7 +206,9 @@ router.post('/batch-categorize', authenticateToken, async (req, res) => {
       totalProcessed: thoughts.length,
       successCount: categorizations.filter(r => r.success).length,
       processingTime,
-      model: 'gpt-5-mini',
+      averageTimePerThought: Math.round(processingTime / thoughts.length),
+      model: 'gpt-5',
+      orchestrator: 'gpt5-mini-batch-v1',
       timestamp: new Date().toISOString()
     });
 
@@ -210,6 +217,31 @@ router.post('/batch-categorize', authenticateToken, async (req, res) => {
 
     res.status(500).json({
       error: 'Failed to process batch categorization',
+      message: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
+  }
+});
+
+/**
+ * GET /api/ai/performance
+ * Get AI orchestrator performance metrics
+ */
+router.get('/performance', authenticateToken, async (req, res) => {
+  try {
+    const metrics = gpt5Orchestrator.getPerformanceMetrics();
+
+    res.json({
+      ...metrics,
+      model: 'gpt-5',
+      orchestrator: 'gpt5-mini-v1',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Performance metrics error:', error);
+
+    res.status(500).json({
+      error: 'Failed to fetch performance metrics',
       message: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
