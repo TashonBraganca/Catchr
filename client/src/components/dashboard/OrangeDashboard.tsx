@@ -99,7 +99,7 @@ export const OrangeDashboard: React.FC<DashboardProps> = ({ className }) => {
                 Good morning, User
               </h1>
               <p className="text-white/60">
-                You have {mockStats.totalThoughts} thoughts captured
+                You have {stats?.totalThoughts || 0} thoughts captured
               </p>
             </div>
 
@@ -295,9 +295,9 @@ export const OrangeDashboard: React.FC<DashboardProps> = ({ className }) => {
             className="h-full"
           >
             <div className="space-y-3 mt-4">
-              {stats && Object.keys(stats.categoryBreakdown).length > 0 ?
+              {stats && stats.categoryBreakdown && Object.keys(stats.categoryBreakdown).length > 0 ?
                 Object.entries(stats.categoryBreakdown).map(([name, count], index) => {
-                  const maxCount = Math.max(...Object.values(stats.categoryBreakdown));
+                  const maxCount = Math.max(...Object.values(stats.categoryBreakdown as Record<string, number>));
                   const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
                   const category = {
                     name: name.charAt(0).toUpperCase() + name.slice(1),
