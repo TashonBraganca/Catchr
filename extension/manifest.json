@@ -1,68 +1,57 @@
 {
   "manifest_version": 3,
-  "name": "CATHCR - Instant Thought Capture",
+  "name": "Catchr - Thought Capture at Speed of Thought",
   "version": "1.0.0",
-  "description": "Capture fleeting thoughts instantly with voice or text from anywhere on the web",
-
+  "description": "Capture thoughts instantly with voice, organize supernaturally with AI. One click, 5-second silence detection, zero friction.",
   "permissions": [
     "storage",
     "activeTab",
-    "scripting",
-    "notifications"
+    "tabs",
+    "scripting"
   ],
-
-  "optional_permissions": [
-    "microphone"
+  "host_permissions": [
+    "https://catchr.vercel.app/*",
+    "http://localhost:5173/*"
   ],
-
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "src/background.js",
     "type": "module"
   },
-
-  "content_scripts": [{
-    "matches": ["<all_urls>"],
-    "js": ["content-script.js"],
-    "css": ["content-styles.css"],
-    "run_at": "document_idle"
-  }],
-
-  "commands": {
-    "capture-thought": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+C",
-        "mac": "Command+K"
-      },
-      "description": "Open instant thought capture modal"
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "public/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
     }
   },
-
   "icons": {
     "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Capture Thought",
-    "default_icon": {
-      "16": "icons/icon-16.png",
-      "48": "icons/icon-48.png"
+  "commands": {
+    "quick-capture": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+C",
+        "mac": "Command+Shift+C"
+      },
+      "description": "Quick voice capture"
     }
   },
-
-  "web_accessible_resources": [{
-    "resources": ["icons/*.png", "content-styles.css"],
-    "matches": ["<all_urls>"]
-  }],
-
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline';"
-  },
-
-  "host_permissions": [
-    "http://localhost:3001/*",
-    "https://api.cathcr.com/*"
+  "web_accessible_resources": [
+    {
+      "resources": ["src/modal.js", "src/modal.css"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
