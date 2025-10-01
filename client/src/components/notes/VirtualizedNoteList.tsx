@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import { List } from 'react-window';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -112,6 +112,24 @@ const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
   className,
   height = 600,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(300);
+
+  // Measure container width
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   // Optimize data for virtualization
   const itemData = useMemo(() => ({
     notes,
@@ -140,14 +158,15 @@ const VirtualizedNoteList: React.FC<VirtualizedNoteListProps> = ({
   }
 
   return (
-    <div className={cn("flex-1", className)}>
+    <div ref={containerRef} className={cn("flex-1", className)}>
       <List
         height={height}
         itemCount={notes.length}
         itemSize={ITEM_HEIGHT}
         itemData={itemData}
-        width="100%"
+        width={containerWidth}
         className="scrollbar-thin scrollbar-thumb-[#8e8e93]/20 scrollbar-track-transparent"
+        overscanCount={5}
         style={{
           background: 'white',
         }}
