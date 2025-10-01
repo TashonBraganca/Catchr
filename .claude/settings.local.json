@@ -52,7 +52,8 @@
       "Bash(node:*)",
       "WebFetch(domain:tasks.google.com)",
       "WebFetch(domain:support.apple.com)",
-      "WebFetch(domain:support.google.com)"
+      "WebFetch(domain:support.google.com)",
+      "WebFetch(domain:todoist.com)"
     ],
     "deny": [],
     "ask": []

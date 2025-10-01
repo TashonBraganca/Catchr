@@ -29,6 +29,7 @@ import aiRoutes from './routes/ai.js';
 import distributionRoutes from './routes/distribution.js';
 import cognitiveRoutes from './routes/cognitive.js';
 import voiceRoutes from './routes/voice.js';
+import calendarRoutes from './routes/calendar.js';
 // import { aiWorker } from './workers/aiWorker.js'; // Optional - requires Redis
 
 const app = express();
@@ -68,6 +69,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/distribution', distributionRoutes);
 app.use('/api/cognitive', cognitiveRoutes);
 app.use('/api/voice', voiceRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // API Testing Routes
 app.get('/api/test', (req, res) => {
