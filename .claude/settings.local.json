@@ -53,7 +53,12 @@
       "WebFetch(domain:tasks.google.com)",
       "WebFetch(domain:support.apple.com)",
       "WebFetch(domain:support.google.com)",
-      "WebFetch(domain:todoist.com)"
+      "WebFetch(domain:todoist.com)",
+      "WebFetch(domain:cathcr-7iij06wmh-tashon-bragancas-projects.vercel.app)",
+      "WebFetch(domain:cathcr.vercel.app)",
+      "Bash(git rm:*)",
+      "Bash(supabase:*)",
+      "Bash(npx supabase:*)"
     ],
     "deny": [],
     "ask": []

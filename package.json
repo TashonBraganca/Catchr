@@ -33,10 +33,14 @@
     "@types/node": "^20.14.0",
     "concurrently": "^8.2.2",
     "prettier": "^3.3.0",
+    "supabase": "^2.47.2",
     "typescript": "^5.4.5"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
   }
 }

@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 // SIMPLE NOTE LIST - APPLE NOTES STYLE
 // Optimized scrollable list without virtualization
+// Compatible with useNotes hook - SIMPLIFIED for performance
 
-interface Note {
+export interface NoteListItem {
   id: string;
   title: string;
   content: string;
@@ -14,9 +14,11 @@ interface Note {
   isPinned: boolean;
 }
 
+export type { NoteListItem as Note };
+
 interface SimpleNoteListProps {
-  notes: Note[];
-  selectedNoteId?: string;
+  notes: NoteListItem[];
+  selectedNoteId?: string | null;
   onNoteSelect: (noteId: string) => void;
   className?: string;
 }
@@ -37,7 +39,7 @@ const SimpleNoteList: React.FC<SimpleNoteListProps> = ({
           </div>
           <h3 className="text-lg font-medium text-[#1d1d1f] mb-2">No notes yet</h3>
           <p className="text-sm text-[#8e8e93]">
-            Create your first note using the voice capture button
+            Click "+ New" to create your first note or use voice capture
           </p>
         </div>
       </div>
@@ -60,9 +62,9 @@ const SimpleNoteList: React.FC<SimpleNoteListProps> = ({
   );
 };
 
-// Individual note item component
+// Individual note item component - SIMPLIFIED (no framer-motion for performance)
 interface NoteItemProps {
-  note: Note;
+  note: NoteListItem;
   isSelected: boolean;
   onSelect: (noteId: string) => void;
 }
@@ -73,16 +75,13 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, isSelected, onSelect }) => {
   }, [note.id, onSelect]);
 
   return (
-    <motion.button
+    <button
       className={cn(
         "w-full p-4 text-left hover:bg-[#f8f9fa] transition-colors",
         "flex flex-col space-y-2 focus:outline-none focus:ring-2 focus:ring-[#007aff]/20",
         isSelected && "bg-[#007aff]/10 border-l-4 border-l-[#007aff]"
       )}
       onClick={handleClick}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
       aria-label={`Select note: ${note.title}`}
     >
       {/* Note Header */}
@@ -125,7 +124,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, isSelected, onSelect }) => {
           )}
         </div>
       )}
-    </motion.button>
+    </button>
   );
 };
 
@@ -156,4 +155,4 @@ function formatRelativeTime(dateString: string): string {
 }
 
 export default SimpleNoteList;
-export type { Note, SimpleNoteListProps };
+export type { SimpleNoteListProps };

@@ -1,7 +1,9 @@
 import React, { useState, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import SimpleNoteList, { Note } from '@/components/notes/SimpleNoteList';
+import SimpleNoteList from '@/components/notes/SimpleNoteList';
+import { useNotes, Note } from '@/hooks/useNotes';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   ProgressiveToolbar,
   ProgressiveSearch,
@@ -21,10 +23,15 @@ interface AppShellProps {
 }
 
 const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => {
+  // CRITICAL FIX: Use real Supabase data instead of mock data
+  const { user, signOut } = useAuth();
+  const { notes, loading, error, createNote, updateNote, deleteNote, togglePin } = useNotes();
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [showVoiceCapture, setShowVoiceCapture] = useState(false);
+  const [showNewNoteModal, setShowNewNoteModal] = useState(false);
   const [mobileView, setMobileView] = useState<'sidebar' | 'list' | 'editor'>('list');
 
   // Progressive disclosure state
@@ -36,6 +43,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
   // Editor reference for progressive features
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const newNoteContentRef = useRef<HTMLTextAreaElement>(null);
 
   // Responsive behavior - auto-collapse sidebar on mobile
   React.useEffect(() => {
@@ -80,14 +88,61 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
     setShowToolbar(!!hasSelection);
   };
 
-  // Mock notes data for virtualization demo
-  const mockNotes: Note[] = Array.from({ length: 1000 }, (_, i) => ({
-    id: `note-${i + 1}`,
-    title: `Note ${i + 1}`,
-    content: `This is the content of note ${i + 1}. It contains some sample text to demonstrate the virtualized list performance with thousands of notes.`,
-    tags: [`tag${(i % 5) + 1}`, `category${(i % 3) + 1}`],
-    lastModified: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    isPinned: i < 3, // Pin first 3 notes
+  /**
+   * CRITICAL FIX: Create new note manually
+   * Addresses user feedback: "there is not button or option to create a new note"
+   */
+  const handleCreateNewNote = async () => {
+    const content = newNoteContentRef.current?.value || '';
+    if (!content.trim()) return;
+
+    await createNote({
+      content: content.trim(),
+      tags: [],
+      category: { main: 'note' }
+    });
+
+    setShowNewNoteModal(false);
+    if (newNoteContentRef.current) {
+      newNoteContentRef.current.value = '';
+    }
+  };
+
+  /**
+   * CRITICAL FIX: Save voice notes to database
+   * Addresses user feedback: "neither does this work, since it just opens up
+   * and nothing happens later on... even the waveform is bad, fix that too,
+   * it doesnt even record or save anything"
+   */
+  const handleVoiceNoteComplete = async (
+    transcript: string,
+    suggestedTitle?: string,
+    suggestedTags?: string[]
+  ) => {
+    if (!transcript || transcript.trim().length === 0) {
+      console.warn('Empty transcript, not saving');
+      return;
+    }
+
+    // Save to database with AI-generated metadata
+    await createNote({
+      content: transcript,
+      title: suggestedTitle,
+      tags: suggestedTags || [],
+      category: { main: 'voice-note' }
+    });
+
+    setShowVoiceCapture(false);
+  };
+
+  // Transform notes for SimpleNoteList component
+  const transformedNotes = notes.map(note => ({
+    id: note.id,
+    title: note.title || 'Untitled Note',
+    content: note.content,
+    tags: note.tags || [],
+    lastModified: note.updated_at,
+    isPinned: note.is_pinned
   }));
 
   return (
@@ -240,7 +295,12 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
               <div className="flex-1 p-2">
                 <div className="flex items-center justify-between px-3 py-2">
                   <h3 className="text-sm font-medium text-[#8e8e93] uppercase tracking-wide">Projects</h3>
-                  <button className="w-6 h-6 rounded-full bg-[#007aff] text-white flex items-center justify-center text-xs">
+                  <button
+                    onClick={() => setShowNewNoteModal(true)}
+                    className="w-6 h-6 rounded-full bg-[#007aff] text-white flex items-center justify-center text-xs hover:bg-[#0056cc] transition-colors"
+                    title="Create new note"
+                    aria-label="Create new note"
+                  >
                     +
                   </button>
                 </div>
@@ -299,28 +359,26 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             {/* Note List Header */}
             <div className="border-b border-[#e5e5e7]">
               <div className="h-14 flex items-center justify-between px-4">
-                <div>
+                <div className="flex-1">
                   <h2 className="text-lg font-semibold text-[#1d1d1f]">
                     {selectedProject ?
                       selectedProject.charAt(0).toUpperCase() + selectedProject.slice(1) :
                       'All Notes'
                     }
                   </h2>
-                  <p className="text-sm text-[#8e8e93]">42 notes</p>
+                  <p className="text-sm text-[#8e8e93]">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</p>
                 </div>
 
-                {/* Progressive Actions for Note List */}
-                <div
-                  className="relative"
-                  onMouseEnter={() => setHoveredElement('note-list-header')}
-                  onMouseLeave={() => setHoveredElement(null)}
+                {/* NEW NOTE BUTTON - CRITICAL FIX */}
+                <button
+                  onClick={() => setShowNewNoteModal(true)}
+                  className="px-3 py-1.5 bg-[#007aff] text-white text-sm font-medium rounded-lg hover:bg-[#0056cc] transition-colors flex items-center space-x-1"
+                  title="Create new note"
+                  aria-label="Create new note"
                 >
-                  <ProgressiveActions
-                    isVisible={hoveredElement === 'note-list-header'}
-                    context="list"
-                    onAction={handleListAction}
-                  />
-                </div>
+                  <span>+</span>
+                  <span>New</span>
+                </button>
               </div>
 
               {/* Progressive Search */}
@@ -333,12 +391,33 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
               </div>
             </div>
 
-            {/* Simple Note List - Scrollable without virtualization */}
-            <SimpleNoteList
-              notes={mockNotes}
-              selectedNoteId={selectedNote}
-              onNoteSelect={setSelectedNote}
-            />
+            {/* Simple Note List - Now with real Supabase data! */}
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-6 h-6 border-2 border-[#007aff] border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-[#8e8e93]">Loading notes...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="flex-1 flex items-center justify-center p-4">
+                <div className="text-center">
+                  <p className="text-sm text-red-500 mb-2">⚠️ {error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-xs text-[#007aff] hover:underline"
+                  >
+                    Reload page
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <SimpleNoteList
+                notes={transformedNotes}
+                selectedNoteId={selectedNote}
+                onNoteSelect={setSelectedNote}
+              />
+            )}
           </div>
         </motion.div>
 
@@ -582,20 +661,70 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   </div>
                 }>
                   <SimpleVoiceCapture
-                    onTranscriptComplete={(transcript, suggestedTitle, suggestedTags) => {
-                      console.log('Voice note completed:', { transcript, suggestedTitle, suggestedTags });
-                      // TODO: Create new note with this data
-                      setShowVoiceCapture(false);
-                    }}
+                    onTranscriptComplete={handleVoiceNoteComplete}
                     onError={(error) => {
                       console.error('Voice capture error:', error);
-                      // TODO: Show error toast
+                      // TODO: Show error toast notification
                     }}
                     className="shadow-2xl"
                   />
                 </Suspense>
               </div>
             </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* NEW NOTE MODAL - Simple and fast */}
+      <AnimatePresence>
+        {showNewNoteModal && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/20 z-50"
+              onClick={() => setShowNewNoteModal(false)}
+            />
+
+            {/* Modal */}
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl border border-[#e5e5e7] shadow-xl w-full max-w-lg p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-[#1d1d1f]">New Note</h3>
+                  <button
+                    onClick={() => setShowNewNoteModal(false)}
+                    className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93]"
+                    aria-label="Close"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Content */}
+                <textarea
+                  ref={newNoteContentRef}
+                  className="w-full h-48 p-3 border border-[#e5e5e7] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#007aff] focus:border-transparent"
+                  placeholder="Start writing your note..."
+                  autoFocus
+                />
+
+                {/* Actions */}
+                <div className="flex items-center justify-end space-x-2 mt-4">
+                  <button
+                    onClick={() => setShowNewNoteModal(false)}
+                    className="px-4 py-2 text-[#8e8e93] hover:bg-[#f2f2f7] rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreateNewNote}
+                    className="px-4 py-2 bg-[#007aff] text-white rounded-lg hover:bg-[#0056cc] transition-colors font-medium"
+                  >
+                    Create Note
+                  </button>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </AnimatePresence>
