@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthLayout } from '@/components/layout/AppLayout';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { SupabaseTest } from '@/components/auth/SupabaseTest';
 
 type AuthMode = 'signin' | 'signup' | 'forgot' | 'magic';
 
@@ -42,6 +43,9 @@ export const AuthPage: React.FC = () => {
         onModeChange={handleModeChange}
         onSuccess={handleAuthSuccess}
       />
+
+      {/* Debug tool - shows exact Supabase errors */}
+      <SupabaseTest />
     </AuthLayout>
   );
 };
