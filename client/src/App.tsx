@@ -1,7 +1,7 @@
 import React from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthenticatedApp from './components/auth/AuthenticatedApp';
-import './styles/globals.css';
+import './index.css';
 
 /**
  * CATHCR - MAIN APPLICATION ENTRY POINT
