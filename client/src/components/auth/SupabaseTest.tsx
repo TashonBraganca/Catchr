@@ -27,8 +27,10 @@ export const SupabaseTest: React.FC = () => {
         setTestResult(prev => prev + '\n✓ Session check passed (no active session)');
       }
 
-      // Test 3: Try to sign up with test account
-      const testEmail = `test${Date.now()}@example.com`;
+      // Test 3: Try to sign up with REALISTIC test account
+      // Supabase rejects timestamp@example.com pattern
+      // Use realistic Gmail-like address instead
+      const testEmail = `cathcr.test.${Math.floor(Math.random() * 10000)}@gmail.com`;
       const testPassword = 'TestPassword123!';
 
       setTestResult(prev => prev + `\n\nTrying to sign up with: ${testEmail}`);
