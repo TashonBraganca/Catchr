@@ -104,40 +104,7 @@ function App(): React.ReactElement {
   }
 
 
-  return (
-    <div>
-      {/* Test Access Buttons */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col space-y-2">
-        <Button
-          variant="neon"
-          size="sm"
-          onClick={() => setCurrentPage('colortest')}
-          leftIcon={<Palette className="w-4 h-4" />}
-          className="animate-orange-glow"
-        >
-          🎨 Test Colors
-        </Button>
-        <Button
-          variant="premium"
-          size="sm"
-          onClick={() => setCurrentPage('apitest')}
-          leftIcon={<Code className="w-4 h-4" />}
-        >
-          🔧 Test APIs
-        </Button>
-        <Button
-          variant="glass"
-          size="sm"
-          onClick={() => setCurrentPage('wcagtest')}
-          leftIcon={<Shield className="w-4 h-4" />}
-          className="border-green-400/30 text-green-400"
-        >
-          ✅ WCAG Test
-        </Button>
-      </div>
-      <HomePage />
-    </div>
-  );
+  return <HomePage />;
 }
 
 export default App;

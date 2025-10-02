@@ -1,7 +1,7 @@
 import React, { useState, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import VirtualizedNoteList, { Note } from '@/components/notes/VirtualizedNoteList';
+import SimpleNoteList, { Note } from '@/components/notes/SimpleNoteList';
 import {
   ProgressiveToolbar,
   ProgressiveSearch,
@@ -333,24 +333,12 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
               </div>
             </div>
 
-            {/* Virtualized Note List - Temporarily disabled for debugging */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="text-center py-8">
-                <div className="text-6xl mb-4">📝</div>
-                <h3 className="text-lg font-medium text-[#1d1d1f] mb-2">
-                  Virtualized List Disabled
-                </h3>
-                <p className="text-sm text-[#8e8e93]">
-                  {mockNotes.length} notes available - debugging mode
-                </p>
-              </div>
-            </div>
-            {/* <VirtualizedNoteList
+            {/* Simple Note List - Scrollable without virtualization */}
+            <SimpleNoteList
               notes={mockNotes}
               selectedNoteId={selectedNote}
               onNoteSelect={setSelectedNote}
-              height={typeof window !== 'undefined' ? window.innerHeight - (showAdvancedSearch ? 140 : 110) : 600}
-            /> */}
+            />
           </div>
         </motion.div>
 

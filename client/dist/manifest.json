@@ -1,0 +1,58 @@
+{
+  "name": "Cathcr - Capture Your Thoughts",
+  "short_name": "Cathcr",
+  "description": "AI-powered thought capture and organization. Quick voice notes with smart categorization inspired by Apple Notes and Todoist.",
+  "theme_color": "#ff8c00",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-light.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities",
+    "lifestyle"
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Capture",
+      "short_name": "Capture",
+      "description": "Quickly capture a new thought or note",
+      "url": "/?action=capture",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Voice Note",
+      "short_name": "Voice",
+      "description": "Record a voice note",
+      "url": "/?action=voice",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
