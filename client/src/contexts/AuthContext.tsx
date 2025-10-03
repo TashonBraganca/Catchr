@@ -68,19 +68,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const initializeAuth = async () => {
       try {
+        console.log('🔐 [Auth] Initializing auth...');
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (!mounted) return;
 
         if (error) {
+          console.error('❌ [Auth] Session error:', error);
           setState(prev => ({ ...prev, error, loading: false }));
           return;
         }
 
-        // If we have a session, fetch the profile
+        console.log('✅ [Auth] Session:', session?.user ? `User ${session.user.id}` : 'No session');
+
+        // If we have a session, fetch the profile (but don't block on it)
         let profile = null;
         if (session?.user) {
-          profile = await fetchProfile(session.user.id);
+          try {
+            console.log('📝 [Auth] Fetching profile...');
+            profile = await fetchProfile(session.user.id);
+            console.log('✅ [Auth] Profile loaded:', profile ? 'Success' : 'No profile found');
+          } catch (profileError) {
+            console.warn('⚠️ [Auth] Profile fetch failed (continuing without profile):', profileError);
+            // Don't block - user can still use the app
+          }
         }
 
         setState({
@@ -90,7 +101,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           loading: false,
           error: null,
         });
+        console.log('✅ [Auth] Initialization complete, loading = false');
       } catch (error) {
+        console.error('❌ [Auth] Fatal initialization error:', error);
         if (mounted) {
           setState(prev => ({
             ...prev,
@@ -108,12 +121,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('🔄 [Auth] State changed:', event, session?.user?.id);
 
         // Handle different auth events
         let profile = null;
         if (session?.user && event !== 'SIGNED_OUT') {
-          profile = await fetchProfile(session.user.id);
+          try {
+            console.log('📝 [Auth] Fetching profile after state change...');
+            profile = await fetchProfile(session.user.id);
+            console.log('✅ [Auth] Profile fetched:', profile ? 'Success' : 'No profile');
+          } catch (profileError) {
+            console.warn('⚠️ [Auth] Profile fetch failed:', profileError);
+            // Continue without profile
+          }
         }
 
         setState({
@@ -123,9 +143,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           loading: false,
           error: null,
         });
+        console.log('✅ [Auth] State updated, loading = false');
 
         // Handle post-auth actions
         if (event === 'SIGNED_IN' && session?.user) {
+          console.log('📝 [Auth] Creating/updating profile...');
           // Create or update profile on sign in
           await createOrUpdateProfile(session.user);
         }
