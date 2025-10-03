@@ -151,9 +151,18 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       }
 
       // Always record audio as fallback (Whisper backup)
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Try different MIME types for maximum Whisper compatibility
+      let mimeType = 'audio/webm'; // Default fallback
+      if (MediaRecorder.isTypeSupported('audio/wav')) {
+        mimeType = 'audio/wav';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      }
+
+      console.log(`🎙️ [Voice] Using MIME type for recording: ${mimeType}`);
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -208,10 +217,13 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       if (!finalTranscript || finalTranscript.length < 10) {
         console.log('🔄 [Voice] Falling back to Whisper API...');
         if (audioChunksRef.current.length > 0) {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          // Use the same MIME type as was used for recording
+          const mimeType = audioChunksRef.current[0].type;
+          const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
           console.log('📦 [Voice] Audio blob created:', {
             size: audioBlob.size,
-            type: audioBlob.type
+            type: audioBlob.type,
+            mimeType: mimeType
           });
 
           finalTranscript = await transcribeWithWhisper(audioBlob);
