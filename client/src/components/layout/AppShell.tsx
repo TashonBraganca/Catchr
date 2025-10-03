@@ -190,9 +190,9 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className={cn(
-                  "w-8 h-8 rounded-lg hover:bg-glass-orange-10 transition-all duration-200",
-                  "flex items-center justify-center text-text-secondary focus-ring",
-                  "hover:text-orange-primary hover:scale-105"
+                  "w-8 h-8 rounded-lg hover:bg-white/5 transition-all duration-200",
+                  "flex items-center justify-center text-white/70 focus-ring",
+                  "hover:text-orange-500 hover:scale-105"
                 )}
                 whileHover={{
                   scale: 1.05,
