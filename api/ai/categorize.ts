@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { OpenAI } from 'openai';
 
 // VERCEL SERVERLESS FUNCTION - AI CATEGORIZATION
-// Uses GPT-5 to categorize thoughts and notes
+// Uses GPT-5 Nano to categorize thoughts and notes
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -33,11 +33,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    console.log('🤖 [GPT-5 AI] Categorizing thought:', inputText.substring(0, 100));
+    console.log('🤖 [GPT-5 Nano AI] Categorizing thought:', inputText.substring(0, 100));
 
-    // Use GPT-5 (gpt-4o) for supernatural thought organization
+    // Use GPT-5 Nano for supernatural thought organization
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5-nano',
       messages: [
         {
           role: 'developer',
@@ -70,7 +70,7 @@ Return JSON only. Be precise and supernatural.`,
 
     const result = JSON.parse(completion.choices[0].message.content || '{}');
 
-    console.log('✅ [GPT-5 AI] Categorization completed:', {
+    console.log('✅ [GPT-5 Nano AI] Categorization completed:', {
       category: result.category,
       priority: result.priority,
       tags: result.tags?.length || 0,
@@ -92,7 +92,7 @@ Return JSON only. Be precise and supernatural.`,
     });
 
   } catch (error) {
-    console.error('❌ [GPT-5 AI] Categorization error:', error);
+    console.error('❌ [GPT-5 Nano AI] Categorization error:', error);
     res.status(500).json({
       error: 'AI categorization failed',
       details: error instanceof Error ? error.message : 'Unknown error',

@@ -223,11 +223,11 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
 
       if (finalTranscript && finalTranscript.length > 0) {
         setProcessingStage('processing');
-        console.log('🤖 [Voice] Processing with GPT-4o...');
+        console.log('🤖 [Voice] Processing with GPT-5 Nano...');
 
-        // Use GPT-4o for categorization and enhancement
+        // Use GPT-5 Nano for categorization and enhancement
         const aiResult = await processWithGPT(finalTranscript);
-        console.log('✅ [Voice] GPT-4o result:', aiResult);
+        console.log('✅ [Voice] GPT-5 Nano result:', aiResult);
 
         onTranscriptComplete?.(
           finalTranscript,
