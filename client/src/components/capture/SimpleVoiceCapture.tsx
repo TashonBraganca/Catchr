@@ -173,16 +173,19 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
 
   // Stop recording and process
   const stopRecording = useCallback(async () => {
+    console.log('🛑 [Voice] Stop recording triggered');
     setIsRecording(false);
     setIsProcessing(true);
 
     // Stop all recording
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+      console.log('🎤 [Voice] Speech recognition stopped');
     }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
+      console.log('📹 [Voice] Media recorder stopped');
     }
 
     if (audioContextRef.current) {
@@ -193,23 +196,38 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       cancelAnimationFrame(animationFrameRef.current);
     }
 
-    // Process the recording with enhanced stages (Reddit insight: Google Keep processing feedback)
+    // Process the recording with enhanced stages
     try {
       setProcessingStage('transcribing');
       let finalTranscript = transcript;
 
+      console.log('📝 [Voice] Current transcript from Web Speech:', finalTranscript || 'EMPTY');
+      console.log('🎙️ [Voice] Audio chunks recorded:', audioChunksRef.current.length);
+
       // If Web Speech API didn't work or gave poor results, use Whisper
       if (!finalTranscript || finalTranscript.length < 10) {
+        console.log('🔄 [Voice] Falling back to Whisper API...');
         if (audioChunksRef.current.length > 0) {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          console.log('📦 [Voice] Audio blob created:', {
+            size: audioBlob.size,
+            type: audioBlob.type
+          });
+
           finalTranscript = await transcribeWithWhisper(audioBlob);
+          console.log('✅ [Voice] Whisper transcript received:', finalTranscript.substring(0, 100));
+        } else {
+          console.error('❌ [Voice] No audio chunks recorded!');
         }
       }
 
       if (finalTranscript && finalTranscript.length > 0) {
         setProcessingStage('processing');
-        // Use GPT-5-mini for categorization and enhancement
+        console.log('🤖 [Voice] Processing with GPT-4o...');
+
+        // Use GPT-4o for categorization and enhancement
         const aiResult = await processWithGPT(finalTranscript);
+        console.log('✅ [Voice] GPT-4o result:', aiResult);
 
         onTranscriptComplete?.(
           finalTranscript,
@@ -217,11 +235,12 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
           aiResult.suggestedTags
         );
       } else {
+        console.error('❌ [Voice] No speech detected in recording');
         onError?.('No speech detected');
       }
 
     } catch (error) {
-      console.error('Error processing recording:', error);
+      console.error('❌ [Voice] Error processing recording:', error);
       onError?.('Failed to process recording');
     } finally {
       setIsProcessing(false);
