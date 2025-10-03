@@ -147,8 +147,8 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
   return (
     <div className={cn(
-      "h-screen w-full bg-[#fbfbfd] flex overflow-hidden",
-      "text-[#1d1d1f] font-system",
+      "h-screen w-full bg-black flex overflow-hidden",
+      "text-white font-system",
       className
     )}>
       {/* Apple Notes Style Three-Panel Layout */}
@@ -190,9 +190,9 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className={cn(
-                  "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-all duration-200",
-                  "flex items-center justify-center text-[#8e8e93] focus-ring",
-                  "hover:text-[#007aff] hover:scale-105"
+                  "w-8 h-8 rounded-lg hover:bg-glass-orange-10 transition-all duration-200",
+                  "flex items-center justify-center text-text-secondary focus-ring",
+                  "hover:text-orange-primary hover:scale-105"
                 )}
                 whileHover={{
                   scale: 1.05,
