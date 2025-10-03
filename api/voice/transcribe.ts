@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
 import fs from 'fs';
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 
 // VERCEL SERVERLESS FUNCTION - VOICE TRANSCRIPTION
 // Handles Whisper API transcription for voice notes
@@ -71,42 +71,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       name: audioFile.originalFilename,
       size: audioFile.size,
       type: audioFile.mimetype,
+      filepath: audioFile.filepath,
     });
 
-    // CRITICAL FIX: Whisper API determines format from file extension
-    // Formidable saves temp files without extensions (e.g., /tmp/upload_xyz)
-    // We must create a file with proper extension for Whisper to recognize the format
+    // CRITICAL FIX: Use OpenAI's toFile helper (Context7 best practice)
+    // Research shows: WebM with Opus codec is NOT properly supported even though listed
+    // The toFile helper ensures proper file formatting for Whisper API
 
-    // Map MIME type to file extension (Context7 best practice)
+    // Map MIME type to file extension (use ACTUAL format, not fake conversion)
     const mimeToExt: Record<string, string> = {
-      'audio/webm': '.webm',
-      'audio/webm;codecs=opus': '.webm',
+      // WAV - BEST compatibility with Whisper
       'audio/wav': '.wav',
       'audio/wave': '.wav',
       'audio/x-wav': '.wav',
+      // MP4/M4A - Good compatibility
       'audio/mp4': '.m4a',
       'audio/m4a': '.m4a',
+      // MP3 - Well supported
       'audio/mpeg': '.mp3',
       'audio/mp3': '.mp3',
+      // WebM - Use actual webm extension (toFile helper will format it properly)
+      'audio/webm': '.webm',
+      'audio/webm;codecs=opus': '.webm',
+      // Other formats
       'audio/ogg': '.ogg',
+      'audio/oga': '.oga',
       'audio/flac': '.flac',
     };
 
-    const extension = mimeToExt[audioFile.mimetype || ''] || '.webm';
-    const fileWithExt = `${audioFile.filepath}${extension}`;
+    const extension = mimeToExt[audioFile.mimetype || ''] || '.m4a';
+    const filename = `recording${extension}`;
 
-    // Copy temp file with proper extension
-    fs.copyFileSync(audioFile.filepath, fileWithExt);
-
-    console.log('📤 [Whisper] Uploading to OpenAI Whisper API...', {
-      originalPath: audioFile.filepath,
-      pathWithExtension: fileWithExt,
-      detectedFormat: extension,
+    console.log('🔍 [Whisper] MIME type analysis:', {
+      receivedMimeType: audioFile.mimetype,
+      selectedExtension: extension,
+      generatedFilename: filename,
+      usingToFileHelper: true,
     });
 
-    // Use OpenAI SDK with fs.createReadStream (Context7 best practice)
+    // Read file buffer
+    const fileBuffer = fs.readFileSync(audioFile.filepath);
+
+    console.log('📦 [Whisper] File buffer prepared:', {
+      bufferSize: fileBuffer.length,
+      bufferType: Buffer.isBuffer(fileBuffer) ? 'Buffer' : typeof fileBuffer,
+    });
+
+    // Use OpenAI's toFile helper (Context7 recommended)
+    // This ensures the file is properly formatted with name property
+    const audioFileForWhisper = await toFile(fileBuffer, filename);
+
+    console.log('📤 [Whisper] Uploading to OpenAI Whisper API with toFile helper...');
+
+    // Use whisper-1 model (most compatible according to research)
     const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(fileWithExt),
+      file: audioFileForWhisper,
       model: 'whisper-1',
       language: 'en',
       response_format: 'json',
@@ -118,9 +137,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       length: transcription.text.length,
     });
 
-    // Clean up temp files
+    // Clean up temp file
     fs.unlinkSync(audioFile.filepath);
-    fs.unlinkSync(fileWithExt);
 
     res.status(200).json({
       transcript: transcription.text,
