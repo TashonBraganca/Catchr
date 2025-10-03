@@ -1,11 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
-import FormData from 'form-data';
 import fs from 'fs';
+import OpenAI from 'openai';
 
 // VERCEL SERVERLESS FUNCTION - VOICE TRANSCRIPTION
 // Handles Whisper API transcription for voice notes
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const config = {
   api: {
@@ -57,36 +62,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       type: audioFile.mimetype,
     });
 
-    // Read audio file
-    const audioBuffer = fs.readFileSync(audioFile.filepath);
+    // Use OpenAI SDK with fs.createReadStream (Context7 best practice)
+    console.log('📤 [Whisper] Uploading to OpenAI Whisper API...');
 
-    // Create form data for OpenAI Whisper API
-    const formData = new FormData();
-    formData.append('file', audioBuffer, {
-      filename: audioFile.originalFilename || 'audio.webm',
-      contentType: audioFile.mimetype || 'audio/webm',
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(audioFile.filepath),
+      model: 'whisper-1',
+      language: 'en',
+      response_format: 'json',
+      temperature: 0.0,
     });
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
-    formData.append('response_format', 'json');
-    formData.append('temperature', '0.0');
-
-    const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        ...formData.getHeaders(), // Important: Include form-data headers
-      },
-      body: formData as any,
-    });
-
-    if (!whisperResponse.ok) {
-      const error = await whisperResponse.text();
-      console.error('❌ [Whisper] API error:', error);
-      throw new Error(`Whisper API failed: ${whisperResponse.status}`);
-    }
-
-    const transcription = await whisperResponse.json();
 
     console.log('✅ [Whisper] Transcription completed:', {
       text: transcription.text.substring(0, 100),
