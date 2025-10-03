@@ -7,9 +7,16 @@ import OpenAI from 'openai';
 // VERCEL SERVERLESS FUNCTION - VOICE TRANSCRIPTION
 // Handles Whisper API transcription for voice notes
 
-// Initialize OpenAI client
+// Validate API key exists (Context7 best practice)
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('❌ OPENAI_API_KEY not configured in Vercel environment variables');
+}
+
+// Initialize OpenAI client with retry logic (Context7 best practice)
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  maxRetries: 3, // Auto-retry on network errors (Context7 recommendation)
+  timeout: 60 * 1000, // 60 seconds for large audio files
 });
 
 export const config = {
@@ -36,6 +43,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     console.log('🎤 [Whisper] Starting voice transcription...');
+
+    // Log API key format for debugging (first 7 and last 4 chars only)
+    const apiKey = process.env.OPENAI_API_KEY!;
+    console.log(`🔑 [Whisper] API Key format: ${apiKey.slice(0, 7)}...${apiKey.slice(-4)} (length: ${apiKey.length})`);
 
     // Parse form data (audio file)
     const form = formidable({
@@ -88,10 +99,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error) {
-    console.error('❌ [Whisper] Transcription error:', error);
-    res.status(500).json({
-      error: 'Transcription failed',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    });
+    // Context7 best practice: Handle OpenAI.APIError specifically
+    if (error instanceof OpenAI.APIError) {
+      console.error('❌ [Whisper] OpenAI API Error:', {
+        status: error.status,
+        message: error.message,
+        code: error.code,
+        type: error.type,
+        headers: error.headers,
+      });
+      res.status(error.status || 500).json({
+        error: 'OpenAI API Error',
+        message: error.message,
+        code: error.code,
+        type: error.type,
+      });
+    } else {
+      console.error('❌ [Whisper] Transcription error:', error);
+      res.status(500).json({
+        error: 'Transcription failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }

@@ -1,11 +1,18 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { OpenAI } from 'openai';
+import OpenAI from 'openai';
 
 // VERCEL SERVERLESS FUNCTION - VOICE CATEGORIZATION
-// Uses GPT-5 to categorize and enhance voice transcripts
+// Uses GPT-4o to categorize and enhance voice transcripts
+
+// Validate API key (Context7 best practice)
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('❌ OPENAI_API_KEY not configured');
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  maxRetries: 3, // Context7 recommendation
+  timeout: 30 * 1000, // 30 seconds
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
