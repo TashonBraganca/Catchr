@@ -81,26 +81,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         console.log('✅ [Auth] Session:', session?.user ? `User ${session.user.id}` : 'No session');
 
-        // If we have a session, fetch the profile (but don't block on it)
-        let profile = null;
-        if (session?.user) {
-          try {
-            console.log('📝 [Auth] Fetching profile...');
-            profile = await fetchProfile(session.user.id);
-            console.log('✅ [Auth] Profile loaded:', profile ? 'Success' : 'No profile found');
-          } catch (profileError) {
-            console.warn('⚠️ [Auth] Profile fetch failed (continuing without profile):', profileError);
-            // Don't block - user can still use the app
-          }
-        }
-
+        // Set state immediately - don't wait for profile
         setState({
           user: session?.user || null,
           session: session,
-          profile,
+          profile: null, // Skip profile for now
           loading: false,
           error: null,
         });
+
+        // Fetch profile in background (non-blocking)
+        if (session?.user) {
+          fetchProfile(session.user.id)
+            .then(profile => {
+              if (profile) {
+                setState(prev => ({ ...prev, profile }));
+                console.log('✅ [Auth] Profile loaded in background');
+              }
+            })
+            .catch(err => console.warn('⚠️ [Auth] Background profile fetch failed:', err));
+        }
         console.log('✅ [Auth] Initialization complete, loading = false');
       } catch (error) {
         console.error('❌ [Auth] Fatal initialization error:', error);
@@ -123,26 +123,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         console.log('🔄 [Auth] State changed:', event, session?.user?.id);
 
-        // Handle different auth events
-        let profile = null;
-        if (session?.user && event !== 'SIGNED_OUT') {
-          try {
-            console.log('📝 [Auth] Fetching profile after state change...');
-            profile = await fetchProfile(session.user.id);
-            console.log('✅ [Auth] Profile fetched:', profile ? 'Success' : 'No profile');
-          } catch (profileError) {
-            console.warn('⚠️ [Auth] Profile fetch failed:', profileError);
-            // Continue without profile
-          }
-        }
-
+        // Set state immediately - don't block on profile
         setState({
           user: session?.user || null,
           session: session,
-          profile,
+          profile: null, // Skip profile
           loading: false,
           error: null,
         });
+
+        // Fetch profile in background
+        if (session?.user && event !== 'SIGNED_OUT') {
+          fetchProfile(session.user.id)
+            .then(profile => {
+              if (profile) setState(prev => ({ ...prev, profile }));
+            })
+            .catch(err => console.warn('⚠️ [Auth] Background profile fetch failed:', err));
+        }
         console.log('✅ [Auth] State updated, loading = false');
 
         // Handle post-auth actions
