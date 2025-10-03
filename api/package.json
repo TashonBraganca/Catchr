@@ -1,0 +1,18 @@
+{
+  "name": "cathcr-api",
+  "version": "1.0.0",
+  "description": "Vercel serverless API functions for Catchr",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
+    "@vercel/node": "^3.2.29",
+    "formidable": "^3.5.2",
+    "openai": "^4.77.3"
+  },
+  "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

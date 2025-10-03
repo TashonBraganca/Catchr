@@ -12,8 +12,25 @@
 | SSR Supabase Client | ✅ Deployed |
 | Retry Logic (3x) | ✅ Active |
 | Session Persistence | ✅ Configured |
+| Loading Screen Fix | ✅ **JUST DEPLOYED** (5min ago) |
 | Production Deployment | ✅ Live |
 | Email Provider | ✅ Enabled |
+
+---
+
+## 🔥 LATEST FIX - LOADING SCREEN FREEZE
+
+**Problem**: After signing in, refreshing the page (F5) caused the app to freeze on "Loading Cathcr..." screen forever.
+
+**Root Cause**: Profile fetch was blocking the loading state. The app waited for the database query to complete before showing the HomePage.
+
+**Fix Applied** (Commit 8d6f0a2):
+- Changed profile fetch from **blocking** to **background/non-blocking**
+- Loading state now sets to `false` immediately after session check
+- Profile loads in background without blocking UI
+- User sees HomePage instantly, profile populates when ready
+
+**Deployed**: 5 minutes ago to https://cathcr.vercel.app
 
 ---
 
@@ -48,22 +65,32 @@
 
 ---
 
-### Test 2: Session Persistence
-**After Test 1 succeeds**
+### Test 2: Session Persistence + Loading Screen
+**After Test 1 succeeds** - **🔥 CRITICAL TEST - This was the main bug**
 
 **Steps**:
 1. Press **F5** (refresh page)
-2. Watch what happens
+2. Watch the loading screen carefully
+3. Check console logs (F12 → Console)
 
 **Expected Results**:
+- ✅ **"Loading Cathcr..." screen appears briefly (<2 seconds)**
+- ✅ **Screen does NOT freeze on "Loading Cathcr..."**
+- ✅ HomePage appears automatically
 - ✅ Still logged in (no redirect to auth page)
-- ✅ HomePage still visible
 - ✅ Same user session active
+- ✅ Console shows: `✅ [Auth] Initialization complete, loading = false`
+- ✅ Console shows: `✅ [Auth] Profile loaded in background`
 
 **If It Fails**:
-- Check if you're redirected to login
-- Check console for session errors
-- Let me know
+- ❌ If stuck on "Loading Cathcr..." for >5 seconds → Screenshot console
+- ❌ If redirected to login → Check console for session errors
+- ❌ Share console output with me
+
+**What Changed**:
+- Profile fetch now runs in background (non-blocking)
+- Loading state sets to `false` immediately
+- UI no longer waits for profile to load
 
 ---
 
@@ -123,6 +150,7 @@
 Mark each as you complete:
 
 - [ ] Test 1: Sign Up works
+- [ ] Test 2: **Loading screen does NOT freeze on refresh** 🔥
 - [ ] Test 2: Page refresh keeps me logged in
 - [ ] Test 3: Sign out works
 - [ ] Test 4: Sign in works
