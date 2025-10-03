@@ -1,6 +1,6 @@
 # ⭐ CATHCR - COMPREHENSIVE TODO LIST
-**Last Updated**: 2025-10-02
-**Status**: Development in Progress
+**Last Updated**: 2025-10-03
+**Status**: Development in Progress - **CRITICAL AUTH ISSUES BLOCKING**
 
 ---
 
@@ -9,13 +9,14 @@
 | Phase | Tasks | Status |
 |-------|-------|--------|
 | **✅ Phase 0: Critical Fixes** | 8/8 | **COMPLETE** |
-| **⏳ Phase 1: User Testing** | 0/5 | **PENDING** |
-| **⏳ Phase 2: UI Improvements** | 0/4 | **PENDING** |
+| **🔥 Phase 0.5: AUTH BLOCKERS** | 4/8 | **IN PROGRESS** |
+| **⏳ Phase 1: User Testing** | 0/5 | **BLOCKED** |
+| **⏳ Phase 2: UI Improvements** | 0/4 | **BLOCKED** |
 | **⏳ Phase 3: Performance** | 0/3 | **PENDING** |
 | **⏳ Phase 4: Deployment** | 0/3 | **PENDING** |
 | **⏳ Phase 5: Extra Features** | 0/5 | **PENDING** |
 
-**Total Progress**: 8/28 tasks (29%)
+**Total Progress**: 12/36 tasks (33%)
 
 ---
 
@@ -36,7 +37,132 @@
 
 ---
 
-## ⭐ PHASE 1: USER TESTING - **IN PROGRESS**
+## 🔥 PHASE 0.5: CRITICAL AUTH BLOCKERS - **IN PROGRESS**
+
+### **CURRENT STATUS: AUTH WORKS LOCALLY BUT SUPABASE CONFIG NEEDED**
+
+**Issue Summary**: User reported complete auth failure - page disappears, can't sign in, shows "failed to fetch" errors. Investigation revealed two critical blockers:
+
+| Task | Status | Details | Commit |
+|------|--------|---------|--------|
+| ✅ Fix auth page disappearing on refresh | **DONE** | Removed React Router deps causing crashes | fb202b0 |
+| ✅ Add Supabase debug component | **DONE** | Shows exact error messages for diagnosis | 1c29659 |
+| ✅ Diagnose OAuth provider issue | **DONE** | Google/GitHub not enabled in dashboard | 5dfcc41 |
+| ✅ Diagnose email validation issue | **DONE** | Supabase rejecting test email patterns | 5dfcc41 |
+| ⏳ **USER ACTION**: Configure Supabase dashboard | **BLOCKED** | See SUPABASE-SETUP.md for steps | - |
+| ⏳ Verify auth works after config | **PENDING** | Test with debug panel | - |
+| ⏳ Fix HomePage not showing after auth | **PENDING** | Investigate AuthenticatedApp routing | - |
+| ⏳ Fix "+ New" buttons not visible | **PENDING** | Investigate AppShell rendering | - |
+
+---
+
+### **🛑 CRITICAL BLOCKERS (Must Fix Before User Testing)**
+
+#### **Blocker 1: Supabase Dashboard Configuration Required**
+**Status**: ⚠️ **USER ACTION NEEDED**
+
+**Problem**:
+- OAuth providers (Google/GitHub) not enabled → `400 validation_failed`
+- Email validation too strict → Rejecting `test@example.com` pattern
+- Site URL not configured for localhost
+- Redirect URLs not whitelisted
+
+**Solution**: Created `SUPABASE-SETUP.md` with step-by-step instructions:
+1. Dashboard → Auth → Settings → Disable "Email confirmations" (for testing)
+2. Dashboard → Auth → Settings → Set Site URL: `http://localhost:3000`
+3. Dashboard → Auth → Settings → Add Redirect URLs: `http://localhost:3000/**`
+4. Dashboard → Auth → Providers → Enable Google (optional)
+5. Dashboard → Auth → Providers → Enable GitHub (optional)
+
+**Files Created**:
+- ✅ `SUPABASE-SETUP.md` - Complete configuration guide
+- ✅ `client/src/components/auth/SupabaseTest.tsx` - Debug tool
+
+**Next Step**: User must complete configuration, then test with debug panel
+
+---
+
+#### **Blocker 2: HomePage Not Showing After Auth**
+**Status**: ⏳ **INVESTIGATING**
+
+**Problem**: User reports after successful auth, they don't see the main app (HomePage)
+
+**Hypothesis**:
+- AuthenticatedApp conditional rendering may have issue
+- HomePage component may have rendering error
+- Auth state not updating correctly after signIn/signUp
+
+**Investigation Plan**:
+1. Check `AuthenticatedApp.tsx` state management (lines 65)
+2. Verify `HomePage.tsx` renders without errors
+3. Add console logging to track auth state transitions
+4. Check if `onSuccess()` callback in AuthForm is firing
+
+**Files to Review**:
+- `client/src/components/auth/AuthenticatedApp.tsx`
+- `client/src/pages/HomePage.tsx`
+- `client/src/components/auth/AuthForm.tsx` (lines 86-112)
+
+---
+
+#### **Blocker 3: "+ New" Buttons Not Visible**
+**Status**: ⏳ **INVESTIGATING**
+
+**Problem**: User can't see "+ New" buttons in sidebar or note list header
+
+**Expected Locations**:
+1. Sidebar: Small circular button (lines 298-305 in AppShell)
+2. Note list header: Button next to title (lines 373-381 in AppShell)
+
+**Hypothesis**:
+- Buttons may be conditionally rendered based on auth state
+- CSS may be hiding buttons (z-index, opacity, display:none)
+- Buttons may be rendered but not visible (color issue, size issue)
+- AppShell may not be rendering at all if HomePage has issues
+
+**Investigation Plan**:
+1. Check AppShell rendering in HomePage
+2. Verify button components exist in DOM (browser DevTools)
+3. Check CSS styling (visibility, display, opacity)
+4. Verify click handlers are attached
+
+**Files to Review**:
+- `client/src/components/layout/AppShell.tsx` (lines 298-305, 373-381, 678-730)
+- `client/src/pages/HomePage.tsx`
+
+---
+
+#### **Blocker 4: Theme Inconsistency**
+**Status**: ⏳ **PENDING**
+
+**Problem**: Auth page has "nice orange" theme, but main app is "gross white and blue"
+
+**Solution Needed**:
+1. Extract theme colors from AuthPage (orange primary color)
+2. Apply to HomePage and all components
+3. Use shadcn components throughout (user has shadcn MCP available)
+4. Replace framer-motion with shadcn for cleaner animations
+
+**Files to Update**:
+- `client/src/pages/HomePage.tsx`
+- `client/src/components/layout/AppShell.tsx`
+- `client/tailwind.config.js` - Update theme colors
+- All component files - Replace with shadcn equivalents
+
+---
+
+### **📋 Action Items (Priority Order)**
+
+1. **IMMEDIATE**: User configures Supabase dashboard (see SUPABASE-SETUP.md)
+2. **NEXT**: Investigate HomePage visibility issue
+3. **NEXT**: Investigate "+ New" buttons visibility
+4. **THEN**: Apply consistent orange theme with shadcn components
+5. **THEN**: Remove debug panel after everything works
+6. **FINALLY**: Full user testing as per Phase 1
+
+---
+
+## ⭐ PHASE 1: USER TESTING - **BLOCKED BY PHASE 0.5**
 
 ### **1.1 Authentication Testing** ⏳ PENDING
 

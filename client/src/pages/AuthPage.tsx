@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { AuthLayout } from '@/components/layout/AppLayout';
 import { AuthForm } from '@/components/auth/AuthForm';
-import { SupabaseTest } from '@/components/auth/SupabaseTest';
 
 type AuthMode = 'signin' | 'signup' | 'forgot' | 'magic';
 
 /**
- * AUTH PAGE - SIMPLIFIED (No React Router)
+ * AUTH PAGE - Production Ready
  *
- * CRITICAL FIX: Removed all react-router-dom dependencies
- * - No useNavigate() - was causing crashes
- * - No useSearchParams() - not needed
- * - No navigate('/dashboard') - AuthenticatedApp handles routing
- *
- * User will stay on this page until logged in, then AuthenticatedApp
- * will automatically switch to HomePage
+ * Clean authentication page with no dependencies on React Router.
+ * AuthenticatedApp handles routing - when user successfully authenticates,
+ * AuthContext updates and AuthenticatedApp automatically shows HomePage.
  */
 export const AuthPage: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
@@ -43,9 +38,6 @@ export const AuthPage: React.FC = () => {
         onModeChange={handleModeChange}
         onSuccess={handleAuthSuccess}
       />
-
-      {/* Debug tool - shows exact Supabase errors */}
-      <SupabaseTest />
     </AuthLayout>
   );
 };
