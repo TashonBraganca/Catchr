@@ -2,10 +2,16 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
 import fs from 'fs';
+import path from 'path';
 import OpenAI, { toFile } from 'openai';
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegPath from '@ffmpeg-installer/ffmpeg';
 
 // VERCEL SERVERLESS FUNCTION - VOICE TRANSCRIPTION
 // Handles Whisper API transcription for voice notes
+
+// Set FFmpeg path for audio conversion
+ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 // Validate API key exists (Context7 best practice)
 if (!process.env.OPENAI_API_KEY) {
@@ -74,58 +80,73 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       filepath: audioFile.filepath,
     });
 
-    // CRITICAL FIX: Use OpenAI's toFile helper (Context7 best practice)
-    // Research shows: WebM with Opus codec is NOT properly supported even though listed
-    // The toFile helper ensures proper file formatting for Whisper API
+    // CRITICAL FIX: Convert WebM/Opus to MP3 using FFmpeg
+    // Research conclusively shows: WebM with Opus codec has severe compatibility issues with Whisper API
+    // Even though "webm" is listed as supported, the Opus codec causes "Invalid file format" errors
+    // Solution: Convert ALL audio to MP3 format using FFmpeg before sending to Whisper
 
-    // Map MIME type to file extension (use ACTUAL format, not fake conversion)
-    const mimeToExt: Record<string, string> = {
-      // WAV - BEST compatibility with Whisper
-      'audio/wav': '.wav',
-      'audio/wave': '.wav',
-      'audio/x-wav': '.wav',
-      // MP4/M4A - Good compatibility
-      'audio/mp4': '.m4a',
-      'audio/m4a': '.m4a',
-      // MP3 - Well supported
-      'audio/mpeg': '.mp3',
-      'audio/mp3': '.mp3',
-      // WebM - Use actual webm extension (toFile helper will format it properly)
-      'audio/webm': '.webm',
-      'audio/webm;codecs=opus': '.webm',
-      // Other formats
-      'audio/ogg': '.ogg',
-      'audio/oga': '.oga',
-      'audio/flac': '.flac',
-    };
+    const isWebM = audioFile.mimetype?.includes('webm');
 
-    const extension = mimeToExt[audioFile.mimetype || ''] || '.m4a';
-    const filename = `recording${extension}`;
-
-    console.log('🔍 [Whisper] MIME type analysis:', {
+    console.log('🔍 [Whisper] Audio format analysis:', {
       receivedMimeType: audioFile.mimetype,
-      selectedExtension: extension,
-      generatedFilename: filename,
-      usingToFileHelper: true,
+      isWebM: isWebM,
+      needsConversion: isWebM,
+      originalSize: audioFile.size,
     });
 
-    // Read file buffer
-    const fileBuffer = fs.readFileSync(audioFile.filepath);
+    let fileForWhisper: string;
 
-    console.log('📦 [Whisper] File buffer prepared:', {
-      bufferSize: fileBuffer.length,
-      bufferType: Buffer.isBuffer(fileBuffer) ? 'Buffer' : typeof fileBuffer,
-    });
+    if (isWebM) {
+      // Convert WebM to MP3 using FFmpeg
+      const mp3Path = `${audioFile.filepath}.mp3`;
 
-    // Use OpenAI's toFile helper (Context7 recommended)
-    // This ensures the file is properly formatted with name property
-    const audioFileForWhisper = await toFile(fileBuffer, filename);
+      console.log('🔄 [FFmpeg] Converting WebM to MP3...', {
+        inputPath: audioFile.filepath,
+        outputPath: mp3Path,
+      });
 
-    console.log('📤 [Whisper] Uploading to OpenAI Whisper API with toFile helper...');
+      await new Promise<void>((resolve, reject) => {
+        ffmpeg(audioFile.filepath)
+          .toFormat('mp3')
+          .audioCodec('libmp3lame')
+          .audioBitrate('128k')
+          .on('start', (cmd) => {
+            console.log('▶️ [FFmpeg] Command:', cmd);
+          })
+          .on('progress', (progress) => {
+            console.log('⏳ [FFmpeg] Progress:', progress.percent?.toFixed(2) + '%');
+          })
+          .on('end', () => {
+            console.log('✅ [FFmpeg] Conversion completed');
+            resolve();
+          })
+          .on('error', (err) => {
+            console.error('❌ [FFmpeg] Conversion error:', err);
+            reject(err);
+          })
+          .save(mp3Path);
+      });
 
-    // Use whisper-1 model (most compatible according to research)
+      fileForWhisper = mp3Path;
+
+      const mp3Stats = fs.statSync(mp3Path);
+      console.log('📦 [FFmpeg] MP3 file created:', {
+        path: mp3Path,
+        size: mp3Stats.size,
+        compressionRatio: ((audioFile.size - mp3Stats.size) / audioFile.size * 100).toFixed(2) + '%',
+      });
+
+    } else {
+      // Use original file for non-WebM formats (WAV, MP4, etc.)
+      fileForWhisper = audioFile.filepath;
+      console.log('✅ [Whisper] Using original file (no conversion needed)');
+    }
+
+    // Send to Whisper API with fs.createReadStream
+    console.log('📤 [Whisper] Uploading to OpenAI Whisper API...');
+
     const transcription = await openai.audio.transcriptions.create({
-      file: audioFileForWhisper,
+      file: fs.createReadStream(fileForWhisper),
       model: 'whisper-1',
       language: 'en',
       response_format: 'json',
@@ -137,8 +158,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       length: transcription.text.length,
     });
 
-    // Clean up temp file
+    // Clean up temp files
     fs.unlinkSync(audioFile.filepath);
+    if (isWebM && fs.existsSync(fileForWhisper)) {
+      fs.unlinkSync(fileForWhisper);
+    }
 
     res.status(200).json({
       transcript: transcription.text,
