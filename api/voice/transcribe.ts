@@ -73,11 +73,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       type: audioFile.mimetype,
     });
 
-    // Use OpenAI SDK with fs.createReadStream (Context7 best practice)
-    console.log('📤 [Whisper] Uploading to OpenAI Whisper API...');
+    // CRITICAL FIX: Whisper API determines format from file extension
+    // Formidable saves temp files without extensions (e.g., /tmp/upload_xyz)
+    // We must create a file with proper extension for Whisper to recognize the format
 
+    // Map MIME type to file extension (Context7 best practice)
+    const mimeToExt: Record<string, string> = {
+      'audio/webm': '.webm',
+      'audio/webm;codecs=opus': '.webm',
+      'audio/wav': '.wav',
+      'audio/wave': '.wav',
+      'audio/x-wav': '.wav',
+      'audio/mp4': '.m4a',
+      'audio/m4a': '.m4a',
+      'audio/mpeg': '.mp3',
+      'audio/mp3': '.mp3',
+      'audio/ogg': '.ogg',
+      'audio/flac': '.flac',
+    };
+
+    const extension = mimeToExt[audioFile.mimetype || ''] || '.webm';
+    const fileWithExt = `${audioFile.filepath}${extension}`;
+
+    // Copy temp file with proper extension
+    fs.copyFileSync(audioFile.filepath, fileWithExt);
+
+    console.log('📤 [Whisper] Uploading to OpenAI Whisper API...', {
+      originalPath: audioFile.filepath,
+      pathWithExtension: fileWithExt,
+      detectedFormat: extension,
+    });
+
+    // Use OpenAI SDK with fs.createReadStream (Context7 best practice)
     const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(audioFile.filepath),
+      file: fs.createReadStream(fileWithExt),
       model: 'whisper-1',
       language: 'en',
       response_format: 'json',
@@ -89,8 +118,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       length: transcription.text.length,
     });
 
-    // Clean up temp file
+    // Clean up temp files
     fs.unlinkSync(audioFile.filepath);
+    fs.unlinkSync(fileWithExt);
 
     res.status(200).json({
       transcript: transcription.text,
