@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
+import FormData from 'form-data';
 import fs from 'fs';
 
 // VERCEL SERVERLESS FUNCTION - VOICE TRANSCRIPTION
@@ -59,9 +60,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Read audio file
     const audioBuffer = fs.readFileSync(audioFile.filepath);
 
-    // Call OpenAI Whisper API
+    // Create form data for OpenAI Whisper API
     const formData = new FormData();
-    formData.append('file', new Blob([audioBuffer]), audioFile.originalFilename || 'audio.webm');
+    formData.append('file', audioBuffer, {
+      filename: audioFile.originalFilename || 'audio.webm',
+      contentType: audioFile.mimetype || 'audio/webm',
+    });
     formData.append('model', 'whisper-1');
     formData.append('language', 'en');
     formData.append('response_format', 'json');
@@ -71,8 +75,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        ...formData.getHeaders(), // Important: Include form-data headers
       },
-      body: formData,
+      body: formData as any,
     });
 
     if (!whisperResponse.ok) {
