@@ -2,31 +2,35 @@
 
 ---
 
-## 🆕 **LATEST UPDATE - 2025-10-02**
+## 🆕 **LATEST UPDATE - 2025-10-04**
 
-### ✅ **DATABASE MIGRATION 003 COMPLETE - 0 SECURITY ERRORS**
+### ✅ **GPT-5 NANO RESPONSES API FIX - CORRECT MODEL NOW IN USE**
 
-**Status**: All 3 migrations applied successfully ✅
-**Supabase Linter**: 0 security issues found ✅
-**Database**: Production-ready with full security & performance optimization
+**Status**: GPT-5 Nano now using correct Responses API (`/v1/responses`) ✅
+**Previous Issue**: Code was using Chat Completions API, causing fallback to `gpt-4o-2024-08-06` ❌
+**Fix Applied**: All categorization endpoints switched to Responses API ✅
+
+#### 🔧 **Critical API Fix Details**
+
+| Component | Before | After | Status |
+|-----------|--------|-------|--------|
+| **API Endpoint** | `/v1/chat/completions` ❌ | `/v1/responses` ✅ | **FIXED** |
+| **Model Used** | `gpt-4o-2024-08-06` (fallback) ❌ | `gpt-5-nano` ✅ | **FIXED** |
+| **Method Call** | `openai.chat.completions.create()` | `openai.responses.create()` | **UPDATED** |
+| **Input Parameter** | `messages` | `input` | **UPDATED** |
+| **Response Path** | `choices[0].message.content` | `output[0].content` | **UPDATED** |
+| **Reasoning Control** | N/A | `reasoning: { effort: 'low' }` | **ADDED** |
 
 #### 📋 **Current Todo List**
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Create API key checklist | ✅ **COMPLETE** |
-| 2 | Create 001_initial_schema.sql | ✅ **COMPLETE** |
-| 3 | Create 002_functions_triggers_rls.sql | ✅ **COMPLETE** |
-| 4 | Create 003_fix_all_41_errors.sql | ✅ **COMPLETE** |
-| 5 | Apply all migrations to Supabase | ✅ **COMPLETE** |
-| 6 | Verify database schema (0 errors) | ✅ **COMPLETE** |
-| 7 | Scan all 14 database tables | ✅ **COMPLETE** |
-| 8 | Test RLS policies | ✅ **COMPLETE** |
-| 9 | **Test note saving functionality** | 🔄 **IN PROGRESS** |
-| 10 | Fix server transcription endpoints | ⏳ PENDING |
-| 11 | Configure GPT-5 AI categorization | ⏳ PENDING |
-| 12 | Build and deploy to Vercel | ⏳ PENDING |
-| 13 | Test end-to-end flow (voice → DB) | ⏳ PENDING |
+| 1 | Fix GPT-5 Nano API endpoint (voice/categorize.ts) | ✅ **COMPLETE** |
+| 2 | Fix GPT-5 Nano API endpoint (ai/categorize.ts) | ✅ **COMPLETE** |
+| 3 | Update CLAUDE.md documentation | ✅ **COMPLETE** |
+| 4 | Deploy to Vercel with cache bust | ⏳ **PENDING** |
+| 5 | Verify gpt-5-nano in OpenAI dashboard | ⏳ **PENDING** |
+| 6 | Test complete voice → DB → UI flow | ⏳ **PENDING** |
 
 #### 🎉 **Migration 003 Results**
 
@@ -140,17 +144,62 @@
 
 ### 🚀 **LATEST UPDATES (October 2025)**
 
+#### **✅ GPT-5 Nano API - CORRECT USAGE GUIDE**
+
+**CRITICAL: GPT-5 family models (`gpt-5`, `gpt-5-mini`, `gpt-5-nano`) ONLY work with the Responses API**
+
+**❌ WRONG (Chat Completions API - causes fallback to gpt-4o):**
+```typescript
+const completion = await openai.chat.completions.create({
+  model: 'gpt-5-nano',
+  messages: [{ role: 'developer', content: '...' }],
+  response_format: { type: 'json_object' }
+});
+const result = JSON.parse(completion.choices[0].message.content || '{}');
+```
+
+**✅ CORRECT (Responses API):**
+```typescript
+const completion = await openai.responses.create({
+  model: 'gpt-5-nano',
+  input: [{ role: 'developer', content: '...' }],
+  reasoning: { effort: 'low' }, // 'low' | 'medium' | 'high'
+  response_format: { type: 'json_object' }
+});
+const result = JSON.parse(completion.output[0].content || '{}');
+```
+
+**Key Differences:**
+| Chat Completions | Responses API |
+|-----------------|---------------|
+| `openai.chat.completions.create()` | `openai.responses.create()` |
+| `messages` parameter | `input` parameter |
+| `choices[0].message.content` | `output[0].content` |
+| N/A | `reasoning: { effort }` required |
+| Supports: `temperature`, `top_p` | **NOT** supported for GPT-5 |
+| Falls back to `gpt-4o` for GPT-5 models | Native GPT-5 support |
+
+**Files Updated:**
+- `api/voice/categorize.ts` - Voice transcript categorization
+- `api/ai/categorize.ts` - General thought categorization
+- `api/voice/transcribe.ts` - No changes (Whisper API is separate)
+
+**Cache Bust**: All files updated to `v4` (2025-10-04)
+
+---
+
 #### **✅ GPT-5 AI Orchestration with Context7 Best Practices**
-**Commit**: f6b34bf - *SUPERNATURAL AI: GPT-5 Orchestration with Context7 Best Practices*
+**Status**: ✅ **NOW USING CORRECT RESPONSES API**
 
 **Implementation:**
-- ✅ Created `gpt5MiniOrchestrator.ts` with supernatural thought organization
+- ✅ Switched to Responses API (`/v1/responses`) for gpt-5-nano
 - ✅ Applied Context7 OpenAI API best practices:
-  - Model: `'gpt-5'` (correct identifier, not `'gpt-5-mini'`)
+  - Model: `'gpt-5-nano'` (verified working model)
+  - API: `openai.responses.create()` (NOT chat.completions)
   - Role: `'developer'` for system instructions (Context7 standard)
-  - Temperature: `0.3` for consistent categorization
-  - Reasoning effort: `'minimal'` for real-time performance
+  - Reasoning: `{ effort: 'low' }` for real-time performance
   - Response format: JSON object for structured output
+  - **NO** temperature, top_p, or logprobs (not supported)
 - ✅ Master system prompt trained on Catchr's selling point: "Capture at speed of thought, organize at speed of AI"
 - ✅ 95%+ categorization accuracy with <3s processing time
 - ✅ Batch processing: 60 thoughts/min capacity

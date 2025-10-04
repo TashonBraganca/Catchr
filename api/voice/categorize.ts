@@ -3,8 +3,9 @@ import OpenAI from 'openai';
 
 // VERCEL SERVERLESS FUNCTION - VOICE CATEGORIZATION
 // Uses GPT-5 Nano to categorize and enhance voice transcripts
-// Note: GPT-5 does NOT support temperature, top_p, or logprobs parameters
-// CACHE BUST: 2025-10-04-v3
+// Note: GPT-5 requires Responses API (/v1/responses), NOT Chat Completions API
+// Supported: reasoning.effort, response_format | NOT supported: temperature, top_p, logprobs
+// CACHE BUST: 2025-10-04-v4
 
 // Validate API key (Context7 best practice)
 if (!process.env.OPENAI_API_KEY) {
@@ -43,10 +44,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log('🤖 [GPT-5 Nano] Categorizing transcript:', transcript.substring(0, 100));
 
-    // Use GPT-5 Nano for categorization
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-5-nano', // Using gpt-5-nano as production model
-      messages: [
+    // Use GPT-5 Nano for categorization (Responses API)
+    const completion = await openai.responses.create({
+      model: 'gpt-5-nano',
+      input: [
         {
           role: 'developer',
           content: `You are a supernatural AI thought organizer for Catchr app. Your mission: "Capture at speed of thought, organize at speed of AI".
@@ -66,10 +67,11 @@ Return JSON only.`,
           content: transcript,
         },
       ],
+      reasoning: { effort: 'low' }, // Minimal reasoning for real-time performance
       response_format: { type: 'json_object' },
     });
 
-    const result = JSON.parse(completion.choices[0].message.content || '{}');
+    const result = JSON.parse(completion.output[0].content || '{}');
 
     console.log('✅ [GPT-5 Nano] Categorization completed');
 
