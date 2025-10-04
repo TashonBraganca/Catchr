@@ -216,6 +216,10 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       cancelAnimationFrame(animationFrameRef.current);
     }
 
+    // CRITICAL: Wait for MediaRecorder to finish collecting data
+    // MediaRecorder's ondataavailable is async, so we need to wait a bit
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     // Process the recording with enhanced stages
     try {
       setProcessingStage('transcribing');
@@ -231,11 +235,24 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
           // Use the same MIME type as was used for recording
           const mimeType = audioChunksRef.current[0].type;
           const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+
           console.log('📦 [Voice] Audio blob created:', {
             size: audioBlob.size,
             type: audioBlob.type,
             mimeType: mimeType
           });
+
+          // CRITICAL: Whisper API requires minimum 0.1 seconds of audio
+          // Check blob size - if too small, show error
+          if (audioBlob.size < 2000) { // Rough estimate: <2KB is likely too short
+            console.error('❌ [Voice] Audio too short for Whisper API (minimum 0.1s required)');
+            onError?.('Recording too short - please speak for at least 1 second');
+            setIsProcessing(false);
+            setTranscript('');
+            setAudioLevel(0);
+            setProcessingStage('completed');
+            return;
+          }
 
           finalTranscript = await transcribeWithWhisper(audioBlob);
           console.log('✅ [Voice] Whisper transcript received:', finalTranscript.substring(0, 100));
