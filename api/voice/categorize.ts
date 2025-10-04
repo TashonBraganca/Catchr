@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 // VERCEL SERVERLESS FUNCTION - VOICE CATEGORIZATION
 // Uses GPT-5 Nano to categorize and enhance voice transcripts
 // Note: GPT-5 does NOT support temperature, top_p, or logprobs parameters
+// CACHE BUST: 2025-10-04-v3
 
 // Validate API key (Context7 best practice)
 if (!process.env.OPENAI_API_KEY) {

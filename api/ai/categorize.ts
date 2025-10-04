@@ -4,6 +4,7 @@ import { OpenAI } from 'openai';
 // VERCEL SERVERLESS FUNCTION - AI CATEGORIZATION
 // Uses GPT-5 Nano to categorize thoughts and notes
 // Note: GPT-5 does NOT support temperature, top_p, or logprobs parameters
+// CACHE BUST: 2025-10-04-v3
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
