@@ -58,7 +58,15 @@
       "WebFetch(domain:cathcr.vercel.app)",
       "Bash(git rm:*)",
       "Bash(supabase:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(vercel:*)",
+      "Bash(echo $VERCEL_TOKEN)",
+      "Bash(gh repo view:*)",
+      "Bash(VERCEL_ORG_ID=\"\" VERCEL_PROJECT_ID=\"\" vercel deploy --prod --token=wwxwOH1Z6VZBDhSJsVEDnNZB --yes)",
+      "Bash(\"https://api.supabase.com/v1/projects/jrowrloysdkluxtgzvxm/config/auth\" )",
+      "WebFetch(domain:cathcr-5vhjghs1v-tashon-bragancas-projects.vercel.app)",
+      "Bash(timeout 120 bash -c 'while true; do sleep 5; vercel ls --token=wwxwOH1Z6VZBDhSJsVEDnNZB 2>&1 | head -5 | grep \"\"Ready\"\" && break || echo \"\"Still deploying...\"\"; done')",
+      "WebFetch(domain:cathcr-fqup1le3u-tashon-bragancas-projects.vercel.app)"
     ],
     "deny": [],
     "ask": []

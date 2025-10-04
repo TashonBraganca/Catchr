@@ -151,14 +151,25 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
       }
 
       // Always record audio as fallback (Whisper backup)
-      // Try different MIME types for maximum Whisper compatibility
-      let mimeType = 'audio/webm'; // Default fallback
-      if (MediaRecorder.isTypeSupported('audio/wav')) {
-        mimeType = 'audio/wav';
-      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/mp4';
-      } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-        mimeType = 'audio/webm;codecs=opus';
+      // CRITICAL: Prioritize formats that work with Whisper API
+      // MediaRecorder doesn't support WAV, but DOES support:
+      // - audio/mp4 (Safari, good Whisper compatibility)
+      // - audio/ogg (Firefox, acceptable Whisper compatibility)
+      // - audio/webm (Chrome, has Opus codec issues with Whisper)
+
+      const formatTests = [
+        'audio/mp4',           // Best for Whisper (Safari default)
+        'audio/ogg',           // Good for Whisper (Firefox)
+        'audio/webm',          // Last resort - has Whisper issues
+      ];
+
+      let mimeType = 'audio/webm'; // Absolute fallback
+      for (const format of formatTests) {
+        if (MediaRecorder.isTypeSupported(format)) {
+          mimeType = format;
+          console.log(`✅ [Voice] Selected format: ${format} (Whisper compatible)`);
+          break;
+        }
       }
 
       console.log(`🎙️ [Voice] Using MIME type for recording: ${mimeType}`);
