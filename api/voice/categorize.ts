@@ -4,8 +4,8 @@ import OpenAI from 'openai';
 // VERCEL SERVERLESS FUNCTION - VOICE CATEGORIZATION
 // Uses GPT-5 Nano to categorize and enhance voice transcripts
 // Note: GPT-5 requires Responses API (/v1/responses), NOT Chat Completions API
-// Supported: reasoning.effort, response_format | NOT supported: temperature, top_p, logprobs
-// CACHE BUST: 2025-10-04-v4
+// Supported: reasoning.effort, text.format | NOT supported: temperature, top_p, logprobs, response_format
+// CACHE BUST: 2025-10-04-v5
 
 // Validate API key (Context7 best practice)
 if (!process.env.OPENAI_API_KEY) {
@@ -68,7 +68,9 @@ Return JSON only.`,
         },
       ],
       reasoning: { effort: 'low' }, // Minimal reasoning for real-time performance
-      response_format: { type: 'json_object' },
+      text: {
+        format: { type: 'json_object' } // Responses API uses text.format not response_format
+      },
     });
 
     const result = JSON.parse(completion.output[0].content || '{}');
