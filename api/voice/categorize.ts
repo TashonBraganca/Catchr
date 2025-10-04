@@ -64,7 +64,6 @@ Return JSON only.`,
           content: transcript,
         },
       ],
-      temperature: 0.3,
       response_format: { type: 'json_object' },
     });
 
