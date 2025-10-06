@@ -105,6 +105,11 @@ export const useNotes = () => {
     }
 
     try {
+      console.log('🔍 [useNotes] Starting database insert...', {
+        user_id: user.id,
+        contentLength: noteData.content.length
+      });
+
       // Note: is_pinned and title will be added via migration 004
       // For now, only use fields that exist in the schema
       const { data, error: createError } = await supabase
@@ -122,9 +127,19 @@ export const useNotes = () => {
         .select()
         .single();
 
+      console.log('🔍 [useNotes] Insert result:', { data, error: createError });
+
       if (createError) {
+        console.error('❌ [useNotes] Insert error:', createError);
         throw createError;
       }
+
+      if (!data) {
+        console.error('❌ [useNotes] No data returned from insert');
+        throw new Error('No data returned from database');
+      }
+
+      console.log('✅ [useNotes] Insert successful, creating note object...');
 
       // Optimistic UI update
       const newNote: Note = {
@@ -139,10 +154,14 @@ export const useNotes = () => {
         updated_at: data.updated_at
       };
 
+      console.log('✅ [useNotes] Note object created:', newNote.id);
+
       setNotes(prev => [newNote, ...prev]);
+
+      console.log('✅ [useNotes] Note added to state, returning:', newNote.id);
       return newNote;
     } catch (err) {
-      console.error('Error creating note:', err);
+      console.error('❌ [useNotes] Error creating note:', err);
       setError(err instanceof Error ? err.message : 'Failed to create note');
       return null;
     }

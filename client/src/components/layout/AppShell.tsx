@@ -728,7 +728,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 {/* Content */}
                 <textarea
                   ref={newNoteContentRef}
-                  className="w-full h-48 p-3 border border-[#e5e5e7] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#007aff] focus:border-transparent"
+                  className="w-full h-48 p-3 border border-[#e5e5e7] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#007aff] focus:border-transparent text-[#1d1d1f] placeholder:text-[#8e8e93]"
                   placeholder="Start writing your note..."
                   autoFocus
                 />
