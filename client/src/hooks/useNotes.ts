@@ -105,15 +105,17 @@ export const useNotes = () => {
     }
 
     try {
+      // Note: is_pinned and title will be added via migration 004
+      // For now, only use fields that exist in the schema
       const { data, error: createError } = await supabase
         .from('thoughts')
         .insert({
           user_id: user.id,
           content: noteData.content,
-          title: noteData.title || extractTitleFromContent(noteData.content),
+          // title: noteData.title || extractTitleFromContent(noteData.content), // TODO: Add after migration 004
           tags: noteData.tags || [],
           category: noteData.category || { main: 'note' },
-          is_pinned: false,
+          // is_pinned: false, // TODO: Add after migration 004
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -129,10 +131,10 @@ export const useNotes = () => {
         id: data.id,
         user_id: data.user_id,
         content: data.content,
-        title: data.title,
+        title: data.title || noteData.title || extractTitleFromContent(data.content), // Fallback to extract from content
         tags: data.tags || [],
         category: data.category || { main: 'note' },
-        is_pinned: data.is_pinned || false,
+        is_pinned: data.is_pinned !== undefined ? data.is_pinned : false, // Handle if column doesn't exist
         created_at: data.created_at,
         updated_at: data.updated_at
       };
