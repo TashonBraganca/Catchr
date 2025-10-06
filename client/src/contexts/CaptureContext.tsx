@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { db, supabase } from '@/config/supabase';
+import { supabase } from '@/lib/supabase-browser';
 import { TranscriptionService, TranscriptionResult } from '@/services/transcriptionService';
 import { audioStorageService, AudioUploadProgress, AudioUploadResult } from '@/services/audioStorageService';
 
@@ -503,7 +503,13 @@ export const CaptureProvider: React.FC<CaptureProviderProps> = ({ children }) =>
       };
 
       // Save to Supabase
-      const savedThought = await db.createThought(thoughtData);
+      const { data: savedThought, error } = await supabase
+        .from('thoughts')
+        .insert(thoughtData)
+        .select()
+        .single();
+
+      if (error) throw error;
 
       console.log('Thought saved:', savedThought.id);
 

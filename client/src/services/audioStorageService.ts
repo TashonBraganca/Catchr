@@ -1,7 +1,7 @@
 // Audio storage service for Cathcr client
 // Handles uploading, compression, and management of audio files
 
-import { supabase } from '@/config/supabase';
+import { supabase } from '@/lib/supabase-browser';
 
 export interface AudioUploadConfig {
   compress?: boolean;
