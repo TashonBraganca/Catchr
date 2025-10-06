@@ -94,17 +94,31 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
    */
   const handleCreateNewNote = async () => {
     const content = newNoteContentRef.current?.value || '';
-    if (!content.trim()) return;
+    console.log('📝 [AppShell] Manual note creation:', { contentLength: content.length });
 
-    await createNote({
+    if (!content.trim()) {
+      console.warn('⚠️ [AppShell] Empty content, not creating note');
+      alert('Please enter some content for your note');
+      return;
+    }
+
+    console.log('💾 [AppShell] Creating manual note...');
+
+    const note = await createNote({
       content: content.trim(),
       tags: [],
       category: { main: 'note' }
     });
 
-    setShowNewNoteModal(false);
-    if (newNoteContentRef.current) {
-      newNoteContentRef.current.value = '';
+    if (note) {
+      console.log('✅ [AppShell] Manual note created successfully:', note.id);
+      setShowNewNoteModal(false);
+      if (newNoteContentRef.current) {
+        newNoteContentRef.current.value = '';
+      }
+    } else {
+      console.error('❌ [AppShell] Failed to create manual note');
+      alert('Failed to save note. Please check your connection and try again.');
     }
   };
 
@@ -119,20 +133,31 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
     suggestedTitle?: string,
     suggestedTags?: string[]
   ) => {
+    console.log('🎯 [AppShell] Voice note completion:', { transcript, suggestedTitle, suggestedTags });
+
     if (!transcript || transcript.trim().length === 0) {
-      console.warn('Empty transcript, not saving');
+      console.error('❌ [AppShell] Empty transcript received - cannot create note');
+      alert('No speech detected in recording. Please try again and speak clearly.');
       return;
     }
 
+    console.log('💾 [AppShell] Creating note from voice transcript...');
+
     // Save to database with AI-generated metadata
-    await createNote({
+    const note = await createNote({
       content: transcript,
       title: suggestedTitle,
       tags: suggestedTags || [],
       category: { main: 'voice-note' }
     });
 
-    setShowVoiceCapture(false);
+    if (note) {
+      console.log('✅ [AppShell] Voice note created successfully:', note.id);
+      setShowVoiceCapture(false);
+    } else {
+      console.error('❌ [AppShell] Failed to create note from voice');
+      alert('Failed to save note. Please try again.');
+    }
   };
 
   // Transform notes for SimpleNoteList component

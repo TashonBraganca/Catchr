@@ -77,9 +77,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CRITICAL: Use toFile helper with proper extension (Context7 best practice)
     // Client now prioritizes MP4/OGG over WebM for better Whisper compatibility
 
-    // Map MIME types to extensions
+    // Map MIME types to extensions (Whisper-compatible formats)
     const mimeToExt: Record<string, string> = {
       'audio/mp4': '.m4a',
+      'audio/mp4;codecs=opus': '.m4a', // CRITICAL FIX: MP4 with opus codec
       'audio/ogg': '.ogg',
       'audio/oga': '.oga',
       'audio/webm': '.webm',
@@ -88,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'audio/mpeg': '.mp3',
     };
 
-    const extension = mimeToExt[audioFile.mimetype || ''] || '.webm';
+    const extension = mimeToExt[audioFile.mimetype || ''] || '.m4a'; // Default to .m4a instead of .webm
     const filename = `audio${extension}`;
 
     console.log('🔍 [Whisper] File analysis:', {
@@ -107,9 +108,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const transcription = await openai.audio.transcriptions.create({
       file: audioFileForWhisper,
       model: 'whisper-1',
-      language: 'en',
+      language: 'en', // Set language for better accuracy
       response_format: 'json',
-      temperature: 0.0,
+      temperature: 0.0, // Deterministic output
+      prompt: 'Voice note transcription. Capture the exact words spoken clearly.', // Hint for better accuracy
     });
 
     console.log('✅ [Whisper] Transcription completed:', {
