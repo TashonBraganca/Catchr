@@ -164,7 +164,9 @@ const completion = await openai.responses.create({
   model: 'gpt-5-nano',
   input: [{ role: 'developer', content: '...' }],
   reasoning: { effort: 'low' }, // 'low' | 'medium' | 'high'
-  response_format: { type: 'json_object' }
+  text: {
+    format: { type: 'json_object' } // CRITICAL: text.format NOT response_format
+  }
 });
 const result = JSON.parse(completion.output[0].content || '{}');
 ```
@@ -175,16 +177,21 @@ const result = JSON.parse(completion.output[0].content || '{}');
 | `openai.chat.completions.create()` | `openai.responses.create()` |
 | `messages` parameter | `input` parameter |
 | `choices[0].message.content` | `output[0].content` |
+| `response_format: { type }` | `text: { format: { type } }` **CRITICAL** |
 | N/A | `reasoning: { effort }` required |
 | Supports: `temperature`, `top_p` | **NOT** supported for GPT-5 |
 | Falls back to `gpt-4o` for GPT-5 models | Native GPT-5 support |
 
 **Files Updated:**
-- `api/voice/categorize.ts` - Voice transcript categorization
-- `api/ai/categorize.ts` - General thought categorization
+- `api/voice/categorize.ts` - Voice transcript categorization (cache: v5)
+- `api/ai/categorize.ts` - General thought categorization (cache: v5)
 - `api/voice/transcribe.ts` - No changes (Whisper API is separate)
 
-**Cache Bust**: All files updated to `v4` (2025-10-04)
+**Critical Fixes Applied:**
+1. v4 (2025-10-04): Changed from Chat Completions to Responses API
+2. v5 (2025-10-04): Fixed `response_format` → `text.format` parameter
+
+**Status**: ✅ APIs returning 200 OK (deployed and working)
 
 ---
 
