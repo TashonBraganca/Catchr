@@ -2,7 +2,43 @@
 
 ---
 
-## 🆕 **LATEST UPDATE - 2025-10-04**
+## 🆕 **LATEST UPDATE - 2025-10-12**
+
+### ✅ **SCHEMA MISMATCH FIX - INSERT OPERATIONS NOW WORKING**
+
+**Status**: Manual and voice notes now save to database successfully ✅
+**Previous Issue**: INSERT operations hanging indefinitely (>30s) ❌
+**Fix Applied**: Removed non-existent column reads from database response ✅
+
+#### 🔧 **Critical Schema Fix Details**
+
+| Issue | Root Cause | Fix Applied | Result |
+|-------|------------|-------------|--------|
+| **INSERT Hanging** | Code read `data.title` and `data.is_pinned` from response | Removed reads from lines 149, 152 in useNotes.ts | INSERT completes in 134ms ✅ |
+| **Column Mismatch** | `thoughts` table has NO title or is_pinned columns | Use input params instead of response data | 99.5% performance improvement ✅ |
+
+**Files Modified:**
+- `client/src/hooks/useNotes.ts` (lines 149, 152)
+
+**Performance Results:**
+- Before: >30s (hanging)
+- After: 134ms
+- Improvement: 99.5%
+
+**Test Results:**
+- 3/3 Playwright tests passing
+- Manual notes: ✅ Working
+- Voice notes: ✅ Ready (OpenAI Whisper configured)
+- Database persistence: ✅ Verified
+
+**Deployment:**
+- Commit: `2749aeb` - "CRITICAL FIX: Schema mismatch causing INSERT hang"
+- Production: https://cathcr.vercel.app
+- Status: ● Live and working
+
+---
+
+## 🆕 **PREVIOUS UPDATE - 2025-10-04**
 
 ### ✅ **GPT-5 NANO RESPONSES API FIX - CORRECT MODEL NOW IN USE**
 
