@@ -146,10 +146,10 @@ export const useNotes = () => {
         id: data.id,
         user_id: data.user_id,
         content: data.content,
-        title: data.title || noteData.title || extractTitleFromContent(data.content), // Fallback to extract from content
+        title: noteData.title || extractTitleFromContent(data.content),
         tags: data.tags || [],
         category: data.category || { main: 'note' },
-        is_pinned: data.is_pinned !== undefined ? data.is_pinned : false, // Handle if column doesn't exist
+        is_pinned: false,
         created_at: data.created_at,
         updated_at: data.updated_at
       };
