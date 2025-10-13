@@ -10,6 +10,7 @@ import {
   ProgressiveActions,
   ContentFocusMode
 } from '@/components/ui/ProgressiveDisclosure';
+import { toast, Toaster } from 'sonner';
 
 // Lazy load voice capture component for better performance
 const SimpleVoiceCapture = React.lazy(() => import('@/components/capture/SimpleVoiceCapture'));
@@ -61,22 +62,185 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
   // Progressive disclosure handlers
   const handleToolbarAction = (action: string) => {
     console.log(`Editor toolbar action: ${action}`);
-    // TODO: Apply formatting to selected text in editor
+
+    if (!editorRef.current) return;
+
+    const textarea = editorRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+
+    if (!selectedText) return;
+
+    let formattedText = '';
+
+    switch (action) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        break;
+      case 'underline':
+        formattedText = `__${selectedText}__`;
+        break;
+      case 'strikethrough':
+        formattedText = `~~${selectedText}~~`;
+        break;
+      case 'code':
+        formattedText = `\`${selectedText}\``;
+        break;
+      case 'link':
+        formattedText = `[${selectedText}](url)`;
+        break;
+      default:
+        formattedText = selectedText;
+    }
+
+    // Replace selected text with formatted version
+    textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+
+    // Restore selection
+    textarea.focus();
+    textarea.setSelectionRange(start, start + formattedText.length);
   };
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilters, setSearchFilters] = useState<string[]>([]);
 
   const handleSearch = (query: string, filters: string[]) => {
     console.log(`Search: "${query}" with filters:`, filters);
-    // TODO: Filter notes based on query and filters
+    setSearchQuery(query.toLowerCase());
+    setSearchFilters(filters);
   };
+
+  // Filter notes based on search query and filters
+  const filteredNotes = notes.filter(note => {
+    // Filter by search query
+    if (searchQuery) {
+      const matchesContent = note.content.toLowerCase().includes(searchQuery);
+      const matchesTitle = note.title?.toLowerCase().includes(searchQuery);
+      const matchesTags = note.tags?.some(tag => tag.toLowerCase().includes(searchQuery));
+
+      if (!matchesContent && !matchesTitle && !matchesTags) {
+        return false;
+      }
+    }
+
+    // Filter by tags
+    if (searchFilters.length > 0) {
+      const noteTags = note.tags || [];
+      const hasMatchingTag = searchFilters.some(filter =>
+        noteTags.some(tag => tag.toLowerCase() === filter.toLowerCase())
+      );
+      if (!hasMatchingTag) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const [sortBy, setSortBy] = useState<'date' | 'title' | 'modified'>('modified');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const handleSidebarAction = (action: string) => {
     console.log(`Sidebar action: ${action}`);
-    // TODO: Handle sidebar actions (new folder, import, settings)
+
+    switch (action) {
+      case 'new-folder':
+        const folderName = prompt('Enter folder name:');
+        if (folderName) {
+          console.log('Creating new folder:', folderName);
+          // TODO: Implement folder creation in backend
+          toast.info(`Folder "${folderName}" created!`, {
+            description: 'Backend integration pending'
+          });
+        }
+        break;
+      case 'import':
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,.md,.txt';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+              const content = e.target?.result as string;
+              // Create note from imported file
+              const importedNote = await createNote({
+                content: content,
+                title: file.name.replace(/\.[^/.]+$/, ''),
+                tags: ['imported'],
+                category: { main: 'note' }
+              });
+              if (importedNote) {
+                toast.success(`Imported "${file.name}" successfully!`);
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+        break;
+      case 'settings':
+        console.log('Opening settings...');
+        toast.info('Settings panel coming soon!');
+        break;
+      default:
+        console.log('Unknown sidebar action:', action);
+    }
   };
 
   const handleListAction = (action: string) => {
     console.log(`Note list action: ${action}`);
-    // TODO: Handle list actions (sort, filter, export)
+
+    switch (action) {
+      case 'sort-date':
+        setSortBy('date');
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        break;
+      case 'sort-title':
+        setSortBy('title');
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        break;
+      case 'sort-modified':
+        setSortBy('modified');
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        break;
+      case 'filter-pinned':
+        setSearchFilters(prev =>
+          prev.includes('pinned') ? prev.filter(f => f !== 'pinned') : [...prev, 'pinned']
+        );
+        break;
+      case 'export-json':
+        const jsonData = JSON.stringify(filteredNotes, null, 2);
+        const jsonBlob = new Blob([jsonData], { type: 'application/json' });
+        const jsonUrl = URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+        jsonLink.href = jsonUrl;
+        jsonLink.download = `notes-${new Date().toISOString().split('T')[0]}.json`;
+        jsonLink.click();
+        URL.revokeObjectURL(jsonUrl);
+        toast.success(`Exported ${filteredNotes.length} notes to JSON!`);
+        break;
+      case 'export-markdown':
+        const mdContent = filteredNotes.map(note =>
+          `# ${note.title || 'Untitled'}\n\n${note.content}\n\n---\n`
+        ).join('\n');
+        const mdBlob = new Blob([mdContent], { type: 'text/markdown' });
+        const mdUrl = URL.createObjectURL(mdBlob);
+        const mdLink = document.createElement('a');
+        mdLink.href = mdUrl;
+        mdLink.download = `notes-${new Date().toISOString().split('T')[0]}.md`;
+        mdLink.click();
+        URL.revokeObjectURL(mdUrl);
+        toast.success(`Exported ${filteredNotes.length} notes to Markdown!`);
+        break;
+      default:
+        console.log('Unknown list action:', action);
+    }
   };
 
   const handleTextSelection = () => {
@@ -98,7 +262,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
     if (!content.trim()) {
       console.warn('⚠️ [AppShell] Empty content, not creating note');
-      alert('Please enter some content for your note');
+      toast.error('Please enter some content for your note');
       return;
     }
 
@@ -112,13 +276,18 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
     if (note) {
       console.log('✅ [AppShell] Manual note created successfully:', note.id);
+      toast.success('Note created successfully!', {
+        description: note.title || 'Your note has been saved'
+      });
       setShowNewNoteModal(false);
       if (newNoteContentRef.current) {
         newNoteContentRef.current.value = '';
       }
     } else {
       console.error('❌ [AppShell] Failed to create manual note');
-      alert('Failed to save note. Please check your connection and try again.');
+      toast.error('Failed to save note', {
+        description: 'Please check your connection and try again'
+      });
     }
   };
 
@@ -137,7 +306,9 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
     if (!transcript || transcript.trim().length === 0) {
       console.error('❌ [AppShell] Empty transcript received - cannot create note');
-      alert('No speech detected in recording. Please try again and speak clearly.');
+      toast.error('No speech detected', {
+        description: 'Please try again and speak clearly'
+      });
       return;
     }
 
@@ -153,15 +324,40 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
     if (note) {
       console.log('✅ [AppShell] Voice note created successfully:', note.id);
+      toast.success('Voice note created!', {
+        description: suggestedTitle || 'Your voice note has been saved'
+      });
       setShowVoiceCapture(false);
     } else {
       console.error('❌ [AppShell] Failed to create note from voice');
-      alert('Failed to save note. Please try again.');
+      toast.error('Failed to save voice note', {
+        description: 'Please try again'
+      });
     }
   };
 
+  // Sort filtered notes
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    let comparison = 0;
+
+    switch (sortBy) {
+      case 'title':
+        comparison = (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
+        break;
+      case 'date':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case 'modified':
+      default:
+        comparison = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+        break;
+    }
+
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   // Transform notes for SimpleNoteList component
-  const transformedNotes = notes.map(note => ({
+  const transformedNotes = sortedNotes.map(note => ({
     id: note.id,
     title: note.title || 'Untitled Note',
     content: note.content,
@@ -689,7 +885,9 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                     onTranscriptComplete={handleVoiceNoteComplete}
                     onError={(error) => {
                       console.error('Voice capture error:', error);
-                      // TODO: Show error toast notification
+                      toast.error('Voice capture error', {
+                        description: error
+                      });
                     }}
                     className="shadow-2xl"
                   />
@@ -753,6 +951,23 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
           </>
         )}
       </AnimatePresence>
+
+      {/* Toast Notifications */}
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#1d1d1f',
+            border: '1px solid #e5e5e7',
+            borderRadius: '12px',
+            padding: '16px',
+          },
+          className: 'font-system',
+          duration: 3000,
+        }}
+        richColors
+      />
     </div>
   );
 };
