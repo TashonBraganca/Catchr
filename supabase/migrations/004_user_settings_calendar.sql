@@ -155,30 +155,17 @@ BEGIN
 END;
 $$;
 
--- View for calendar-enabled users (only create if profiles table exists)
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'profiles') THEN
-    CREATE OR REPLACE VIEW calendar_enabled_users
-    WITH (security_invoker = true)
-    AS
-    SELECT
-      us.user_id,
-      us.timezone,
-      us.default_calendar_id,
-      us.google_calendar_access_token,
-      us.google_calendar_refresh_token,
-      us.google_calendar_token_expires_at,
-      us.ai_auto_calendar_events,
-      p.display_name,
-      p.avatar_url
-    FROM user_settings us
-    LEFT JOIN profiles p ON us.user_id = p.id
-    WHERE us.calendar_integration_enabled = TRUE
-      AND us.calendar_sync_enabled = TRUE
-      AND us.google_calendar_access_token IS NOT NULL;
-  END IF;
-END $$;
+-- Note: calendar_enabled_users view removed due to profiles table schema mismatch
+-- The view can be created manually later if needed:
+--
+-- CREATE OR REPLACE VIEW calendar_enabled_users AS
+-- SELECT user_id, timezone, default_calendar_id,
+--        google_calendar_access_token, google_calendar_refresh_token,
+--        google_calendar_token_expires_at, ai_auto_calendar_events
+-- FROM user_settings
+-- WHERE calendar_integration_enabled = TRUE
+--   AND calendar_sync_enabled = TRUE
+--   AND google_calendar_access_token IS NOT NULL;
 
 -- =====================================================
 -- MIGRATION COMPLETE
