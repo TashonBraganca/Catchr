@@ -63,27 +63,24 @@ CREATE TRIGGER update_user_settings_updated_at
 
 -- Function to get or create user settings with defaults
 CREATE OR REPLACE FUNCTION get_or_create_user_settings(p_user_id UUID)
-RETURNS user_settings
+RETURNS SETOF public.user_settings
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $$
-DECLARE
-  v_settings user_settings;
 BEGIN
   -- Try to get existing settings
-  SELECT * INTO v_settings
-  FROM public.user_settings
+  RETURN QUERY
+  SELECT * FROM public.user_settings
   WHERE user_id = p_user_id;
 
-  -- If not found, create with defaults
+  -- If not found, create with defaults and return
   IF NOT FOUND THEN
+    RETURN QUERY
     INSERT INTO public.user_settings (user_id)
     VALUES (p_user_id)
-    RETURNING * INTO v_settings;
+    RETURNING *;
   END IF;
-
-  RETURN v_settings;
 END;
 $$;
 
