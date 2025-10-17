@@ -1,0 +1,158 @@
+-- =====================================================
+-- MIGRATION 004: USER SETTINGS TABLE (CLEAN VERSION)
+-- Apply this SQL directly in Supabase Dashboard
+-- =====================================================
+
+-- 1. Create user_settings table
+CREATE TABLE IF NOT EXISTS user_settings (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  -- Calendar integration
+  calendar_integration_enabled BOOLEAN DEFAULT FALSE,
+  google_calendar_access_token TEXT,
+  google_calendar_refresh_token TEXT,
+  google_calendar_token_expires_at TIMESTAMPTZ,
+  calendar_sync_enabled BOOLEAN DEFAULT FALSE,
+  default_calendar_id TEXT,
+
+  -- Timezone preferences
+  timezone TEXT DEFAULT 'America/Los_Angeles',
+  timezone_auto_detect BOOLEAN DEFAULT TRUE,
+
+  -- Notification preferences
+  email_notifications_enabled BOOLEAN DEFAULT TRUE,
+  push_notifications_enabled BOOLEAN DEFAULT TRUE,
+  reminder_notifications_enabled BOOLEAN DEFAULT TRUE,
+
+  -- AI preferences
+  ai_auto_categorization BOOLEAN DEFAULT TRUE,
+  ai_confidence_threshold REAL DEFAULT 0.7 CHECK (ai_confidence_threshold >= 0 AND ai_confidence_threshold <= 1),
+  ai_auto_calendar_events BOOLEAN DEFAULT FALSE,
+
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Create indexes
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_settings_calendar_enabled ON user_settings(calendar_integration_enabled) WHERE calendar_integration_enabled = TRUE;
+
+-- 3. Enable RLS
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+
+-- 4. Create RLS policies
+CREATE POLICY "Users can view their own settings" ON user_settings
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own settings" ON user_settings
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own settings" ON user_settings
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own settings" ON user_settings
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- 5. Create trigger for updated_at
+CREATE TRIGGER update_user_settings_updated_at
+  BEFORE UPDATE ON user_settings
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- 6. Function: get_or_create_user_settings
+CREATE OR REPLACE FUNCTION get_or_create_user_settings(p_user_id UUID)
+RETURNS SETOF public.user_settings
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT * FROM public.user_settings
+  WHERE user_id = p_user_id;
+
+  IF NOT FOUND THEN
+    RETURN QUERY
+    INSERT INTO public.user_settings (user_id)
+    VALUES (p_user_id)
+    RETURNING *;
+  END IF;
+END;
+$$;
+
+-- 7. Function: update_calendar_integration
+CREATE OR REPLACE FUNCTION update_calendar_integration(
+  p_user_id UUID,
+  p_enabled BOOLEAN,
+  p_access_token TEXT DEFAULT NULL,
+  p_refresh_token TEXT DEFAULT NULL,
+  p_expires_at TIMESTAMPTZ DEFAULT NULL,
+  p_calendar_id TEXT DEFAULT NULL
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  INSERT INTO public.user_settings (
+    user_id,
+    calendar_integration_enabled,
+    google_calendar_access_token,
+    google_calendar_refresh_token,
+    google_calendar_token_expires_at,
+    default_calendar_id,
+    calendar_sync_enabled
+  ) VALUES (
+    p_user_id,
+    p_enabled,
+    p_access_token,
+    p_refresh_token,
+    p_expires_at,
+    p_calendar_id,
+    p_enabled
+  )
+  ON CONFLICT (user_id) DO UPDATE SET
+    calendar_integration_enabled = p_enabled,
+    google_calendar_access_token = COALESCE(p_access_token, user_settings.google_calendar_access_token),
+    google_calendar_refresh_token = COALESCE(p_refresh_token, user_settings.google_calendar_refresh_token),
+    google_calendar_token_expires_at = COALESCE(p_expires_at, user_settings.google_calendar_token_expires_at),
+    default_calendar_id = COALESCE(p_calendar_id, user_settings.default_calendar_id),
+    calendar_sync_enabled = p_enabled,
+    updated_at = NOW();
+END;
+$$;
+
+-- 8. Function: update_user_timezone
+CREATE OR REPLACE FUNCTION update_user_timezone(
+  p_user_id UUID,
+  p_timezone TEXT,
+  p_auto_detect BOOLEAN DEFAULT TRUE
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  INSERT INTO public.user_settings (
+    user_id,
+    timezone,
+    timezone_auto_detect
+  ) VALUES (
+    p_user_id,
+    p_timezone,
+    p_auto_detect
+  )
+  ON CONFLICT (user_id) DO UPDATE SET
+    timezone = p_timezone,
+    timezone_auto_detect = p_auto_detect,
+    updated_at = NOW();
+END;
+$$;
+
+-- =====================================================
+-- MIGRATION COMPLETE ✅
+-- All errors fixed, ready to apply
+-- =====================================================
