@@ -9,6 +9,7 @@
  * - Voice recording with 5-second silence detection
  * - Real-time waveform visualization
  * - Manual stop control
+ * - Auth token relay from web app to background script
  */
 
 console.log('🎤 Catchr content script loaded');
@@ -21,6 +22,60 @@ let audioChunks = [];
 let silenceTimer = null;
 let audioContext = null;
 let analyser = null;
+
+// Listen for messages from web app (postMessage for auth token transfer)
+window.addEventListener('message', async (event) => {
+  // Only accept messages from same origin (for security)
+  if (event.source !== window) return;
+
+  const { type, token, userId, user } = event.data;
+
+  switch (type) {
+    case 'CATCHR_PING':
+      // Respond to ping from web app
+      window.postMessage({ type: 'CATCHR_PONG' }, '*');
+      break;
+
+    case 'CATCHR_AUTH_TOKEN':
+      // Relay auth token to background script
+      try {
+        const response = await chrome.runtime.sendMessage({
+          action: 'set-auth-state',
+          authToken: token,
+          userId: userId,
+          isAuthenticated: true
+        });
+
+        if (response && response.success) {
+          console.log('✅ Auth token successfully sent to background script');
+          window.postMessage({ type: 'CATCHR_AUTH_SUCCESS' }, '*');
+        }
+      } catch (error) {
+        console.error('Failed to relay auth token:', error);
+        window.postMessage({ type: 'CATCHR_AUTH_ERROR', error: error.message }, '*');
+      }
+      break;
+
+    case 'CATCHR_VERIFY_AUTH':
+      // Check auth status with background script
+      try {
+        const response = await chrome.runtime.sendMessage({
+          action: 'get-auth-state'
+        });
+
+        window.postMessage({
+          type: 'CATCHR_AUTH_STATUS',
+          isAuthenticated: response?.isAuthenticated || false
+        }, '*');
+      } catch (error) {
+        window.postMessage({
+          type: 'CATCHR_AUTH_STATUS',
+          isAuthenticated: false
+        }, '*');
+      }
+      break;
+  }
+});
 
 // Respond to ping from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -36,6 +91,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'show-auth-modal':
       showAuthModal();
+      sendResponse({ success: true });
+      break;
+
+    case 'auth-state-changed':
+      // Notify web app if needed
+      console.log('🔐 Auth state changed:', message.isAuthenticated);
       sendResponse({ success: true });
       break;
 
@@ -286,7 +347,7 @@ async function startRecording() {
       if (event.data.size > 0) {
         audioChunks.push(event.data);
       }
-    });
+    };
 
     mediaRecorder.onstop = async () => {
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -537,7 +598,7 @@ function showAuthModal() {
       <div style="color: #888; font-size: 14px; margin-bottom: 24px; text-align: center;">
         Sign in to Catchr to sync your thoughts
       </div>
-      <button onclick="window.open('https://catchr.vercel.app', '_blank')" class="catchr-modal__button catchr-modal__button--primary">
+      <button onclick="window.open('https://catchr.vercel.app/install-extension', '_blank')" class="catchr-modal__button catchr-modal__button--primary">
         Open Catchr & Sign In
       </button>
     </div>

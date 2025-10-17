@@ -159,6 +159,11 @@ class ApiClient {
     return this.request('/api/transcription/batch', { method: 'POST', body: { files: audioFiles } });
   }
 
+  // Stats endpoints (NEW)
+  async getStats(): Promise<ApiResponse> {
+    return this.request('/api/stats');
+  }
+
   // Rooms endpoints
   async getRooms(): Promise<ApiResponse> {
     return this.request('/api/rooms');

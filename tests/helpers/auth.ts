@@ -15,62 +15,103 @@ const MOCK_USER = {
 };
 
 /**
- * Bypass authentication by mocking Supabase session
- * This skips the login UI and goes directly to the authenticated app
+ * Bypass authentication by using real Supabase test credentials
+ * This is more reliable than mocking since it uses the actual auth flow
  */
 export async function authenticateTestUser(page: Page): Promise<void> {
-  console.log('🔐 [Auth Helper] Mocking authenticated session...');
+  console.log('🔐 [Auth Helper] Authenticating test user...');
 
   try {
-    // Navigate to the app
+    // Navigate to the app - use relative path to respect baseURL from playwright.config.ts
     await page.goto('/');
-
-    // Inject fake Supabase session into localStorage
-    await page.evaluate((mockUser) => {
-      const mockSession = {
-        access_token: 'mock-access-token-' + Date.now(),
-        refresh_token: 'mock-refresh-token-' + Date.now(),
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer',
-        user: mockUser
-      };
-
-      // Store session in localStorage (Supabase format)
-      const authStorageKey = `sb-${window.location.hostname.split('.')[0]}-auth-token`;
-      localStorage.setItem(
-        authStorageKey,
-        JSON.stringify({
-          currentSession: mockSession,
-          expiresAt: mockSession.expires_at
-        })
-      );
-
-      console.log('✅ [Mock Auth] Session injected into localStorage');
-    }, MOCK_USER);
-
-    console.log('✅ [Auth Helper] Mock session created');
-
-    // Reload page to trigger auth state detection
-    await page.reload();
     await page.waitForLoadState('networkidle');
 
-    // Wait for app to recognize auth state and load
-    await page.waitForSelector('button:has-text("New")', { timeout: 15000 });
-    console.log('✅ [Auth Helper] App loaded in authenticated state');
+    console.log('📍 [Auth Helper] Page loaded, checking auth state...');
 
-    // Extra wait for any background data loading
+    // Wait for React to load (give it 2 seconds)
+    await page.waitForTimeout(2000);
+
+    // Check if already authenticated (maybe from previous test)
+    const hasNewButton = await page.locator('button:has-text("New")').isVisible({ timeout: 3000 }).catch(() => false);
+
+    if (hasNewButton) {
+      console.log('✅ [Auth Helper] Already authenticated from previous test');
+      return;
+    }
+
+    console.log('🔑 [Auth Helper] Not authenticated, signing in...');
+
+    // Look for auth page elements
+    const emailInput = page.locator('input[type="email"]').first();
+    const passwordInput = page.locator('input[type="password"]').first();
+
+    // Wait for auth page to be ready
+    await emailInput.waitFor({ state: 'visible', timeout: 10000 });
+    console.log('📍 [Auth Helper] Auth page loaded');
+
+    // Fill in test credentials (from .env file)
+    const testEmail = process.env.TEST_USER_EMAIL || 'test@cathcr.com';
+    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123!';
+
+    await emailInput.fill(testEmail);
+    await passwordInput.fill(testPassword);
+    console.log('📍 [Auth Helper] Credentials filled');
+
+    // Click sign in button
+    const signInButton = page.locator('button').filter({ hasText: /^Sign In$/i }).first();
+    await signInButton.click();
+    console.log('📍 [Auth Helper] Sign in clicked');
+
+    // Wait a moment for the response
+    await page.waitForTimeout(2000);
+
+    // Check if sign in was successful or if we got an error
+    const hasError = await page.locator('text=/Invalid login credentials/i').isVisible().catch(() => false);
+
+    if (hasError) {
+      console.log('⚠️  [Auth Helper] Invalid credentials - test account may not exist');
+      console.log('🔧 [Auth Helper] Attempting to create test account via sign up...');
+
+      // Switch to sign up mode
+      const signUpLink = page.locator('a, button').filter({ hasText: /sign up|create account/i }).first();
+      await signUpLink.click();
+      await page.waitForTimeout(1000);
+
+      // Fill sign up form
+      const usernameInput = page.locator('input[type="text"]').first();
+      const emailInputSignup = page.locator('input[type="email"]').first();
+      const passwordInputSignup = page.locator('input[type="password"]').first();
+
+      await usernameInput.fill('Test User');
+      await emailInputSignup.fill(testEmail);
+      await passwordInputSignup.fill(testPassword);
+
+      // Click create account
+      const createButton = page.locator('button').filter({ hasText: /create account/i }).first();
+      await createButton.click();
+      console.log('📍 [Auth Helper] Sign up submitted');
+
+      // Wait for account creation to complete
+      await page.waitForTimeout(3000);
+    }
+
+    // Wait for authentication to complete and app to load
+    // The "+ New" button should appear when authenticated
+    await page.waitForSelector('button:has-text("New")', { timeout: 15000 });
+    console.log('✅ [Auth Helper] Authentication successful - app loaded');
+
+    // Extra wait for any background data loading (notes, etc.)
     await page.waitForTimeout(2000);
     console.log('✅ [Auth Helper] Ready for testing');
 
   } catch (error) {
-    console.error('❌ [Auth Helper] Failed to mock authentication:', error);
+    console.error('❌ [Auth Helper] Authentication failed:', error);
 
     // Take screenshot for debugging
-    await page.screenshot({ path: 'test-results/auth-mock-failure.png', fullPage: true });
-    console.log('📸 [Auth Helper] Screenshot saved to test-results/auth-mock-failure.png');
+    await page.screenshot({ path: 'test-results/auth-failure.png', fullPage: true });
+    console.log('📸 [Auth Helper] Screenshot saved to test-results/auth-failure.png');
 
-    throw new Error(`Failed to mock authentication: ${error}`);
+    throw new Error(`Failed to authenticate test user: ${error}`);
   }
 }
 

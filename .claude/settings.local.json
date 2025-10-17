@@ -66,7 +66,9 @@
       "Bash(\"https://api.supabase.com/v1/projects/jrowrloysdkluxtgzvxm/config/auth\" )",
       "WebFetch(domain:cathcr-5vhjghs1v-tashon-bragancas-projects.vercel.app)",
       "Bash(timeout 120 bash -c 'while true; do sleep 5; vercel ls --token=wwxwOH1Z6VZBDhSJsVEDnNZB 2>&1 | head -5 | grep \"\"Ready\"\" && break || echo \"\"Still deploying...\"\"; done')",
-      "WebFetch(domain:cathcr-fqup1le3u-tashon-bragancas-projects.vercel.app)"
+      "WebFetch(domain:cathcr-fqup1le3u-tashon-bragancas-projects.vercel.app)",
+      "Bash(env)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

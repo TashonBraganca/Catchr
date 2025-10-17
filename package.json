@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered thought capture and organization platform",
   "private": true,
+  "type": "module",
   "workspaces": [
     "client",
     "server",
@@ -26,7 +27,13 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "prettier --write .",
     "typecheck": "npm run typecheck --workspaces",
-    "clean": "npm run clean --workspaces && rm -rf node_modules"
+    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "monitor:dashboard": "node scripts/monitoring-dashboard.js",
+    "monitor:health": "curl https://cathcr.vercel.app/api/health",
+    "analyze:bundle": "node scripts/analyze-bundle-size.js",
+    "analyze:database": "node scripts/analyze-database-performance.js",
+    "analyze:api": "node scripts/analyze-api-performance.js",
+    "analyze:all": "npm run analyze:bundle && npm run analyze:api && npm run analyze:database"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.1",

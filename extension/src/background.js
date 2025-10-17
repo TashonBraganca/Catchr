@@ -8,10 +8,13 @@
  *
  * Core Features:
  * - Ultra-fast voice capture trigger (<50ms)
- * - Auth state management
+ * - Auth state management with JWT tokens
  * - Automatic sync with Catchr backend
  * - 5-second silence detection coordination
  */
+
+// Import auth module (loaded via service worker imports)
+// Note: auth.js handles external messages for OAuth token exchange
 
 // Extension state (persisted in chrome.storage.local)
 let extensionState = {
@@ -28,10 +31,24 @@ let extensionState = {
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('🎤 Catchr Extension installed');
 
-  // Load saved state
-  const savedState = await chrome.storage.local.get('extensionState');
-  if (savedState.extensionState) {
-    extensionState = { ...extensionState, ...savedState.extensionState };
+  // Load saved state from chrome.storage
+  const savedData = await chrome.storage.local.get([
+    'authToken',
+    'userId',
+    'isAuthenticated',
+    'extensionState'
+  ]);
+
+  // Restore auth state
+  if (savedData.authToken) {
+    extensionState.authToken = savedData.authToken;
+    extensionState.userId = savedData.userId;
+    extensionState.isAuthenticated = savedData.isAuthenticated || true;
+  }
+
+  // Restore extension state
+  if (savedData.extensionState) {
+    extensionState = { ...extensionState, ...savedData.extensionState };
   }
 
   // Set default settings
@@ -44,6 +61,24 @@ chrome.runtime.onInstalled.addListener(async () => {
       quickCaptureKey: 'Ctrl+Shift+C',
     }
   });
+
+  console.log('✅ Extension initialized, auth state:', extensionState.isAuthenticated);
+});
+
+// Startup: Load auth state from storage
+chrome.runtime.onStartup.addListener(async () => {
+  const savedData = await chrome.storage.local.get([
+    'authToken',
+    'userId',
+    'isAuthenticated'
+  ]);
+
+  if (savedData.authToken) {
+    extensionState.authToken = savedData.authToken;
+    extensionState.userId = savedData.userId;
+    extensionState.isAuthenticated = savedData.isAuthenticated || true;
+    console.log('🔐 Auth state restored on startup');
+  }
 });
 
 // Command handler for quick capture keyboard shortcut
@@ -60,19 +95,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   switch (message.action) {
     case 'get-auth-state':
-      sendResponse({
-        isAuthenticated: extensionState.isAuthenticated,
-        userId: extensionState.userId
+      chrome.storage.local.get([
+        'authToken',
+        'userId',
+        'isAuthenticated'
+      ]).then(data => {
+        sendResponse({
+          isAuthenticated: data.isAuthenticated || false,
+          userId: data.userId || null,
+          hasToken: !!data.authToken
+        });
       });
-      break;
+      return true; // Async response
 
     case 'set-auth-state':
       extensionState.isAuthenticated = message.isAuthenticated;
       extensionState.userId = message.userId;
       extensionState.authToken = message.authToken;
-      chrome.storage.local.set({ extensionState });
+      chrome.storage.local.set({
+        authToken: message.authToken,
+        userId: message.userId,
+        isAuthenticated: message.isAuthenticated,
+        extensionState
+      });
       sendResponse({ success: true });
       break;
+
+    case 'logout':
+      handleLogout().then(() => {
+        sendResponse({ success: true });
+      });
+      return true; // Async response
 
     case 'start-recording':
       handleStartRecording(sender.tab?.id);
@@ -117,6 +170,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 /**
+ * HANDLE LOGOUT
+ * Clear all auth data
+ */
+async function handleLogout() {
+  await chrome.storage.local.remove([
+    'authToken',
+    'userId',
+    'isAuthenticated',
+    'user',
+    'authenticatedAt'
+  ]);
+
+  extensionState.isAuthenticated = false;
+  extensionState.userId = null;
+  extensionState.authToken = null;
+
+  console.log('🚪 User logged out');
+}
+
+/**
  * QUICK CAPTURE TRIGGER
  * Ultra-fast voice capture activation (<50ms)
  */
@@ -130,11 +203,21 @@ async function triggerQuickCapture() {
       return;
     }
 
+    // Reload auth state from storage
+    const authData = await chrome.storage.local.get(['authToken', 'isAuthenticated']);
+    extensionState.authToken = authData.authToken;
+    extensionState.isAuthenticated = authData.isAuthenticated || false;
+
     // Check auth state
-    if (!extensionState.isAuthenticated) {
+    if (!extensionState.isAuthenticated || !extensionState.authToken) {
       // Show auth modal
       chrome.tabs.sendMessage(tab.id, {
         action: 'show-auth-modal'
+      }).catch(() => {
+        // Content script not ready, open login page
+        chrome.tabs.create({
+          url: 'https://catchr.vercel.app/install-extension'
+        });
       });
       return;
     }
@@ -217,14 +300,18 @@ async function handleStopRecording(audioData, tabId) {
 /**
  * HANDLE UPLOAD THOUGHT
  * Uploads audio to Catchr backend for GPT-5 processing
+ * FIXED: Now includes Authentication header with JWT token
  */
 async function handleUploadThought(thought, audioBlob) {
   try {
-    if (!extensionState.isAuthenticated || !extensionState.authToken) {
-      throw new Error('Not authenticated. Please log in.');
+    // Get auth token from storage (most up-to-date)
+    const { authToken } = await chrome.storage.local.get('authToken');
+
+    if (!authToken) {
+      throw new Error('Not authenticated. Please log in first.');
     }
 
-    console.log('📤 Uploading thought to Catchr...');
+    console.log('📤 Uploading thought to Catchr with auth...');
 
     // Upload to Catchr backend
     const formData = new FormData();
@@ -236,16 +323,21 @@ async function handleUploadThought(thought, audioBlob) {
       timestamp: thought.timestamp,
     }));
 
-    const response = await fetch(`${extensionState.apiEndpoint}/capture`, {
+    const response = await fetch(`${extensionState.apiEndpoint}/voice/transcribe`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${extensionState.authToken}`,
+        'Authorization': `Bearer ${authToken}` // CRITICAL: Auth header added
       },
       body: formData,
     });
 
+    if (response.status === 401) {
+      throw new Error('Authentication expired. Please log in again.');
+    }
+
     if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
     }
 
     const result = await response.json();
@@ -271,6 +363,16 @@ async function handleUploadThought(thought, audioBlob) {
 
   } catch (error) {
     console.error('Upload failed:', error);
+
+    // Show error notification
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icons/icon-128.png',
+      title: 'Upload Failed',
+      message: error.message,
+      priority: 2,
+    });
+
     return {
       error: error.message
     };
@@ -285,5 +387,83 @@ chrome.action.onClicked.addListener(async (tab) => {
   // Trigger quick capture on icon click
   await triggerQuickCapture();
 });
+
+/**
+ * LISTEN FOR AUTH TOKENS FROM WEB APP
+ * External messages from https://catchr.vercel.app
+ */
+chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
+  console.log('📨 External message received:', request.type);
+
+  if (request.type === 'AUTH_TOKEN') {
+    handleAuthTokenFromWebApp(request)
+      .then(() => {
+        console.log('✅ Auth token stored successfully');
+        sendResponse({ success: true });
+      })
+      .catch((error) => {
+        console.error('❌ Failed to store auth token:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true; // Keep channel open for async response
+  }
+
+  if (request.type === 'PING') {
+    sendResponse({
+      connected: true,
+      version: chrome.runtime.getManifest().version
+    });
+  }
+
+  return false;
+});
+
+/**
+ * HANDLE AUTH TOKEN FROM WEB APP
+ * Store token and user info from web app OAuth
+ */
+async function handleAuthTokenFromWebApp(request) {
+  const { token, userId, user } = request;
+
+  if (!token || !userId) {
+    throw new Error('Invalid auth token data');
+  }
+
+  // Update extension state
+  await chrome.storage.local.set({
+    authToken: token,
+    userId: userId,
+    user: user || null,
+    isAuthenticated: true,
+    authenticatedAt: Date.now()
+  });
+
+  // Update runtime state
+  extensionState.authToken = token;
+  extensionState.userId = userId;
+  extensionState.isAuthenticated = true;
+
+  // Notify all tabs about auth state change
+  const tabs = await chrome.tabs.query({});
+  tabs.forEach(tab => {
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'auth-state-changed',
+      isAuthenticated: true,
+      userId: userId
+    }).catch(() => {}); // Ignore errors for tabs without content script
+  });
+
+  // Show success notification
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'icons/icon-128.png',
+    title: 'Catchr Connected!',
+    message: 'Your extension is now connected to your Catchr account.',
+    priority: 2
+  });
+
+  console.log('🔐 User authenticated:', userId);
+}
 
 console.log('🚀 Catchr Extension service worker ready');

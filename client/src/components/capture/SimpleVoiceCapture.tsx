@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 // SIMPLE VOICE CAPTURE - APPLE NOTES + GOOGLE KEEP INSPIRED
@@ -263,17 +264,41 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
 
       if (finalTranscript && finalTranscript.length > 0) {
         setProcessingStage('processing');
-        console.log('🤖 [Voice] Processing with GPT-5 Nano...');
+        console.log('🤖 [Voice] Processing transcript with GPT-5 Nano...');
+        console.log('📄 [Voice] Transcript to process:', finalTranscript);
 
-        // Use GPT-5 Nano for categorization and enhancement
-        const aiResult = await processWithGPT(finalTranscript);
-        console.log('✅ [Voice] GPT-5 Nano result:', aiResult);
+        // CRITICAL FIX: Try GPT processing, but ALWAYS create the note even if it fails
+        try {
+          const aiResult = await processWithGPT(finalTranscript);
+          console.log('✅ [Voice] GPT-5 Nano result:', aiResult);
 
-        onTranscriptComplete?.(
-          finalTranscript,
-          aiResult.suggestedTitle,
-          aiResult.suggestedTags
-        );
+          console.log('🎯 [Voice] Firing onTranscriptComplete with AI data...');
+          onTranscriptComplete?.(
+            finalTranscript,
+            aiResult.suggestedTitle,
+            aiResult.suggestedTags
+          );
+          console.log('✅ [Voice] Callback completed successfully with AI categorization');
+
+        } catch (gptError) {
+          console.error('❌ [Voice] GPT processing failed:', gptError);
+          console.log('🔄 [Voice] Falling back to creating note without AI categorization...');
+
+          // CRITICAL: Still create the note even if GPT fails
+          console.log('🎯 [Voice] Firing onTranscriptComplete WITHOUT AI data (fallback)...');
+          onTranscriptComplete?.(
+            finalTranscript,
+            undefined,  // No AI title
+            ['voice']   // Default tag only
+          );
+          console.log('✅ [Voice] Note created without AI categorization (fallback successful)');
+
+          // Show user-friendly error notification
+          toast.warning('Note created without AI categorization', {
+            description: 'You can manually edit title and tags',
+            duration: 4000
+          });
+        }
       } else {
         console.error('❌ [Voice] No speech detected in recording');
         onError?.('No speech detected');
@@ -281,7 +306,22 @@ export const SimpleVoiceCapture: React.FC<SimpleVoiceCaptureProps> = ({
 
     } catch (error) {
       console.error('❌ [Voice] Error processing recording:', error);
-      onError?.('Failed to process recording');
+
+      // CRITICAL: Even if everything fails, try to save the transcript if we have it
+      if (transcript && transcript.length > 0) {
+        console.log('🆘 [Voice] Last resort: Creating note from existing transcript...');
+        onTranscriptComplete?.(
+          transcript,
+          undefined,
+          ['voice', 'error-recovery']
+        );
+        toast.error('Created note from partial recording', {
+          description: 'Processing failed but we saved what we could',
+          duration: 5000
+        });
+      } else {
+        onError?.('Failed to process recording');
+      }
     } finally {
       setIsProcessing(false);
       setTranscript('');

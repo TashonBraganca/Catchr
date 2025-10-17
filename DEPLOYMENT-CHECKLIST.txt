@@ -1,0 +1,222 @@
+================================================================================
+                   CATHCR PRODUCTION DEPLOYMENT CHECKLIST
+                              2025-10-16
+                         PRINT THIS PAGE
+================================================================================
+
+PRE-DEPLOYMENT (15 minutes)
+================================================================================
+
+STEP 1: APPLY DATABASE MIGRATION ⚠️ CRITICAL
+□ Open: https://vysdpthbimdlkciusbvx.supabase.co/project/vysdpthbimdlkciusbvx/sql
+□ Click "New Query"
+□ Copy contents of: supabase/migrations/004_user_settings_calendar.sql
+□ Paste into SQL editor
+□ Click "Run" (should complete in 2-5 seconds)
+□ Check for success message (no errors)
+
+STEP 2: VERIFY MIGRATION SUCCESS
+□ Run verification query:
+  SELECT column_name FROM information_schema.columns
+  WHERE table_name = 'thoughts' AND column_name IN ('title', 'is_pinned');
+□ Should return: title, is_pinned
+□ If not, DO NOT PROCEED - fix migration first
+
+STEP 3: LOCAL VERIFICATION
+□ cd D:\Projects\Cathcr
+□ npm run build (should succeed)
+□ npm run typecheck (should succeed)
+□ No errors in console output
+
+STEP 4: ENVIRONMENT CHECK
+□ Vercel dashboard open: https://vercel.com/cathcr
+□ Supabase dashboard open: https://vysdpthbimdlkciusbvx.supabase.co
+□ Have 90 minutes uninterrupted time
+□ Team notified of deployment
+
+================================================================================
+DEPLOYMENT (10 minutes)
+================================================================================
+
+OPTION A: AUTOMATED SCRIPT (RECOMMENDED)
+□ cd D:\Projects\Cathcr
+□ Run: DEPLOY.bat (Windows) or bash DEPLOY.sh (Linux/Mac)
+□ Follow prompts
+□ Wait for completion
+
+OPTION B: MANUAL COMMANDS
+□ cd D:\Projects\Cathcr
+□ git add .
+□ git commit -m "🚀 MAJOR RELEASE: Complete Platform Improvements (Phases 1-10)
+  (See DEPLOYMENT-PLAN.md for full message)"
+□ git push origin main
+□ vercel --prod
+□ Wait 2-5 minutes for deployment
+
+VERIFY DEPLOYMENT STARTED
+□ Vercel shows "Building..." status
+□ GitHub shows latest commit
+□ No git errors
+□ No build errors
+
+================================================================================
+POST-DEPLOYMENT VERIFICATION (15 minutes)
+================================================================================
+
+CRITICAL PATH TESTING - DO THESE IMMEDIATELY
+
+TEST 1: HOMEPAGE & LOGIN
+□ Navigate to: https://cathcr.vercel.app
+□ Homepage loads (no errors)
+□ Click "Sign In"
+□ Login works
+□ Dashboard appears
+□ Press F12 - check console (no red errors)
+Status: ___PASS___ ___FAIL___
+
+TEST 2: MANUAL NOTE CREATION
+□ Click "+ New" button
+□ Type: "Deployment test note"
+□ Click "Create Note"
+□ Note appears in list
+□ Refresh page (Ctrl+R)
+□ Note still exists
+Status: ___PASS___ ___FAIL___
+
+TEST 3: VOICE NOTE CREATION
+□ Click microphone FAB button
+□ Record 2-3 second voice note
+□ Stop recording
+□ Wait for processing (~3 seconds)
+□ Note appears in list
+□ Check console - no errors
+Status: ___PASS___ ___FAIL___
+
+TEST 4: PIN FUNCTIONALITY (IF MIGRATION 004 APPLIED)
+□ Hover over a note
+□ Click pin icon
+□ Note moves to top
+□ Refresh page
+□ Note stays pinned
+Status: ___PASS___ ___FAIL___
+
+TEST 5: EXTENSION PAGE
+□ Navigate to: https://cathcr.vercel.app/install-extension
+□ Page loads
+□ Download button visible
+□ Instructions readable
+Status: ___PASS___ ___FAIL___
+
+TEST 6: API ENDPOINTS
+□ Open browser console (F12)
+□ Get token: localStorage.getItem('supabase.auth.token')
+□ Test with curl (see DEPLOYMENT-PLAN.md)
+□ /api/stats returns 200
+Status: ___PASS___ ___FAIL___
+
+ALL TESTS PASSED?
+□ YES - Proceed to monitoring
+□ NO - See rollback section below
+
+================================================================================
+LOG MONITORING - FIRST HOUR (Check every 15 minutes)
+================================================================================
+
+TIME: _____:_____ (Start time)
+
+CHECK 1: 15 MINUTES (____:____)
+□ Vercel logs - no 500 errors
+□ Supabase logs - no RLS violations
+□ Browser console - no errors
+□ Response times <500ms
+Notes: _______________________________________________________________
+
+CHECK 2: 30 MINUTES (____:____)
+□ Vercel logs - no 500 errors
+□ Supabase logs - no RLS violations
+□ Response times <500ms
+□ No user complaints
+Notes: _______________________________________________________________
+
+CHECK 3: 45 MINUTES (____:____)
+□ Vercel logs - no 500 errors
+□ Supabase logs - no RLS violations
+□ Performance stable
+□ No anomalies
+Notes: _______________________________________________________________
+
+CHECK 4: 60 MINUTES (____:____)
+□ Vercel logs - no 500 errors
+□ Supabase logs - no RLS violations
+□ All metrics normal
+□ Deployment successful
+Notes: _______________________________________________________________
+
+ALL CHECKS PASSED?
+□ YES - Deployment complete! 🎉
+□ NO - Investigate issues, consider rollback
+
+================================================================================
+ROLLBACK PROCEDURE (IF NEEDED)
+================================================================================
+
+IMMEDIATE ROLLBACK (GIT)
+□ cd D:\Projects\Cathcr
+□ git revert HEAD
+□ git push origin main
+□ Wait 2-3 minutes for Vercel redeploy
+□ Test critical paths again
+
+VERCEL DASHBOARD ROLLBACK
+□ Go to: https://vercel.com/cathcr/deployments
+□ Find previous successful deployment
+□ Click "..." menu
+□ Click "Promote to Production"
+□ Test critical paths again
+
+DATABASE ROLLBACK (IF MIGRATION APPLIED)
+□ Open Supabase SQL Editor
+□ Run: ALTER TABLE thoughts DROP COLUMN title;
+□ Run: ALTER TABLE thoughts DROP COLUMN is_pinned;
+□ Run: DROP INDEX IF EXISTS idx_thoughts_pinned;
+□ Verify rollback successful
+
+ROLLBACK COMPLETED?
+□ YES - Document issues for team
+□ NO - Escalate to senior engineer
+
+================================================================================
+FINAL SIGN-OFF
+================================================================================
+
+DEPLOYMENT SUMMARY
+Deployment started: ____:____ on __________
+Deployment completed: ____:____ on __________
+Total time: _______ minutes
+
+RESULTS
+□ All tests passed
+□ All monitoring checks passed
+□ No rollback required
+□ Production stable
+
+ISSUES ENCOUNTERED (if any)
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+LESSONS LEARNED
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+DEPLOYED BY: _______________________________  DATE: ___________
+
+REVIEWED BY: _______________________________  DATE: ___________
+
+APPROVED FOR COMPLETION: □ YES  □ NO (requires follow-up)
+
+================================================================================
+                          END OF CHECKLIST
+          Keep this on file for deployment documentation
+================================================================================

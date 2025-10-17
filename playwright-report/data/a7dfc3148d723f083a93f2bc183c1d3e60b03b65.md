@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- main [ref=e6]:
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - img [ref=e13]
+      - heading "Cathcr" [level=1] [ref=e23]
+      - paragraph [ref=e24]: AI-powered thought capture and organization
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - img [ref=e30]
+        - heading "Welcome Back" [level=1] [ref=e40]
+        - paragraph [ref=e41]: Sign in to continue capturing your thoughts
+      - generic [ref=e42]:
+        - img [ref=e43]
+        - paragraph [ref=e45]: Invalid login credentials
+      - generic [ref=e46]:
+        - button "Continue with Google" [ref=e47] [cursor=pointer]:
+          - img [ref=e49] [cursor=pointer]
+          - text: Continue with Google
+        - button "Continue with GitHub" [ref=e54] [cursor=pointer]:
+          - img [ref=e56] [cursor=pointer]
+          - text: Continue with GitHub
+        - generic [ref=e63]: or
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - img [ref=e67]
+          - textbox "Email address" [ref=e70]
+        - generic [ref=e72]:
+          - img [ref=e74]
+          - textbox "Password" [ref=e77]
+          - button [ref=e78] [cursor=pointer]:
+            - img [ref=e79] [cursor=pointer]
+        - button "Sign In" [ref=e82] [cursor=pointer]
+      - generic [ref=e83]:
+        - button "Forgot your password?" [ref=e85] [cursor=pointer]
+        - button "Or sign in with magic link" [ref=e87] [cursor=pointer]
+        - paragraph [ref=e89]:
+          - text: Don't have an account?
+          - button "Sign up" [ref=e90] [cursor=pointer]
+```
