@@ -9,13 +9,17 @@ import { authenticateTestUser } from '../helpers/auth';
  *
  * USER REPORT: "voice to note conversion isn't happening - transcription works but no note is created"
  *
+ * MIGRATION 004 COMPATIBILITY:
+ * - Voice notes now include title (extracted from transcript) and is_pinned (default false)
+ * - Database INSERT must succeed with new schema columns
+ *
  * FLOW TO DEBUG:
  * 1. User clicks FAB → Modal opens ✅
  * 2. User starts recording → MediaRecorder starts ✅
  * 3. User stops recording → Audio sent to Whisper API ✅
  * 4. Whisper returns transcript → onTranscriptComplete fires ❓
  * 5. handleVoiceNoteComplete called → createNote executed ❓
- * 6. Database INSERT happens → Note saved ❓
+ * 6. Database INSERT happens (with title & is_pinned) → Note saved ❓
  * 7. UI updates → Note appears in list ❓
  *
  * This test will pinpoint which arrow (→) is broken

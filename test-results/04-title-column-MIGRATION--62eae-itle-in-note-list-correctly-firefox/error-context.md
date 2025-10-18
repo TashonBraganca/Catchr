@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- main [ref=e6]:
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - img [ref=e13]
+      - heading "Cathcr" [level=1] [ref=e23]
+      - paragraph [ref=e24]: AI-powered thought capture and organization
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - img [ref=e30]
+        - heading "Create Account" [level=1] [ref=e40]
+        - paragraph [ref=e41]: Join thousands of users organizing their minds
+      - generic [ref=e42]:
+        - button "Continue with Google" [ref=e43] [cursor=pointer]:
+          - img [ref=e45] [cursor=pointer]
+          - text: Continue with Google
+        - button "Continue with GitHub" [ref=e51] [cursor=pointer]:
+          - img [ref=e53] [cursor=pointer]
+          - text: Continue with GitHub
+        - generic [ref=e60]: or
+      - generic [ref=e61]:
+        - generic [ref=e63]:
+          - img [ref=e65]
+          - textbox "Username" [ref=e68]: Test User
+        - generic [ref=e69]:
+          - img [ref=e71]
+          - textbox "Email address" [ref=e74]: test@cathcr.com
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - img [ref=e78]
+            - textbox "Password" [ref=e81]: TestPassword123!
+            - button [ref=e82] [cursor=pointer]:
+              - img [ref=e83] [cursor=pointer]
+          - generic [ref=e86]:
+            - img [ref=e88]
+            - textbox "Confirm password" [active] [ref=e91]
+            - button [ref=e92] [cursor=pointer]:
+              - img [ref=e93] [cursor=pointer]
+        - button "Create Account" [ref=e96] [cursor=pointer]
+      - generic [ref=e97]:
+        - button "Or sign in with magic link" [ref=e99] [cursor=pointer]
+        - paragraph [ref=e101]:
+          - text: Already have an account?
+          - button "Sign in" [ref=e102] [cursor=pointer]
+```

@@ -7,11 +7,16 @@ import { authenticateTestUser } from '../helpers/auth';
  * PURPOSE: Verify that basic note creation works before testing voice flow
  * This establishes that createNote() and database INSERT work correctly
  *
+ * MIGRATION 004 COMPATIBILITY:
+ * - Tests now verify title and is_pinned columns work correctly
+ * - New notes should have title extracted from content or default to 'Untitled'
+ * - New notes should have is_pinned = false by default
+ *
  * SUCCESS CRITERIA:
  * - User can click "+ New" button
  * - Modal opens with textarea
  * - User can type content
- * - Note saves to database
+ * - Note saves to database with title and is_pinned fields
  * - Note appears in UI list
  * - Note persists after page reload
  */
