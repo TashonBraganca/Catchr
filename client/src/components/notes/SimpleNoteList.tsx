@@ -20,6 +20,7 @@ interface SimpleNoteListProps {
   notes: NoteListItem[];
   selectedNoteId?: string | null;
   onNoteSelect: (noteId: string) => void;
+  onTogglePin?: (noteId: string) => void;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ const SimpleNoteList: React.FC<SimpleNoteListProps> = ({
   notes,
   selectedNoteId,
   onNoteSelect,
+  onTogglePin,
   className,
 }) => {
   // Empty state
@@ -55,6 +57,7 @@ const SimpleNoteList: React.FC<SimpleNoteListProps> = ({
             note={note}
             isSelected={selectedNoteId === note.id}
             onSelect={onNoteSelect}
+            onTogglePin={onTogglePin}
           />
         ))}
       </div>
@@ -67,17 +70,25 @@ interface NoteItemProps {
   note: NoteListItem;
   isSelected: boolean;
   onSelect: (noteId: string) => void;
+  onTogglePin?: (noteId: string) => void;
 }
 
-const NoteItem: React.FC<NoteItemProps> = ({ note, isSelected, onSelect }) => {
+const NoteItem: React.FC<NoteItemProps> = ({ note, isSelected, onSelect, onTogglePin }) => {
   const handleClick = useCallback(() => {
     onSelect(note.id);
   }, [note.id, onSelect]);
 
+  const handlePinClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent note selection when clicking pin
+    if (onTogglePin) {
+      onTogglePin(note.id);
+    }
+  }, [note.id, onTogglePin]);
+
   return (
     <button
       className={cn(
-        "w-full p-4 text-left hover:bg-[#f8f9fa] transition-colors",
+        "w-full p-4 text-left hover:bg-[#f8f9fa] transition-colors group",
         "flex flex-col space-y-2 focus:outline-none focus:ring-2 focus:ring-[#007aff]/20",
         isSelected && "bg-[#007aff]/10 border-l-4 border-l-[#007aff]"
       )}
@@ -87,11 +98,17 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, isSelected, onSelect }) => {
       {/* Note Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-2 flex-1 min-w-0">
-          {note.isPinned && (
-            <span className="text-[#f59e0b] text-sm flex-shrink-0" aria-label="Pinned note">
-              📌
-            </span>
-          )}
+          <button
+            onClick={handlePinClick}
+            className={cn(
+              "text-sm flex-shrink-0 hover:scale-110 transition-transform",
+              note.isPinned ? "text-[#f59e0b]" : "text-[#8e8e93] opacity-0 group-hover:opacity-100"
+            )}
+            aria-label={note.isPinned ? "Unpin note" : "Pin note"}
+            title={note.isPinned ? "Unpin note" : "Pin note"}
+          >
+            📌
+          </button>
           <h3 className="font-medium text-[#1d1d1f] text-sm line-clamp-1 flex-1">
             {note.title || 'Untitled Note'}
           </h3>

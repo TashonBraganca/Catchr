@@ -637,6 +637,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 notes={transformedNotes}
                 selectedNoteId={selectedNote}
                 onNoteSelect={setSelectedNote}
+                onTogglePin={togglePin}
               />
             )}
           </div>
@@ -685,9 +686,17 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   />
                   <div className="flex items-center space-x-2">
                     <motion.button
-                      className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93] focus-ring"
+                      className={cn(
+                        "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center focus-ring",
+                        transformedNotes.find(n => n.id === selectedNote)?.isPinned
+                          ? "text-[#f59e0b]"
+                          : "text-[#8e8e93]"
+                      )}
                       whileHover={{ scale: 1.1, rotate: 10 }}
                       whileTap={{ scale: 0.9 }}
+                      onClick={() => selectedNote && togglePin(selectedNote)}
+                      title={transformedNotes.find(n => n.id === selectedNote)?.isPinned ? "Unpin note" : "Pin note"}
+                      aria-label={transformedNotes.find(n => n.id === selectedNote)?.isPinned ? "Unpin note" : "Pin note"}
                     >
                       📌
                     </motion.button>
