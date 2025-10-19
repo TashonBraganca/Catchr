@@ -15,7 +15,7 @@ import { toast, Toaster } from 'sonner';
 // Lazy load voice capture component for better performance
 const SimpleVoiceCapture = React.lazy(() => import('@/components/capture/SimpleVoiceCapture'));
 
-// APPLE NOTES + TODOIST INSPIRED APP SHELL
+// DARK THEME + ORANGE GLASS PANELS
 // Three-panel layout: Sidebar (320px->64px) | Note List (300px) | Editor (flexible)
 
 interface AppShellProps {
@@ -372,7 +372,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
       "text-white font-system",
       className
     )}>
-      {/* Apple Notes Style Three-Panel Layout */}
+      {/* DARK THEME + ORANGE GLASS Three-Panel Layout */}
       <div className="flex w-full h-full relative">
 
         {/* Left Sidebar - Projects & Smart Collections */}
@@ -397,14 +397,14 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             type: "tween"
           }}
           whileHover={{
-            boxShadow: "4px 0 20px rgba(0, 0, 0, 0.05)"
+            boxShadow: "4px 0 20px rgba(245, 158, 11, 0.1)"
           }}
         >
           <div className="h-full flex flex-col">
             {/* Sidebar Header */}
-            <div className="h-14 flex items-center justify-between px-4 border-b border-[#e5e5e7]">
+            <div className="h-14 flex items-center justify-between px-4 border-b border-white/10">
               {!sidebarCollapsed && (
-                <h1 className="text-lg font-semibold text-[#1d1d1f]">Notes</h1>
+                <h1 className="text-lg font-semibold text-white">Notes</h1>
               )}
               <motion.button
                 data-testid="sidebar-toggle"
@@ -417,7 +417,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 )}
                 whileHover={{
                   scale: 1.05,
-                  backgroundColor: "rgba(0, 122, 255, 0.1)"
+                  backgroundColor: "rgba(245, 158, 11, 0.1)"
                 }}
                 whileTap={{
                   scale: 0.95,
@@ -466,8 +466,8 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   data-testid="project-item"
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 rounded-lg",
-                    "hover:bg-[#f2f2f7] transition-all duration-200 text-left focus-ring",
-                    selectedProject === collection.id && "bg-[#007aff] text-white shadow-md"
+                    "hover:bg-white/10 transition-all duration-200 text-left focus-ring",
+                    selectedProject === collection.id && "bg-orange-500/20 text-orange-500 shadow-md"
                   )}
                   onClick={() => setSelectedProject(collection.id)}
                   initial={{ opacity: 0, x: -20 }}
@@ -492,13 +492,13 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   </motion.span>
                   {!sidebarCollapsed && (
                     <>
-                      <span className="flex-1 text-sm font-medium">{collection.name}</span>
+                      <span className="flex-1 text-sm font-medium text-white">{collection.name}</span>
                       <motion.span
                         className={cn(
                           "text-xs px-2 py-1 rounded-full",
                           selectedProject === collection.id
-                            ? "bg-white/20 text-white"
-                            : "bg-[#8e8e93]/20 text-[#8e8e93]"
+                            ? "bg-orange-500/30 text-orange-300"
+                            : "bg-white/10 text-white/60"
                         )}
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.15 }}
@@ -515,10 +515,10 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             {!sidebarCollapsed && (
               <div className="flex-1 p-2">
                 <div className="flex items-center justify-between px-3 py-2">
-                  <h3 className="text-sm font-medium text-[#8e8e93] uppercase tracking-wide">Projects</h3>
+                  <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide">Projects</h3>
                   <button
                     onClick={() => setShowNewNoteModal(true)}
-                    className="w-6 h-6 rounded-full bg-[#007aff] text-white flex items-center justify-center text-xs hover:bg-[#0056cc] transition-colors"
+                    className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs hover:bg-orange-600 transition-colors"
                     title="Create new note"
                     aria-label="Create new note"
                   >
@@ -537,8 +537,8 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                       key={project.id}
                       className={cn(
                         "w-full flex items-center space-x-3 px-3 py-2 rounded-lg",
-                        "hover:bg-[#f2f2f7] transition-colors text-left",
-                        selectedProject === project.id && "bg-[#007aff] text-white"
+                        "hover:bg-white/10 transition-colors text-left",
+                        selectedProject === project.id && "bg-orange-500/20 text-orange-500"
                       )}
                       onClick={() => setSelectedProject(project.id)}
                     >
@@ -546,12 +546,12 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: project.color }}
                       />
-                      <span className="flex-1 text-sm font-medium">{project.name}</span>
+                      <span className="flex-1 text-sm font-medium text-white">{project.name}</span>
                       <span className={cn(
                         "text-xs px-2 py-1 rounded-full",
                         selectedProject === project.id
-                          ? "bg-white/20 text-white"
-                          : "bg-[#8e8e93]/20 text-[#8e8e93]"
+                          ? "bg-orange-500/30 text-orange-300"
+                          : "bg-white/10 text-white/60"
                       )}>
                         {project.count}
                       </span>
@@ -578,22 +578,22 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         >
           <div className="h-full flex flex-col">
             {/* Note List Header */}
-            <div className="border-b border-[#e5e5e7]">
+            <div className="border-b border-white/10">
               <div className="h-14 flex items-center justify-between px-4">
                 <div className="flex-1">
-                  <h2 className="text-lg font-semibold text-[#1d1d1f]">
+                  <h2 className="text-lg font-semibold text-white">
                     {selectedProject ?
                       selectedProject.charAt(0).toUpperCase() + selectedProject.slice(1) :
                       'All Notes'
                     }
                   </h2>
-                  <p className="text-sm text-[#8e8e93]">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</p>
+                  <p className="text-sm text-white/60">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</p>
                 </div>
 
                 {/* NEW NOTE BUTTON - CRITICAL FIX */}
                 <button
                   onClick={() => setShowNewNoteModal(true)}
-                  className="px-3 py-1.5 bg-[#007aff] text-white text-sm font-medium rounded-lg hover:bg-[#0056cc] transition-colors flex items-center space-x-1"
+                  className="px-3 py-1.5 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-1"
                   title="Create new note"
                   aria-label="Create new note"
                 >
@@ -616,8 +616,8 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center space-y-2">
-                  <div className="w-6 h-6 border-2 border-[#007aff] border-t-transparent rounded-full animate-spin" />
-                  <p className="text-sm text-[#8e8e93]">Loading notes...</p>
+                  <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-white/60">Loading notes...</p>
                 </div>
               </div>
             ) : error ? (
@@ -626,7 +626,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   <p className="text-sm text-red-500 mb-2">⚠️ {error}</p>
                   <button
                     onClick={() => window.location.reload()}
-                    className="text-xs text-[#007aff] hover:underline"
+                    className="text-xs text-orange-500 hover:underline"
                   >
                     Reload page
                   </button>
@@ -658,7 +658,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
               <>
                 {/* Editor Header - hides when writing */}
                 <motion.div
-                  className="h-14 flex items-center justify-between px-4 lg:px-6 border-b border-[#e5e5e7]"
+                  className="h-14 flex items-center justify-between px-4 lg:px-6 border-b border-white/10"
                   animate={{
                     opacity: isWriting ? 0 : 1,
                     y: isWriting ? -20 : 0
@@ -667,7 +667,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 >
                   {/* Mobile Back Button */}
                   <motion.button
-                    className="lg:hidden w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#007aff] mr-2"
+                    className="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center text-orange-500 mr-2"
                     onClick={() => setSelectedNote(null)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -680,17 +680,17 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
                   <input
                     type="text"
-                    className="text-lg font-semibold text-[#1d1d1f] bg-transparent border-none outline-none flex-1 focus-ring"
+                    className="text-lg font-semibold text-white bg-transparent border-none outline-none flex-1 focus-ring placeholder:text-white/40"
                     defaultValue="Note Title"
                     placeholder="Note title..."
                   />
                   <div className="flex items-center space-x-2">
                     <motion.button
                       className={cn(
-                        "w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center focus-ring",
+                        "w-8 h-8 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center focus-ring",
                         transformedNotes.find(n => n.id === selectedNote)?.isPinned
-                          ? "text-[#f59e0b]"
-                          : "text-[#8e8e93]"
+                          ? "text-orange-500"
+                          : "text-white/60"
                       )}
                       whileHover={{ scale: 1.1, rotate: 10 }}
                       whileTap={{ scale: 0.9 }}
@@ -701,7 +701,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                       📌
                     </motion.button>
                     <motion.button
-                      className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93] focus-ring"
+                      className="w-8 h-8 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center text-white/60 focus-ring"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
@@ -726,7 +726,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                   <textarea
                     ref={editorRef}
                     className={cn(
-                      "w-full h-full resize-none border-none outline-none text-[#1d1d1f] leading-relaxed transition-all duration-300",
+                      "w-full h-full resize-none border-none outline-none text-white leading-relaxed transition-all duration-300 bg-transparent placeholder:text-white/40",
                       isWriting ? "text-lg leading-loose" : "text-base"
                     )}
                     placeholder="Start writing... Select text to see formatting options appear."
@@ -743,7 +743,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
 
                   {/* Writing mode indicator */}
                   <motion.div
-                    className="absolute bottom-4 right-4 px-3 py-1 bg-[#007aff] text-white text-xs rounded-full"
+                    className="absolute bottom-4 right-4 px-3 py-1 bg-orange-500 text-white text-xs rounded-full"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{
                       opacity: isWriting ? 1 : 0,
@@ -758,11 +758,11 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-20 h-20 bg-[#f2f2f7] rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4 mx-auto">
                     <span className="text-2xl">📝</span>
                   </div>
-                  <h3 className="text-lg font-medium text-[#1d1d1f] mb-2">Select a note</h3>
-                  <p className="text-sm text-[#8e8e93]">Choose a note from the list to view or edit</p>
+                  <h3 className="text-lg font-medium text-white mb-2">Select a note</h3>
+                  <p className="text-sm text-white/60">Choose a note from the list to view or edit</p>
                 </div>
               </div>
             )}
@@ -776,9 +776,9 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         aria-label="Open voice capture"
         className={cn(
           "fixed w-14 h-14 rounded-full",
-          "bg-[#007aff] text-white shadow-lg focus-ring",
+          "bg-orange-500 text-white shadow-lg focus-ring",
           "flex items-center justify-center",
-          "hover:bg-[#0056cc] transition-all duration-200",
+          "hover:bg-orange-600 transition-all duration-200",
           "z-50",
           // Responsive positioning - mobile safe area
           "bottom-6 right-6 md:bottom-8 md:right-8",
@@ -795,7 +795,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         }}
         whileHover={{
           scale: 1.1,
-          boxShadow: "0 8px 32px rgba(0, 122, 255, 0.4)"
+          boxShadow: "0 8px 32px rgba(245, 158, 11, 0.4)"
         }}
         whileTap={{
           scale: 0.9,
@@ -829,7 +829,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
           <>
             {/* Backdrop */}
             <motion.div
-              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
               animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
               exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
@@ -856,7 +856,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 <motion.button
                   data-testid="modal-close"
                   aria-label="Close voice capture modal"
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-[#8e8e93] text-white rounded-full flex items-center justify-center z-10 hover:bg-[#6d6d70] transition-all duration-200 focus-ring"
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-white/20 text-white rounded-full flex items-center justify-center z-10 hover:bg-red-500 transition-all duration-200 focus-ring"
                   onClick={() => setShowVoiceCapture(false)}
                   initial={{ scale: 0, rotate: -90 }}
                   animate={{ scale: 1, rotate: 0 }}
@@ -883,10 +883,10 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 </motion.button>
 
                 <Suspense fallback={
-                  <div className="w-80 h-64 bg-white rounded-2xl border border-[#e5e5e7] shadow-2xl flex items-center justify-center">
+                  <div className="w-80 h-64 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl flex items-center justify-center">
                     <div className="flex flex-col items-center space-y-2">
-                      <div className="w-6 h-6 border-2 border-[#007aff] border-t-transparent rounded-full animate-spin" />
-                      <p className="text-sm text-[#8e8e93]">Loading voice capture...</p>
+                      <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                      <p className="text-sm text-white/60">Loading voice capture...</p>
                     </div>
                   </div>
                 }>
@@ -907,25 +907,25 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         )}
       </AnimatePresence>
 
-      {/* NEW NOTE MODAL - Simple and fast */}
+      {/* NEW NOTE MODAL - Dark theme */}
       <AnimatePresence>
         {showNewNoteModal && (
           <>
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-black/20 z-50"
+              className="fixed inset-0 bg-black/60 z-50"
               onClick={() => setShowNewNoteModal(false)}
             />
 
             {/* Modal */}
             <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-xl border border-[#e5e5e7] shadow-xl w-full max-w-lg p-6">
+              <div className="bg-black/90 backdrop-blur-xl rounded-xl border border-white/10 shadow-xl w-full max-w-lg p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-[#1d1d1f]">New Note</h3>
+                  <h3 className="text-lg font-semibold text-white">New Note</h3>
                   <button
                     onClick={() => setShowNewNoteModal(false)}
-                    className="w-8 h-8 rounded-lg hover:bg-[#f2f2f7] transition-colors flex items-center justify-center text-[#8e8e93]"
+                    className="w-8 h-8 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center text-white/60"
                     aria-label="Close"
                   >
                     ✕
@@ -935,7 +935,7 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 {/* Content */}
                 <textarea
                   ref={newNoteContentRef}
-                  className="w-full h-48 p-3 border border-[#e5e5e7] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#007aff] focus:border-transparent text-[#1d1d1f] placeholder:text-[#8e8e93]"
+                  className="w-full h-48 p-3 border border-white/10 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/5 text-white placeholder:text-white/40"
                   placeholder="Start writing your note..."
                   autoFocus
                 />
@@ -944,13 +944,13 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
                 <div className="flex items-center justify-end space-x-2 mt-4">
                   <button
                     onClick={() => setShowNewNoteModal(false)}
-                    className="px-4 py-2 text-[#8e8e93] hover:bg-[#f2f2f7] rounded-lg transition-colors"
+                    className="px-4 py-2 text-white/60 hover:bg-white/10 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateNewNote}
-                    className="px-4 py-2 bg-[#007aff] text-white rounded-lg hover:bg-[#0056cc] transition-colors font-medium"
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
                   >
                     Create Note
                   </button>
@@ -961,16 +961,17 @@ const AppShellComponent: React.FC<AppShellProps> = ({ children, className }) => 
         )}
       </AnimatePresence>
 
-      {/* Toast Notifications */}
+      {/* Toast Notifications - Dark theme */}
       <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#fff',
-            color: '#1d1d1f',
-            border: '1px solid #e5e5e7',
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: '#fff',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '12px',
             padding: '16px',
+            backdropFilter: 'blur(20px)',
           },
           className: 'font-system',
           duration: 3000,
