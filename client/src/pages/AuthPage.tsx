@@ -39,9 +39,6 @@ export const AuthPage: React.FC = () => {
               dividerText: 'text-white/60',
             },
           }}
-          routing="path"
-          path="/sign-in"
-          signUpUrl="/sign-up"
         />
       </div>
     </div>
