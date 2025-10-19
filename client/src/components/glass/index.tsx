@@ -73,7 +73,7 @@ const glassVariants = cva(
         bento: [
           "glass-light",
           "rounded-3xl p-8",
-          "hover:glass-hover hover:scale-[1.02]",
+          "hover:glass-hover",
           "shadow-glass-subtle hover:shadow-glass-medium",
           "transition-all duration-300"
         ],
@@ -155,7 +155,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         variant={variant}
         className={cn(
           "group relative overflow-hidden",
-          interactive && "cursor-pointer select-none hover:scale-[1.02] transition-transform duration-200",
+          interactive && "cursor-pointer select-none transition-transform duration-200",
           className
         )}
         role={interactive ? "button" : undefined}

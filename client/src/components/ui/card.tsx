@@ -72,7 +72,7 @@ const cardVariants = cva(
         // Bento Card - Grid layout optimized
         bento: [
           "glass-card text-white relative overflow-hidden",
-          "hover:scale-[1.02] hover:shadow-orange-electric transition-all duration-300"
+          "hover:shadow-orange-electric transition-all duration-300"
         ],
       },
       size: {
